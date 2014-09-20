@@ -21,6 +21,22 @@ class PublicPrizeTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def test_contribution(self):
+        self._visit_uri('/')
+        self._follow_link('Esprit Venture Challenge 2014')
+        self._follow_link('gazeMetrix')
+        self._submit_form({
+        })
+        self._verify_text('Please enter an amount.')
+        self._submit_form({
+            'amount': 1,
+        })
+        self._verify_text('Amount must be at least \$10')
+        self._submit_form({
+            'amount': 10000001,
+        })
+        self._verify_text('Amount too large')
+
     def test_index(self):
         self._visit_uri('/')
         self._verify_text('Empty Contest')
