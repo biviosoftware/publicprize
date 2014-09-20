@@ -1,31 +1,39 @@
 
-{%- macro error_class(form, field) -%}
-  {% if form[field].errors %}has-error{% endif %}
+{%- macro error_class(field) -%}
+  {% if field.errors %}has-error{% endif %}
 {%- endmacro -%}
 
-{%- macro errors(form, field) -%}
-  {% if form[field].errors %}
-    <span class="pp-form-error text-danger"><strong>{{ form[field].errors[0] }}</strong></span>
+{%- macro errors(field) -%}
+  {% if field.errors %}
+    <span class="pp-form-error text-danger"><strong>{{ field.errors[0] }}</strong></span>
   {% endif %}
 {%- endmacro -%}
 
-{%- macro field(form, field, help_text=None) -%}
-  <div class="form-group {{ error_class(form, field) }}">
-    {{ form[field].label }}
-    {{ errors(form, field) }}
+{%- macro form_field(field, help_text=None, hint=None, label=None) -%}
+  <div class="form-group {{ error_class(field) }}">
+    {%- if hint -%}
+      {{ label_with_hint(field, hint, label=label) }}
+    {% else %}
+      {{ label or field.label }}
+    {%- endif -%}
+    {{ errors(field) }}
     {%- if help_text -%}
       <div class="input-group">
-        {{ form[field](class="form-control") }}
+        {{ field(class="form-control") }}
         <span class="input-group-addon"><span class= "pp-tooltip" data-toggle="tooltip" title="{{ help_text }}"><span class="glyphicon glyphicon-info-sign text-primary"></span></span></span>
       </div>
     {% else %}
-      {{ form[field](class="form-control") }}
+      {{ field(class="form-control") }}
     {% endif %}
   </div>
 {%- endmacro -%}
 
 {%- macro mobile_tag(name) -%}
   {%- if request.MOBILE -%}/#{{ name }}{%- endif -%}
+{%- endmacro -%}
+
+{%- macro label_with_hint(field, hint, label=None) -%}
+  <label for="{{ field.name }}">{{ label or field.label.text }} <span class="text-muted"><small>({{ hint }})</small></span></label>
 {%- endmacro -%}
   
 {%- macro submit_button(text) -%}  

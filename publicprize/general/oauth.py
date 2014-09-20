@@ -81,6 +81,15 @@ def logout():
     return flask.redirect('/')
 
 
+def _avatar_url_from_info(oauth_type, info):
+    """Returns a URL for the user avatar, depending on oauth_type"""
+    if oauth_type == 'facebook':
+        return 'https://graph.facebook.com/{}/picture?type=square'.format(
+            info['id'])
+    elif oauth_type == 'google':
+        return info.get('picture')
+    return None
+    
 def _clear_session(clear_oauth_type=False):
     """Clear the login state from the session"""
     flask.session['user.is_logged_in'] = False
@@ -162,16 +171,15 @@ def _user_from_info(oauth_type, info):
     if user:
         user.display_name = info['name']
         user.user_email = info['email']
+        user.avatar_url = _avatar_url_from_info(oauth_type, info)
     else:
         user = ppam.User(
             display_name=info['name'],
             user_email=info['email'],
             oauth_type=oauth_type,
-            oauth_id=info['id']
+            oauth_id=info['id'],
+            avatar_url=_avatar_url_from_info(oauth_type, info)
         )
-    # TODO(pjm): download user avatar
-    # facebook: https://graph.facebook.com/{id}/picture?type=square
-    # google: image url provided in info.picture field
     add_user_to_session(user)
 
 

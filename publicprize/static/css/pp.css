@@ -242,8 +242,10 @@ a.pp-selected-button:hover {
   margin: 0;
   margin-bottom: 5px;
 }
-.pp-founders .pp-item {
+.pp-founders .pp-item-with-avatar {
   float: left;
+}
+.pp-founders .pp-item {
   margin: 10px 0;
 }
 .pp-founders .pp-thumb {

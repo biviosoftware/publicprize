@@ -41,6 +41,7 @@ class User(db.Model, common.ModelWithDates):
         user_email: user's email addrses
         oauth_type: the oauth server used to authenticate
         oauth_id: the user ID on the oauth server
+        avatar_url: user's avatar
     """
     # don't conflict with postgres "user" table
     __tablename__ = 'user_t'
@@ -58,6 +59,7 @@ class User(db.Model, common.ModelWithDates):
         nullable=False
     )
     oauth_id = db.Column(db.String(100), nullable=False)
+    avatar_url = db.Column(db.String(100))
     __table_args__ = (sqlalchemy.UniqueConstraint('oauth_type', 'oauth_id'),)
 
 BivAccess.BIV_MARKER = biv.register_marker(5, BivAccess)

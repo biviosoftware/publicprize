@@ -58,7 +58,7 @@
     	<option value="{{ contest.format_uri(value) }}"
       	    {%- if selected == value %} selected="selected"{% endif -%}>
 	    {{- text -}}
-	    {% if count %}{{ " (" ~ count ~ ")" }}{% endif -%}
+	    {% if count %} ({{ count }}){% endif -%}
 	</option>
     {%- endmacro -%}
     <select class="pp-menu-xs form-control visible-xs" onchange="window.location = this.options[this.selectedIndex].value;">

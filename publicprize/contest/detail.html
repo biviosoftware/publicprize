@@ -28,7 +28,7 @@
 	pp-hidden-slider
 	{%- endif -%}
 	">
-      <div class="form-group {{ macros.error_class(form, 'amount') }}">
+      <div class="form-group {{ macros.error_class(form.amount) }}">
        	<div class="input-group pp-amount-bar">
     	  <span class="input-group-addon"><strong>$</strong></span>
 	    {{ form['amount'](class="form-control") }}
@@ -77,17 +77,20 @@
     	<h3 class="pp-heading">Founders</h3>
 
     	{% for founder in founders %}
-
-    	    <div class="pp-item">
-
-	      {% if founder.founder_avatar %}
-    	    	<img class="pp-thumb" src="{{ founder.format_uri('founder-avatar') }}" alt="{{ founder.display_name }}"/>
-	      {% endif %}
+	  {% if founder.founder_avatar %}
+    	    <div class="pp-item pp-item-with-avatar">
+    	      <img class="pp-thumb" src="{{ founder.format_uri('founder-avatar') }}" alt="{{ founder.display_name }}"/>
     	    	<span class="pp-name">{{ founder.display_name }}</span>
 		&ndash;
     	    	<span class="pp-desc">{{ founder.founder_desc }}</span>
     	    </div>
-
+	  {% else %}
+	    <div class="pp-item">
+    	    	<span class="pp-name">{{ founder.display_name }}</span>
+		&ndash;
+    	    	<span class="pp-desc">{{ founder.founder_desc }}</span>
+	    </div>
+	  {% endif %}
     	{% endfor %}
 
     </div>

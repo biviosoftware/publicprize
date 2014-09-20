@@ -12,37 +12,34 @@ Submit Contest Entry
   <form method="POST" action="{{ contest.format_uri('submit-contestant') }}">
     <h1>Submit Your Entry</h1>
     {{ form.csrf_token() }}
-    {{ macros.field(form, 'display_name') }}
-    <div class="form-group has-feedback {{ macros.error_class(form, 'contestant_desc') }}">
+    {{ macros.form_field(form.display_name) }}
+    <div class="form-group has-feedback {{ macros.error_class(form.contestant_desc) }}">
       {{ form.contestant_desc.label }}
-      {{ macros.errors(form, 'contestant_desc') }}
+      {{ macros.errors(form.contestant_desc) }}
       <div class="input-group">
         {{ form.contestant_desc(rows=5, class="form-control") }}
         <span class="input-group-addon"><span class= "pp-tooltip" data-toggle="tooltip" title="The summary should be catchy to entice the public to read more."><span class="glyphicon glyphicon-info-sign text-primary"></span></span></span>
       </div>
     </div>
-    {{ macros.field(form, 'youtube_url', 'The video should appeal to
+    {{ macros.form_field(form.youtube_url, 'The video should appeal to
       the general public, similar to what might
       be done for Kickstarter.') }}
-    {{ macros.field(form, 'slideshow_url', 'The slides should be a
+    {{ macros.form_field(form.slideshow_url, 'The slides should be a
       standard pitch deck without a lot of detail.  You may narrate
       the slides if you like, but don\'t duplicate what\'s in the pitch
       video.  The slides are from the  business perspective.') }}
-    <div class="form-group {{ macros.error_class(form, 'website') }}">
-      <label for="website">{{ form.website.label.text }} <span class="text-muted"><small>(Optional)</small></span></label>
-      {{ macros.errors(form, 'website') }}
-      {{ form.website(class="form-control") }}
-    </div>
-    <div class="form-group {{ macros.error_class(form, 'founder_desc') }}">
-      <label for="founder_desc">{{ form.founder_desc.label.text }} <span class="text-muted"><small>(100 words or less)</small></span></label>
-      {{ macros.errors(form, 'founder_desc') }}
-      {{ form.founder_desc(class="form-control") }}
-    </div>
-    {{ macros.field(form, 'tax_id') }}
-    {{ macros.field(form, 'business_phone') }}
-    {{ macros.field(form, 'business_address') }}
-    <div class="form-group {{ macros.error_class(form, 'agree_to_terms') }}">
-      {{ macros.errors(form, 'agree_to_terms') }}
+    {{ macros.form_field(form.website, hint='Optional') }}
+    {{ macros.form_field(form.tax_id) }}
+    {{ macros.form_field(form.business_phone) }}
+    {{ macros.form_field(form.business_address) }}
+    {{ macros.form_field(form.founder_desc, hint='100 words or less',
+        label=session['user.display_name'] ~ '\'s Bio') }}
+    {{ macros.form_field(form.founder2_name, hint="Optional") }}
+    {{ macros.form_field(form.founder2_desc, hint="Optional") }}
+    {{ macros.form_field(form.founder3_name, hint="Optional") }}
+    {{ macros.form_field(form.founder3_desc, hint="Optional") }}
+    <div class="form-group {{ macros.error_class(form.agree_to_terms) }}">
+      {{ macros.errors(form.agree_to_terms) }}
       {{ form['agree_to_terms'](class="pp-agree-checkbox") }}
       <label for="{{ form.agree_to_terms.name }}">I Agree to the
 	<a href="{{ g.pub_obj.format_uri('terms') }}">Terms of Use</a>

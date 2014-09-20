@@ -43,7 +43,7 @@ class Contestant(flask_wtf.Form):
     slideshow_url = wtforms.StringField(
         'SlideShare Pitch Deck URL', validators=[wtfv.DataRequired()])
     founder_desc = wtforms.TextAreaField(
-        'Your Short Bio', validators=[wtfv.DataRequired()])
+        'Your Bio', validators=[wtfv.DataRequired()])
     website = wtforms.StringField('Business Website')
     tax_id = wtforms.StringField(
         'Business US Tax Id', validators=[wtfv.DataRequired()])
@@ -53,6 +53,10 @@ class Contestant(flask_wtf.Form):
         'Business Mailing Address', validators=[wtfv.DataRequired()])
     agree_to_terms = wtforms.BooleanField(
         'Agree to Terms of Service', validators=[wtfv.DataRequired()])
+    founder2_name = wtforms.StringField('Other Founder Name')
+    founder2_desc = wtforms.TextAreaField('Other Founder Bio')
+    founder3_name = wtforms.StringField('Other Founder Name')
+    founder3_desc = wtforms.TextAreaField('Other Founder Bio')
 
     def execute(self, contest):
         """Validates and creates the contestant model"""
@@ -80,6 +84,40 @@ class Contestant(flask_wtf.Form):
         self._validate_website()
         _log_errors(self)
         return not self.errors
+
+    def _add_founder(self, contestant, founder):
+        """Creates the founder and links it to the contestant."""
+        ppc.db.session.add(founder)
+        ppc.db.session.flush()
+        ppc.db.session.add(
+            pam.BivAccess(
+                source_biv_id=contestant.biv_id,
+                target_biv_id=founder.biv_id
+            )
+        )
+
+    def _add_founders(self, contestant):
+        """Add the current user as a founder and any optional founders."""
+        founder = ppcm.Founder()
+        self.populate_obj(founder)
+        founder.display_name = flask.session['user.display_name']
+        self._add_founder(contestant, founder)
+        ppc.db.session.add(
+            pam.BivAccess(
+                source_biv_id=flask.session['user.biv_id'],
+                target_biv_id=founder.biv_id
+            )
+        )
+        if self.founder2_name.data:
+            self._add_founder(contestant, ppcm.Founder(
+                display_name=str(self.founder2_name.data),
+                founder_desc=str(self.founder2_desc.data),
+            ))
+        if self.founder3_name.data:
+            self._add_founder(contestant, ppcm.Founder(
+                display_name=str(self.founder3_name.data),
+                founder_desc=str(self.founder3_desc.data),
+            ))
 
     def _get_url_content(self, url):
         """Performs a HTTP GET on the url.
@@ -139,11 +177,7 @@ class Contestant(flask_wtf.Form):
         contestant.slideshow_code = self._slideshare_code()
         contestant.is_public = ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
         contestant.is_under_review = False
-        founder = ppcm.Founder()
-        self.populate_obj(founder)
-        founder.display_name = flask.session['user.display_name']
         ppc.db.session.add(contestant)
-        ppc.db.session.add(founder)
         ppc.db.session.flush()
         ppc.db.session.add(
             pam.BivAccess(
@@ -151,18 +185,7 @@ class Contestant(flask_wtf.Form):
                 target_biv_id=contestant.biv_id
             )
         )
-        ppc.db.session.add(
-            pam.BivAccess(
-                source_biv_id=contestant.biv_id,
-                target_biv_id=founder.biv_id
-            )
-        )
-        ppc.db.session.add(
-            pam.BivAccess(
-                source_biv_id=flask.session['user.biv_id'],
-                target_biv_id=founder.biv_id
-            )
-        )
+        self._add_founders(contestant)
         return contestant
 
     def _youtube_code(self):
