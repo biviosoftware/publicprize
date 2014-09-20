@@ -305,6 +305,8 @@ class Donate(flask_wtf.Form):
             try:
               if float(self.amount.data) < 10:
                   self.amount.errors = ['Amount must be at least $10.']
+              elif float(self.amount.data) > 1000000:
+                  self.amount.errors = ['Amount too large.']
             except ValueError:
                 self.amount.errors = ['Please enter an amount.']
         else:
