@@ -144,11 +144,11 @@ def _oauth_provider(name):
         tokengetter = _get_google_access_token
     else:
         raise Error('Unknown oauth provider name: {}'.format(name))
-    c = ppc.app().config['PUBLICPRIZE']
+    c = ppc.app().config['PUBLICPRIZE'][name.upper()]
     oauth = flask_oauthlib.client.OAuth(ppc.app()).remote_app(
         name,
-        consumer_key=c[name.upper() + '_APP_ID'],
-        consumer_secret=c[name.upper() + '_APP_SECRET'],
+        consumer_key=c['app_id'],
+        consumer_secret=c['app_secret'],
         request_token_url=None,
         **attributes
     )
