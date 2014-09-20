@@ -1,3 +1,4 @@
+{% import "layout/macros.html" as macros %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -69,7 +70,7 @@
           <div class="pull-left">
             <span class="pp-footer-item"><a href="{{ g.pub_obj.format_uri('terms') }}">Terms of Use</a></span>
             <span class="pp-footer-item"><a href="{{ g.pub_obj.format_uri('privacy') }}">Privacy Policy</a></span>
-            <span class="pp-footer-item"><a href="mailto:{{ config['PUBLICPRIZE']['SUPPORT_EMAIL'] }}">Support</a></span>
+            <span class="pp-footer-item">{{ macros.support_mailto('Support') }}</span>
           </div>
 	  <div class="pull-right">
 	    <span class="pp-footer-item">&copy; 2014 Public Prize, Inc.</span>
