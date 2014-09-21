@@ -258,7 +258,56 @@ a.pp-selected-button:hover {
 
 .pp-contestant-entry,
 .pp-about-page {
-  margin-top: 20px;
+  margin-top: 15px;
+}
+.pp-about-title {
+  font-size: 120%;
+  font-weight: bold;
+  color: #068587;
+  margin-bottom: 10px;
+}
+.pp-about-section {
+  font-size: 100%;
+  font-weight: bold;
+  color: #068587;
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+.pp-about-boulderfuse {
+  float: left;
+  margin-right: 20px;
+}
+.pp-about-boulderfuse img {
+  margin-top: 7px;
+}
+.pp-about-boulderfuse span {
+  margin-top: 8px;
+  display: block;
+  text-align: center;
+}
+.pp-about-impacthubboulder {
+  display: block;
+  margin-bottom: 15px;
+}
+.pp-about-impacthubboulder img {
+  margin-top: 7px;
+}
+.pp-about-impacthubboulder span {
+  margin-top: 8px;
+  display: block;
+  text-align: center;
+}
+.pp-about-esprit {
+  float: left;
+  margin-right: 20px;
+}
+.pp-about-esprit img {
+  margin-top: 7px;
+}
+.pp-about-esprit span {
+  margin-top: 8px;
+  display: block;
+  text-align: center;
 }
 .pp-contestant-desc {
   white-space: pre-line;
