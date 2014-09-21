@@ -74,7 +74,16 @@
     <div class="btn-group pp-menu hidden-xs">
 	{{ menu_link('about', 'About') }}
         {{ menu_link('contestants', 'Contestants', contest.contestant_count()) }}
-	{{ menu_link('submit-contestant', 'How to Enter') }}
+	{%- if session.get('user.biv_id'): -%}
+	  {{ menu_link('submit-contestant', 'How to Enter') }}
+	{%- else -%}
+          <script>
+            function pp_show_login() {
+              $('#pp_how_to_enter_modal').modal('show');
+            }
+          </script>
+      	  <a href="#" onclick="pp_show_login()" class="btn btn-default pp-button {% if selected == 'submit-contestant' %}pp-selected-button{% endif %}">How to Enter</a>
+	{%- endif -%}
   </div>
 </div>
 
@@ -91,5 +100,7 @@
     </div>
   {% endfor %}
 </div>  
+
+{{ macros.signin_modal('pp_how_to_enter_modal', 'Sign up', next=contest.format_uri('submit-contestant')) }}
 
 {% endblock %}
