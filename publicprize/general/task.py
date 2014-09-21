@@ -15,12 +15,11 @@ import werkzeug
 
 class General(controller.Task):
     """Global tasks"""
-    def action_index(biv_obj, show_login=False):
+    def action_index(biv_obj):
         """Site index"""
         return flask.render_template(
             "general/index.html",
             contests=publicprize.contest.model.Contest.query.all(),
-            show_login=show_login
         )
 
     def action_facebook_login(biv_obj):
@@ -46,8 +45,10 @@ class General(controller.Task):
         return oauth.authorize_complete('google')
 
     def action_login(biv_obj):
-        """Show login options on index page."""
-        return General.action_index(biv_obj, show_login=True)
+        """Show login options."""
+        return flask.render_template(
+            "general/login.html",
+        )
 
     def action_logout(biv_obj):
         """Logout"""
