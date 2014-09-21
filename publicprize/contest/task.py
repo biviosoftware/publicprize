@@ -90,9 +90,9 @@ class Contestant(ppc.Task):
             contestant=biv_obj,
             contest=biv_obj.get_contest(),
             founders=biv_obj.get_founders(),
-            contestant_url=biv_obj.format_absolute_uri()
+            contestant_url=biv_obj.format_absolute_uri(),
+            contestant_tweet="I just backed " + biv_obj.display_name
         )
-
 
 class Founder(ppc.Task):
     """Founder actions"""
