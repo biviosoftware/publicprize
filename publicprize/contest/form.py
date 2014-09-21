@@ -260,6 +260,8 @@ class Donate(flask_wtf.Form):
             'contest/detail.html',
             contestant=contestant,
             contest=contestant.get_contest(),
+            contestant_url=contestant.format_absolute_uri(),
+            contestant_tweet="Help us win! " + contestant.display_name,
             form=self,
             founders=contestant.get_founders()
         )
