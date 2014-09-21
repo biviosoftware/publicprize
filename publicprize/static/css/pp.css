@@ -383,3 +383,6 @@ input.pp-agree-checkbox {
   border: 1px solid #ccc;
   padding: 1ex;
 }
+.pp-back-this-startup .text-primary {
+  font-size: 18px;
+}
