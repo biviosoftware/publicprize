@@ -99,7 +99,7 @@ class Model(object):
             _external=True
         )
 
-    def format_uri(self, action=None, path_info=None, query=None, preserve_next=False):
+    def format_uri(self, action=None, path_info=None, query=None, preserve_next=False, next=None):
         """Creates a URI for this biv_obj appending action and path_info"""
         biv_id = biv.Id(self.biv_id)
         uri = '/' + biv_id.to_biv_uri()
@@ -110,10 +110,15 @@ class Model(object):
             assert action is not None, path_info \
                 + ': path_info requires an action'
             uri += '/' + path_info
+        # TODO(pjm): 'next' handling needs to be refactored
         if preserve_next and 'next' in flask.request.args:
             if not query:
                 query = {}
             query['next'] = flask.request.args['next']
+        elif next:
+            if not query:
+                query = {}
+            query['next'] = next
         if query:
             uri += '?' + urllib.parse.urlencode(query)
         return uri
