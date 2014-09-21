@@ -347,10 +347,12 @@ img.pp-video-play:hover {
 .pp-amount-bar {
     margin-top: 15px;
 }
-.pp-amount-button {
-    margin-right: 0.5em;
+button.pp-amount-bar {
     min-width: 4em;
     width: 20%;
+}
+.pp-amount-button {
+    margin-right: 0.5em;
 }
 .pp-hidden-slider {
     display: none;
@@ -432,6 +434,27 @@ input.pp-agree-checkbox {
   border: 1px solid #ccc;
   padding: 1ex;
 }
-.pp-back-this-startup .text-primary {
+.pp-back-this-startup .pp-heading {
   font-size: 18px;
+  color: #FCB03C;
+}
+.pp-contestant .pp-title {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #FCB03C;
+}
+.pp-detail-social {
+  float: right;
+}
+.pp-detail-social .pp-social-icon img {
+  margin: 0;
+  margin-left: 0.5em;
+  border-radius: 6px;
+}
+.pp-contestant .pp-heading {
+  margin-top: 30px;
+  color: #068587;
+}
+.pp-contestant-bottom-amount-bar {
+  margin-top: 30px;
 }

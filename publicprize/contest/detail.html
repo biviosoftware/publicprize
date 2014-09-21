@@ -13,7 +13,7 @@
 {%- macro amount_bar() -%}
   {% if form and contestant.is_public %}
   <div class="pp-back-this-startup">
-    <div class="text-primary"><strong>Back this Boulder startup</strong></div>
+    <div class="pp-heading"><strong>Back this Boulder startup</strong></div>
     <form class="form-inline" method="POST" action="{{ contestant.format_uri('contestant') }}">
       {{ form.csrf_token() }}
       {{ amount_button('donate10') }}
@@ -21,7 +21,7 @@
       {{ amount_button('donate100') }}
       <button id="pp-other-button" class="btn btn-primary btn-lg pp-amount-bar
         {%- if form['amount'].errors %}	disabled
-	{%- endif %}">Other Amount</button>
+	{%- endif %}">Other</button>
 
       <div class="
       	{%- if not form['amount'].errors -%}
@@ -63,6 +63,11 @@
     	</div>
     </div>
     <div class="pp-abstract">
+	<div class="pp-detail-social">
+	    <a target="_blank" class="pp-social-icon" href="https://facebook.com/sharer.php?u={{ contestant_url }}&amp;title={{ contestant.display_name }}"><img src="/static/img/facebook30.png" alt="Facebook"></a>
+	    <a target="_blank" class="pp-social-icon" href="https://twitter.com/intent/tweet?text={{ contestant_tweet }}&amp;hashtags=EspritVentureChallenge&amp;url={{ contestant_url }}&amp;via=publicprize"><img src="/static/img/twitter30.png" alt="Twitter"></a>
+	    <a target="_blank" class="pp-social-icon" href="https://plus.google.com/share?url={{ contestant_url }}"><img src="/static/img/google30.png" alt="Google+"></a>
+	</div>
     	<h3 class="pp-heading">Summary</h3>
     	<p class="pp-contestant-desc">{{ contestant.contestant_desc }}</p>
     </div>
@@ -96,7 +101,9 @@
     </div>
 </div>
 </div>
+<div class="pp-contestant-bottom-amount-bar">
 {{ amount_bar() }}
+</div>
 {% endblock %}
 
 {% block scripts %}
