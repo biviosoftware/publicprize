@@ -131,9 +131,7 @@ def refresh_founder_avatars():
             continue
         
         for founder in founders:
-            founder.founder_avatar = image
-            founder.avatar_type = imghdr.what(None, image)
-            db.session.add(founder)
+            _update_founder_avatar(founder, image)
             count += 1
     print('refreshed {} founder avatars'.format(count))
 
@@ -147,23 +145,27 @@ def replace_founder_avatar(user, input_file):
     if not input_file:
         raise Exception('missing input_file')
 
+    image = _read_image_from_file(input_file)
     users = None
     if re.search(r'\@', user):
         users = pam.User.query.filter_by(user_email=user).all()
     elif re.search(r'^\d+$', user):
-        users = [pam.User.query.filter_by(biv_id=user).one()]
+        if pam.User.query.filter_by(biv_id=user).first():
+            users = [pam.User.query.filter_by(biv_id=user).one()]
+        elif pcm.Founder.query.filter_by(biv_id=user).first():
+            _update_founder_avatar(
+                pcm.Founder.query.filter_by(biv_id=user).one(),
+                image
+            )
+            return
     else:
         raise Exception('invalid user, expecting biv_id or email')
     if len(users) == 0:
         raise Exception('no user found for {}'.format(user))
-    image = _read_image_from_file(input_file)
 
     for user_model in users:
         for founder in _founders_for_user(user_model):
-            print("replaced image for founder: {}".format(founder.biv_id))
-            founder.founder_avatar = image
-            founder.avatar_type = imghdr.what(None, image)
-            db.session.add(founder)
+            _update_founder_avatar(founder, image)
 
 
 def _add_model(model):
@@ -281,6 +283,13 @@ def _read_image_from_file(file_name):
     image = image_file.read()
     image_file.close()
     return image
+
+
+def _update_founder_avatar(founder, image):
+    print("replaced image for founder: {}".format(founder.biv_id))
+    founder.founder_avatar = image
+    founder.avatar_type = imghdr.what(None, image)
+    db.session.add(founder)
 
 if __name__ == '__main__':
     _MANAGER.run()
