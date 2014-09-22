@@ -10,13 +10,16 @@ import datetime
 import flask
 import flask_script as fes
 import flask_script.commands
+import imghdr
 import json
 import locale
 import os
-import publicprize.auth.model
-import publicprize.contest.model
+import publicprize.auth.model as pam
+import publicprize.contest.model as pcm
 import publicprize.controller as ppc
+import re
 import subprocess
+import urllib.request
 import werkzeug.serving
 
 # Needs to be explicit
@@ -110,6 +113,40 @@ def drop_db():
             env=e)
 
 
+@_MANAGER.command
+def refresh_founder_avatars():
+    """Download the User.avatar_url and store in Founder.founder_avatar."""
+    count = 0
+    for user in pam.User.query.filter(pam.User.avatar_url != None).all():
+        founders = pcm.Founder.query.select_from(
+            pam.BivAccess
+        ).filter(
+            pam.BivAccess.source_biv_id == user.biv_id,
+            pam.BivAccess.target_biv_id == pcm.Founder.biv_id,
+            pcm.Founder.founder_avatar == None
+        ).all()
+
+        if len(founders) == 0:
+            continue
+        image = None
+        image_type = None
+        try:
+            req = urllib.request.urlopen(user.avatar_url, None, 30)
+            image = req.read()
+            image_type = imghdr.what(None, image)
+            req.close()
+        except socket.timeout:
+            print('socket timeout for url: {}'.format(user.avatar_url))
+            continue
+        
+        for founder in founders:
+            founder.founder_avatar = image
+            founder.avatar_type = image_type
+            db.session.add(founder)
+            count += 1
+    print('refreshed {} founder avatars'.format(count))
+
+
 def _add_model(model):
     """Adds a SQLAlchemy model and returns it's biv_id"""
     db.session.add(model)
@@ -121,7 +158,7 @@ def _add_model(model):
 def _add_owner(parent_id, child_id):
     """Creates a BivAccess record between the parent and child ids"""
     db.session.add(
-        publicprize.auth.model.BivAccess(
+        pam.BivAccess(
             source_biv_id=parent_id,
             target_biv_id=child_id
         )
@@ -130,7 +167,7 @@ def _add_owner(parent_id, child_id):
 
 def _create_contest(contest):
     """Creates a SQLAlchemy model Contest with optional logo file"""
-    model = publicprize.contest.model.Contest(
+    model = pcm.Contest(
         display_name=contest['display_name'],
         tag_line=contest['tag_line'],
         end_date=datetime.datetime.strptime(
@@ -153,14 +190,14 @@ def _create_database(is_production=False):
     for contest in data['Contest']:
         contest_id = _add_model(_create_contest(contest))
         if 'Alias' in contest:
-            _add_model(publicprize.auth.model.BivAlias(
+            _add_model(pam.BivAlias(
                 biv_id=contest_id,
                 alias_name=contest['Alias']['name']
             ))
 
         for sponsor in contest['Sponsor']:
             logo_file = open(sponsor['logo_filename'], 'rb')
-            sponsor_id = _add_model(publicprize.contest.model.Sponsor(
+            sponsor_id = _add_model(pcm.Sponsor(
                 display_name=sponsor['display_name'],
                 website=sponsor['website'],
                 sponsor_logo=logo_file.read(),
@@ -172,7 +209,7 @@ def _create_database(is_production=False):
             break
             
         for contestant in contest['Contestant']:
-            contestant_id = _add_model(publicprize.contest.model.Contestant(
+            contestant_id = _add_model(pcm.Contestant(
                 # TODO(pjm): there must be a way to do this in a map()
                 display_name=contestant['display_name'],
                 youtube_code=contestant['youtube_code'],
@@ -188,7 +225,7 @@ def _create_database(is_production=False):
                 _add_owner(contestant_id, founder_id)
 
             for donor in contestant['Donor']:
-                donor_id = _add_model(publicprize.contest.model.Donor(
+                donor_id = _add_model(pcm.Donor(
                     amount=donor['amount'],
                     donor_state='executed'
                 ))
@@ -200,7 +237,7 @@ def _create_database(is_production=False):
 # TODO(pjm): normalize up binary fields, combine with _create_contest()
 def _create_founder(founder):
     """Creates a SQLAlchemy model Founder with optional avatar file"""
-    model = publicprize.contest.model.Founder(
+    model = pcm.Founder(
         display_name=founder['display_name'],
         founder_desc=founder['founder_desc']
     )
