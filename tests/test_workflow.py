@@ -24,6 +24,7 @@ class PublicPrizeTestCase(unittest.TestCase):
     def test_contribution(self):
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge 2014')
+        self._follow_link('Contestants')
         self._follow_link('gazeMetrix')
         self._submit_form({
         })
@@ -77,10 +78,19 @@ class PublicPrizeTestCase(unittest.TestCase):
 
     def _follow_link(self, link_text):
         url = None
+        # exact match
         for link in self.current_page.find_all('a'):
             if link.get_text() == link_text:
                 url = link['href']
                 break
+        # regexp match
+        if not url:
+            regexp = re.compile(link_text)
+            for link in self.current_page.find_all('a'):
+                if re.search(regexp, link.get_text()):
+                    url = link['href']
+                    break
+            
         assert url
         self._visit_uri(url)
 
