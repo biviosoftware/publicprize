@@ -143,8 +143,11 @@ class Contestant(flask_wtf.Form):
         ppc.mail().send(flask_mail.Message(
             'New Entry Submitted: {}'.format(contestant.biv_id),
             recipients=[ppc.app().config['PUBLICPRIZE']['SUPPORT_EMAIL']],
-            body='Submitted by: {}\nTitle: {}\nReview URL: {}'.format(
+            body='Submitted by: {} {}\nTitle: {}\nReview URL: {}'.format(
                 flask.session['user.display_name'],
+                pam.User.query.filter_by(
+                    biv_id=flask.session['user.biv_id']
+                ).one().user_email,
                 contestant.display_name,
                 contestant.format_absolute_uri()
             )
