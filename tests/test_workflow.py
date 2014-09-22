@@ -102,6 +102,8 @@ class PublicPrizeTestCase(unittest.TestCase):
     def _submit_form(self, data):
         url = self.current_page.find('form')['action']
         assert url
+        data['csrf_token'] = self.current_page.find(id='csrf_token')['value']
+        assert data['csrf_token']
         self._set_current_page(self.client.post(
             url,
             data=data,
