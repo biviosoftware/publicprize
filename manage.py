@@ -118,22 +118,13 @@ def refresh_founder_avatars():
     """Download the User.avatar_url and store in Founder.founder_avatar."""
     count = 0
     for user in pam.User.query.filter(pam.User.avatar_url != None).all():
-        founders = pcm.Founder.query.select_from(
-            pam.BivAccess
-        ).filter(
-            pam.BivAccess.source_biv_id == user.biv_id,
-            pam.BivAccess.target_biv_id == pcm.Founder.biv_id,
-            pcm.Founder.founder_avatar == None
-        ).all()
-
+        founders = _founders_for_user(user, without_avatars=True)
         if len(founders) == 0:
             continue
         image = None
-        image_type = None
         try:
             req = urllib.request.urlopen(user.avatar_url, None, 30)
             image = req.read()
-            image_type = imghdr.what(None, image)
             req.close()
         except socket.timeout:
             print('socket timeout for url: {}'.format(user.avatar_url))
@@ -141,10 +132,38 @@ def refresh_founder_avatars():
         
         for founder in founders:
             founder.founder_avatar = image
-            founder.avatar_type = image_type
+            founder.avatar_type = imghdr.what(None, image)
             db.session.add(founder)
             count += 1
     print('refreshed {} founder avatars'.format(count))
+
+
+@_MANAGER.option('-u', '--user', help='User biv_id or email')
+@_MANAGER.option('-i', '--input_file', help='Image file name')
+def replace_founder_avatar(user, input_file):
+    """Replace the avatar for the user from the specified image file"""
+    if not user:
+        raise Exception('missing user')
+    if not input_file:
+        raise Exception('missing input_file')
+
+    users = None
+    if re.search(r'\@', user):
+        users = pam.User.query.filter_by(user_email=user).all()
+    elif re.search(r'^\d+$', user):
+        users = [pam.User.query.filter_by(biv_id=user).one()]
+    else:
+        raise Exception('invalid user, expecting biv_id or email')
+    if len(users) == 0:
+        raise Exception('no user found for {}'.format(user))
+    image = _read_image_from_file(input_file)
+
+    for user_model in users:
+        for founder in _founders_for_user(user_model):
+            print("replaced image for founder: {}".format(founder.biv_id))
+            founder.founder_avatar = image
+            founder.avatar_type = imghdr.what(None, image)
+            db.session.add(founder)
 
 
 def _add_model(model):
@@ -174,10 +193,8 @@ def _create_contest(contest):
             contest['end_date'], '%m/%d/%Y').date()
     )
     if 'logo_filename' in contest:
-        logo_file = open(contest['logo_filename'], 'rb')
-        model.contest_logo = logo_file.read()
-        model.logo_type = contest['logo_type']
-        logo_file.close()
+        model.contest_logo = _read_image_from_file(contest['logo_filename'])
+        model.logo_type = imghdr.what(None, model.contest_logo)
     return model
 
 
@@ -196,12 +213,12 @@ def _create_database(is_production=False):
             ))
 
         for sponsor in contest['Sponsor']:
-            logo_file = open(sponsor['logo_filename'], 'rb')
+            logo = _read_image_from_file(sponsor['logo_filename'])
             sponsor_id = _add_model(pcm.Sponsor(
                 display_name=sponsor['display_name'],
                 website=sponsor['website'],
-                sponsor_logo=logo_file.read(),
-                logo_type=sponsor['logo_type']
+                sponsor_logo=logo,
+                logo_type=imghdr.what(None, logo)
             ))
             _add_owner(contest_id, sponsor_id)
 
@@ -242,11 +259,28 @@ def _create_founder(founder):
         founder_desc=founder['founder_desc']
     )
     if 'avatar_filename' in founder:
-        avatar_file = open(founder['avatar_filename'], 'rb')
-        model.founder_avatar = avatar_file.read()
-        model.avatar_type = founder['avatar_type']
-        avatar_file.close()
+        model.founder_avatar = _read_image_from_file(
+            founder['avatar_filename'])
+        model.avatar_type = imghdr.what(None, model.founder_avatar)
     return model
+
+
+def _founders_for_user(user, without_avatars=None):
+    query = pcm.Founder.query.select_from(
+        pam.BivAccess
+    ).filter(
+        pam.BivAccess.source_biv_id == user.biv_id,
+        pam.BivAccess.target_biv_id == pcm.Founder.biv_id,
+    )
+    if without_avatars:
+        query = query.filter(pcm.Founder.founder_avatar == None)
+    return query.all()
+
+def _read_image_from_file(file_name):
+    image_file = open(file_name, 'rb')
+    image = image_file.read()
+    image_file.close()
+    return image
 
 if __name__ == '__main__':
     _MANAGER.run()
