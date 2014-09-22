@@ -4,7 +4,6 @@
       "display_name": "Esprit Venture Challenge 2014",
       "tag_line": "Join us October 23, 2014",
       "logo_filename": "data/esprit-logo.gif",
-      "logo_type": "gif",
       "end_date": "10/21/2014",
       "Alias": {
         "name": "esprit-venture-challenge"
@@ -14,56 +13,47 @@
         {
 	  "display_name": "Casanova Ventures",
 	  "website": "http://casanovaventures.com/",
-	  "logo_filename": "data/casanova-255x178.gif",
-	  "logo_type": "gif"
+	  "logo_filename": "data/casanova-255x178.gif"
 	},
         {
 	  "display_name": "Faegre Baker Daniels LLP",
 	  "website": "http://www.faegrebd.com",
-	  "logo_filename": "data/faegrebd-255x178.gif",
-	  "logo_type": "gif"
+	  "logo_filename": "data/faegrebd-255x178.gif"
 	},
         {
 	  "display_name": "Data Law Group",
 	  "website": "http://www.datalawgroup.com",
-	  "logo_filename": "data/datalawgroup-255x178.gif",
-	  "logo_type": "gif"
+	  "logo_filename": "data/datalawgroup-255x178.gif"
 	},
         {
 	  "display_name": "Eli Bates",
 	  "website": "http://bateseli.virb.com/",
-	  "logo_filename": "data/elibates-255x178.gif",
-	  "logo_type": "gif"
+	  "logo_filename": "data/elibates-255x178.gif"
 	},
         {
 	  "display_name": "Impact Hub Boulder",
 	  "website": "http://www.impacthubboulder.com/",
-	  "logo_filename": "data/impacthub-255x178.gif",
-	  "logo_type": "gif"
+	  "logo_filename": "data/impacthub-255x178.gif"
 	},
         {
 	  "display_name": "Fuse at The Riverside",
 	  "website": "http://boulderfuse.com/",
-	  "logo_filename": "data/fuse-255x178.gif",
-	  "logo_type": "gif"
+	  "logo_filename": "data/fuse-255x178.gif"
 	},
         {
 	  "display_name": "Boulder Business Advisors CPA, PC",
 	  "website": "http://www.bbacpa.com/",
-	  "logo_filename": "data/bbacpa-255x178.gif",
-	  "logo_type": "gif"
+	  "logo_filename": "data/bbacpa-255x178.gif"
 	},
         {
 	  "display_name": "Galvanize",
 	  "website": "http://www.galvanize.it/",
-	  "logo_filename": "data/galvanize-255x178.gif",
-	  "logo_type": "gif"
+	  "logo_filename": "data/galvanize-255x178.gif"
 	},
         {
 	  "display_name": "Bivio Software",
 	  "website": "http://www.bivio.biz",
-	  "logo_filename": "data/bivio-255x178.gif",
-	  "logo_type": "gif"
+	  "logo_filename": "data/bivio-255x178.gif"
 	}
       ],
 
