@@ -69,6 +69,8 @@ class PublicPrizeTestCase(unittest.TestCase):
             'tax_id': '22-7777777',
             'business_phone': '303-123-4567',
             'business_address': '123 Pearl St\nBoulder CO 80303',
+            'founder2_name': 'Founder Two',
+            'founder2_desc': 'Founder Two bio entry',
             'agree_to_terms': True
         })
         self._verify_text('Thank you for submitting your entry')
