@@ -64,13 +64,13 @@ class General(controller.Task):
     def action_new_test_user(biv_obj):
         """Creates a new test user model and log in."""
         if not controller.app().config['PUBLICPRIZE']['TEST_USER']:
-            raise Error("TEST_USER not enabled")
+            raise Exception("TEST_USER not enabled")
         name = 'F{} L{}'.format(
             werkzeug.security.gen_salt(6).lower(),
             werkzeug.security.gen_salt(8).lower())
         user = User(
             display_name=name,
-            user_email='{}@localhost'.format(name.lower()),
+            user_email='{}@localhost'.format(name.lower().replace(' ', '')),
             oauth_type='test',
             oauth_id=werkzeug.security.gen_salt(64)
         )
@@ -79,3 +79,8 @@ class General(controller.Task):
 
     def action_terms(biv_obj):
         return flask.redirect('/static/pdf/terms.pdf')
+
+    def action_test_login(biv_obj):
+        if not controller.app().config['PUBLICPRIZE']['TEST_USER']:
+            raise Exception("TEST_USER not enabled")
+        return General.action_login(biv_obj)

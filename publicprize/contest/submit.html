@@ -11,7 +11,6 @@ Submit Contest Entry
 
   <form method="POST" action="{{ contest.format_uri('submit-contestant') }}">
     <h1>Submit Your Entry</h1>
-    {{ form.csrf_token() }}
     {{ macros.form_field(form.display_name) }}
     <div class="form-group has-feedback {{ macros.error_class(form.contestant_desc) }}">
       {{ form.contestant_desc.label }}

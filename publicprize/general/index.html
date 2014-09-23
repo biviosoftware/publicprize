@@ -8,7 +8,7 @@
 <ul>
 
 {%- for contest in contests %}
-    <li><h3><a href="{{ contest.format_uri('about') }}">{{ contest.display_name }}</a></h3></li>
+    <li><h3><a href="{{ contest.format_uri('contestants') }}">{{ contest.display_name }}</a></h3></li>
 {% endfor -%}
     
 </ul>

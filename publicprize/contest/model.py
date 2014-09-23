@@ -15,6 +15,7 @@ from publicprize import controller
 from publicprize import biv
 import publicprize.auth.model as pam
 import random
+import re
 import sqlalchemy.orm
 
 
@@ -170,6 +171,25 @@ class Contestant(db.Model, common.ModelWithDates):
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == Founder.biv_id
         ).all()
+
+    def get_slideshow_code(self):
+        """Returns the slideshare or youtube code for the pitch deck"""
+        if self.is_youtube_slideshow():
+            match = re.search(r'^youtube\:(.*)$', self.slideshow_code)
+            return match.group(1)
+        return self.slideshow_code
+
+    def get_summary(self):
+        """Returns an excerpt for the Contestant.contestant_desc."""
+        summary = self.contestant_desc
+        match = re.search(r'^(.*?\s[a-z]{3,}\.\s.*?\s[a-z]{3,}\.\s)', summary)
+        if match:
+            return match.group(1)
+        return summary
+
+    def is_youtube_slideshow(self):
+        """Returns true if the slideshow is Youtube, not Slideshare."""
+        return re.search(r'^youtube\:', self.slideshow_code)
 
 
 class Donor(db.Model, common.ModelWithDates):

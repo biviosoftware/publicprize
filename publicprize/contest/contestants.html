@@ -24,7 +24,7 @@ Contestants
 	</a>
     </div>
     <h3 class="media-heading"><a href="{{ contestant.format_uri('contestant') }}{{ macros.mobile_tag('title') }}">{{ contestant.display_name }}</a></h3>
-    <p class="pp-contestant-desc">{{ contestant.contestant_desc }}
+    <p class="pp-contestant-desc">{{ contestant.get_summary() }}
     	<a href="{{ contestant.format_uri('contestant') }}" class="pp-read-more">[learn more]</a>
     </p>
 </div>

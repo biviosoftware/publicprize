@@ -15,7 +15,6 @@
   <div class="pp-back-this-startup">
     <div class="pp-heading"><strong>Back this Boulder startup</strong></div>
     <form class="form-inline" method="POST" action="{{ contestant.format_uri('contestant') }}">
-      {{ form.csrf_token() }}
       {{ amount_button('donate10') }}
       {{ amount_button('donate25') }}
       {{ amount_button('donate100') }}
@@ -45,6 +44,20 @@
   {% endif %}
 {%- endmacro -%}
 
+{%- macro youtube_content(code, autoplay=False) -%}
+  <iframe class="embed-responsive-item"
+    src="//www.youtube.com/embed/{{ code -}}
+    {%- if autoplay -%}
+    ?autoplay=1
+    {%- endif %}" allowfullscreen></iframe>
+{%- endmacro -%}
+
+{%- macro slideshare_content(code) -%}
+  <iframe class="embed-responsive-item"
+    src="//www.slideshare.net/slideshow/embed_code/{{ code }}"
+    allowfullscreen></iframe>
+{%- endmacro -%}
+
 {% block contest_content %}
 {% if not contestant.is_public %}
   <p class="bg-success pp-pending-review">This entry is pending review.</p>
@@ -54,13 +67,9 @@
 <div class="pp-contestant">
     <div id="title" class="pp-title">{{ contestant.display_name }}</div>
     <div class="pp-pitch">
-    	<div class="embed-responsive embed-responsive-16by9">
-    	    <iframe class="embed-responsive-item"
-	    src="//www.youtube.com/embed/{{ contestant.youtube_code -}}
-		 {%- if request.args.get('autoplay') -%}
-		 ?autoplay=1
-		 {%- endif %}" allowfullscreen></iframe>
-    	</div>
+      <div class="embed-responsive embed-responsive-16by9">
+        {{ youtube_content(contestant.youtube_code, request.args.get('autoplay')) }}
+      </div>
     </div>
     <div class="pp-abstract">
 	<div class="pp-detail-social">
@@ -72,11 +81,13 @@
     	<p class="pp-contestant-desc">{{ contestant.contestant_desc }}</p>
     </div>
     <div class="pp-slides">
-    	<div class="embed-responsive embed-responsive-4by3">
-    	    <iframe class="embed-responsive-item"
-	    	src="//www.slideshare.net/slideshow/embed_code/{{ contestant.slideshow_code }}"
-	    	allowfullscreen></iframe>
-    	</div>
+      <div class="embed-responsive embed-responsive-4by3">
+        {%- if contestant.is_youtube_slideshow() -%}
+          {{ youtube_content(contestant.get_slideshow_code()) }}
+        {%- else -%}
+          {{ slideshare_content(contestant.get_slideshow_code()) }}
+        {%- endif -%}
+      </div>
     </div>
     <div class="pp-founders clearfix">
     	<h3 class="pp-heading">Founders</h3>

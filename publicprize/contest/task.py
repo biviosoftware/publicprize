@@ -29,7 +29,7 @@ class Contest(ppc.Task):
 
     def action_index(biv_obj):
         """Default to contestant list"""
-        return Contest.action_about(biv_obj)
+        return Contest.action_contestants(biv_obj)
 
     def action_logo(biv_obj):
         """Contestant logo image"""

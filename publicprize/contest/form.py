@@ -143,9 +143,19 @@ class Contestant(flask_wtf.Form):
         ppc.mail().send(flask_mail.Message(
             'New Entry Submitted: {}'.format(contestant.biv_id),
             recipients=[ppc.app().config['PUBLICPRIZE']['SUPPORT_EMAIL']],
-            body='Submitted by: {}\nTitle: {}\nReview URL: {}'.format(
-                flask.session['user.display_name'],
-                contestant.display_name,
+            # TODO(pjm): requires new Flask-Mail for unicode on python 3
+            # body='Submitted by: {} {}\nTitle: {}\nReview URL: {}'.format(
+            #     flask.session['user.display_name'],
+            #     pam.User.query.filter_by(
+            #         biv_id=flask.session['user.biv_id']
+            #     ).one().user_email,
+            #     contestant.display_name,
+            #     contestant.format_absolute_uri()
+            # )
+            body='Submitted by: {}\nReview URL: {}'.format(
+                pam.User.query.filter_by(
+                    biv_id=flask.session['user.biv_id']
+                ).one().user_email,
                 contestant.format_absolute_uri()
             )
         ))
@@ -194,7 +204,7 @@ class Contestant(flask_wtf.Form):
         # http://youtu.be/a1Y73sPHKxw
         # or https://www.youtube.com/watch?v=a1Y73sPHKxw
         if re.search(r'\?', value) and re.search(r'v\=', value):
-            match = re.search(r'(?:\?|\&)v\=(.*)', value)
+            match = re.search(r'(?:\?|\&)v\=(.*?)(&|$)', value)
             if match:
                 return match.group(1)
         else:
