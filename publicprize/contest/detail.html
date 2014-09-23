@@ -45,21 +45,17 @@
 {%- endmacro -%}
 
 {%- macro youtube_content(code, autoplay=False) -%}
-  <div class="embed-responsive embed-responsive-16by9">
-    <iframe class="embed-responsive-item"
-      src="//www.youtube.com/embed/{{ code -}}
-      {%- if autoplay -%}
-      ?autoplay=1
-      {%- endif %}" allowfullscreen></iframe>
-  </div>
+  <iframe class="embed-responsive-item"
+    src="//www.youtube.com/embed/{{ code -}}
+    {%- if autoplay -%}
+    ?autoplay=1
+    {%- endif %}" allowfullscreen></iframe>
 {%- endmacro -%}
 
 {%- macro slideshare_content(code) -%}
-  <div class="embed-responsive embed-responsive-4by3">
-    <iframe class="embed-responsive-item"
-      src="//www.slideshare.net/slideshow/embed_code/{{ code }}"
-      allowfullscreen></iframe>
-  </div>
+  <iframe class="embed-responsive-item"
+    src="//www.slideshare.net/slideshow/embed_code/{{ code }}"
+    allowfullscreen></iframe>
 {%- endmacro -%}
 
 {% block contest_content %}
@@ -71,7 +67,9 @@
 <div class="pp-contestant">
     <div id="title" class="pp-title">{{ contestant.display_name }}</div>
     <div class="pp-pitch">
-      {{ youtube_content(contestant.youtube_code, request.args.get('autoplay')) }}
+      <div class="embed-responsive embed-responsive-16by9">
+        {{ youtube_content(contestant.youtube_code, request.args.get('autoplay')) }}
+      </div>
     </div>
     <div class="pp-abstract">
 	<div class="pp-detail-social">
@@ -83,11 +81,13 @@
     	<p class="pp-contestant-desc">{{ contestant.contestant_desc }}</p>
     </div>
     <div class="pp-slides">
-      {%- if contestant.is_youtube_slideshow() -%}
-        {{ youtube_content(contestant.get_slideshow_code()) }}
-      {%- else -%}
-        {{ slideshare_content(contestant.get_slideshow_code()) }}
-      {%- endif -%}
+      <div class="embed-responsive embed-responsive-4by3">
+        {%- if contestant.is_youtube_slideshow() -%}
+          {{ youtube_content(contestant.get_slideshow_code()) }}
+        {%- else -%}
+          {{ slideshare_content(contestant.get_slideshow_code()) }}
+        {%- endif -%}
+      </div>
     </div>
     <div class="pp-founders clearfix">
     	<h3 class="pp-heading">Founders</h3>
