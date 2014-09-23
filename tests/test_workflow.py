@@ -90,7 +90,7 @@ class PublicPrizeTestCase(unittest.TestCase):
                 if re.search(regexp, link.get_text()):
                     url = link['href']
                     break
-            
+
         assert url
         self._visit_uri(url)
 
