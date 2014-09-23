@@ -15,7 +15,6 @@
   <div class="pp-back-this-startup">
     <div class="pp-heading"><strong>Back this Boulder startup</strong></div>
     <form class="form-inline" method="POST" action="{{ contestant.format_uri('contestant') }}">
-      {{ form.csrf_token() }}
       {{ amount_button('donate10') }}
       {{ amount_button('donate25') }}
       {{ amount_button('donate100') }}
