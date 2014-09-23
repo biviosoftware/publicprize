@@ -58,7 +58,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._follow_link('Esprit Venture Challenge 2014')
         self._follow_link('How to Enter')
         num = int(random.random() * 10000)
-        name = 'Test Entry {}'.format(num)
+        name = 'Test Entry {}, WÜN'.format(num)
         self._submit_form({
             'display_name': name,
             'contestant_desc': 'Description for entry {}'.format(num),
@@ -97,7 +97,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._visit_uri(url)
 
     def _set_current_page(self, response):
-        self.current_page = BeautifulSoup(str(response.data))
+        self.current_page = BeautifulSoup(response.data)
 
     def _submit_form(self, data):
         url = self.current_page.find('form')['action']
