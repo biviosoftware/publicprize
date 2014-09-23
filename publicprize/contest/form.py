@@ -197,7 +197,7 @@ class Contestant(flask_wtf.Form):
         # http://youtu.be/a1Y73sPHKxw
         # or https://www.youtube.com/watch?v=a1Y73sPHKxw
         if re.search(r'\?', value) and re.search(r'v\=', value):
-            match = re.search(r'(?:\?|\&)v\=(.*)', value)
+            match = re.search(r'(?:\?|\&)v\=(.*?)(&|$)', value)
             if match:
                 return match.group(1)
         else:
