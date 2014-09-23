@@ -143,6 +143,7 @@ class Contestant(flask_wtf.Form):
         ppc.mail().send(flask_mail.Message(
             'New Entry Submitted: {}'.format(contestant.biv_id),
             recipients=[ppc.app().config['PUBLICPRIZE']['SUPPORT_EMAIL']],
+            # TODO(pjm): requires new Flask-Mail for unicode on python 3
             # body='Submitted by: {} {}\nTitle: {}\nReview URL: {}'.format(
             #     flask.session['user.display_name'],
             #     pam.User.query.filter_by(
