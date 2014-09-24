@@ -81,11 +81,11 @@ a.pp-nav-logo:hover {
 .pp-nav-item:focus {
   text-decoration: none;
 }
-.pp-nav-menu .pp-nav-item {
+.pp-nav .pp-nav-item {
   padding: 20px 10px;
 }
-.pp-nav-menu .pp-nav-item:hover,
-.pp-nav-menu .pp-nav-item:focus {
+.pp-nav .pp-nav-item:hover,
+.pp-nav .pp-nav-item:focus {
   background-color: #f7fafa;
 }
 /* Active state gets a caret at the bottom */
