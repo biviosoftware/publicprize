@@ -32,7 +32,7 @@
     	  <span class="input-group-addon"><strong>$</strong></span>
 	    {{ form['amount'](class="form-control") }}
       	</div>
-      	<button type="submit" class="btn btn-primary pp-amount-bar ladda-button" data-style="expand-left"><span class="ladda-label">Submit</span></button>
+      	<button type="submit" class="btn btn-primary pp-other-submit ladda-button" data-style="expand-left" data-spinner-size="15"><span class="ladda-label">Submit</span></button>
       {% if form['amount'].errors %}
     	<div class="text-danger"><strong>{{ form['amount'].errors[0] }}</strong></div>
       {% endif %}

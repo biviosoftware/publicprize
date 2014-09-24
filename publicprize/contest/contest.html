@@ -41,15 +41,31 @@
   </div>
 </div>
 
+{%- macro summary(item_class) -%}
+  <div class="{{ item_class }}">
+    <span class="pp-summary-number">${{ contest.donor_executed_amount() }}</span>
+    <span class="pp-summary-name">Raised</span>
+  </div>
+  <div class="{{ item_class }}">
+    <span class="pp-summary-number">{{ contest.donor_count() }}</span>
+    <span class="pp-summary-name">Contributions</span>
+  </div>
+  <div class="{{ item_class }}">
+    <span class="pp-summary-number">{{ contest.days_remaining() }}</span>
+    <span class="pp-summary-undertitle">days to go</span>
+  </div>
+{%- endmacro -%}
+      
+
 <div class="col-sm-3">
     <div class="pp-summary">
       	<a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819"><img class="pp-esprit-logo hidden-xs" src="/static/img/esprit255.png" alt="Esprit Venture Challege 2014" /></a>
-	<span class="pp-summary-number">${{ contest.donor_executed_amount() }}</span>
-	<span class="pp-summary-name">Raised</span>
-	<span class="pp-summary-number">{{ contest.donor_count() }}</span>
-	<span class="pp-summary-name">Contributions</span>
-	<span class="pp-summary-number">{{ contest.days_remaining() }}</span>
-	<span class="pp-summary-undertitle">days to go</span>
+	<div class="hidden-xs">
+	  {{ summary("pp-normal-summary") }}
+        </div>
+	<div class="visible-xs">
+	  {{ summary("pp-condensed-summary") }}
+	</div>
     </div>
 </div>
 
@@ -65,6 +81,7 @@
 	{{ option('about', 'About') }}
       	{{ option('contestants', 'Contestants', contest.contestant_count()) }}
 	{{ option('submit-contestant', 'How to Enter') }}
+	{{ option('judges', 'Judges') }}
     </select>
     {% macro menu_link(value, text, count=0) -%}
     	<a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-button {% if selected == value %}pp-selected-button{% endif %}">{{ text }}
@@ -84,6 +101,7 @@
           </script>
       	  <a href="#" onclick="pp_show_login()" class="btn btn-default pp-button {% if selected == 'submit-contestant' %}pp-selected-button{% endif %}">How to Enter</a>
 	{%- endif -%}
+	{{ menu_link('judges', 'Judges') }}
   </div>
 </div>
 

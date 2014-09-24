@@ -10,6 +10,7 @@ from publicprize import common
 from publicprize import controller
 from publicprize.controller import db
 import sqlalchemy
+import werkzeug.exceptions
 
 class BivAccess(db.Model, controller.Model):
     """BivAccess links ownership between models. For example, a Contest model
@@ -20,6 +21,11 @@ class BivAccess(db.Model, controller.Model):
     """
     source_biv_id = db.Column(db.Numeric(18), primary_key=True)
     target_biv_id = db.Column(db.Numeric(18), primary_key=True)
+
+    @classmethod
+    def load_biv_obj(cls, biv_id):
+        """Can not load this model by biv_id directly."""
+        werkzeug.exceptions.abort(404)
 
 
 class BivAlias(db.Model, controller.Model):

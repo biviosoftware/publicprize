@@ -60,6 +60,18 @@ _MANAGER = fes.Manager(ppc.app())
 _MANAGER.add_command('runserver', RunServerWithBetterLogger())
 
 
+def add_sponsor(contest_id, display_name, website, logo_filename):
+    """Create a sponsor to the contest."""
+    logo = _read_image_from_file(logo_filename)
+    sponsor_id = _add_model(pcm.Sponsor(
+        display_name=display_name,
+        website=website,
+        sponsor_logo=logo,
+        logo_type=imghdr.what(None, logo)
+        ))
+    _add_owner(contest_id, sponsor_id)
+    
+
 @_MANAGER.command
 def create_db():
     """Create the postgres user, database, and publicprize schema"""
@@ -215,14 +227,8 @@ def _create_database(is_production=False):
             ))
 
         for sponsor in contest['Sponsor']:
-            logo = _read_image_from_file(sponsor['logo_filename'])
-            sponsor_id = _add_model(pcm.Sponsor(
-                display_name=sponsor['display_name'],
-                website=sponsor['website'],
-                sponsor_logo=logo,
-                logo_type=imghdr.what(None, logo)
-            ))
-            _add_owner(contest_id, sponsor_id)
+            add_sponsor(contest_id, sponsor['display_name'],
+                        sponsor['website'], sponsor['logo_filename'])
 
         if is_production:
             break

@@ -110,9 +110,6 @@ a.pp-nav-logo:hover {
   padding-top: 1em;
   min-height: 370px;
 }
-.pp-heading h1 {
-  margin-top: 0;
-}
 
 .pp-modal-header {
   border-top-left-radius: 6px;
@@ -145,7 +142,7 @@ a.pp-nav-logo:hover {
 
 /* Contest styles */
 
-.pp-title {
+.pp-contestant .pp-title {
   margin-bottom: 0;
   font-size: 33px;
   font-weight: normal;
@@ -197,19 +194,22 @@ a.pp-nav-logo:hover {
   font-size: 14px;
   display: block;
   margin-bottom: 7px;
+  margin-right: 1em;
 }
 .pp-summary-number {
   font-size: 24px;
   font-weight: bold;
   display: block;
   line-height: 30px;
+  margin-right: 1em;
 }
 .pp-summary-undertitle {
   font-size: 14px;
   display: block;
 }
-
-
+.pp-condensed-summary {
+  display: inline-block;
+}
 .pp-menu {
   width: 100%;
   margin-bottom: 1ex;
@@ -223,7 +223,7 @@ a.pp-nav-logo:hover {
 .pp-button {
   margin-bottom: 3px;
   font-weight: bold;
-  width: 33%;
+  width: 25%;
 }
 .pp-button:hover {
   background-color: transparent;
@@ -234,7 +234,7 @@ a.pp-selected-button:hover {
   min-width: 7em;
   border-bottom: 3px solid #FCB03C;
   font-weight: bold;
-  width: 33%;
+  width: 25%;
   margin-bottom: 0px;
 }
 
@@ -257,16 +257,17 @@ a.pp-selected-button:hover {
 }
 
 .pp-contestant-entry,
+.pp-judges-page,
 .pp-about-page {
   margin-top: 15px;
 }
-.pp-about-title {
+.pp-main > .pp-heading {
   font-size: 120%;
   font-weight: bold;
   color: #068587;
   margin-bottom: 10px;
 }
-.pp-about-section {
+.pp-about-page > .pp-section {
   font-size: 100%;
   font-weight: bold;
   color: #068587;
@@ -309,6 +310,40 @@ a.pp-selected-button:hover {
   display: block;
   text-align: center;
 }
+.pp-judge {
+  display: block;
+  text-align: right;
+  margin: 20px 0;
+  height: 120px;
+}
+.pp-judge span {
+  color: #444;
+  text-align: right;
+  display: block;
+  font-style: italic;
+  font-size: 14px;
+}
+.pp-judge:hover .pp-name {
+  color: #FCB03C;
+}
+.pp-judge .pp-name {
+  font-size: 16px;
+  color: #068587;
+  font-style: italic;
+  font-weight: bold;
+}
+.pp-judge .pp-title {
+  font-style: italic;
+  font-weight: bold;
+}
+.pp-judge img {
+  display: block;
+  border-radius: 60px;
+  float: right;
+  margin: 0;
+  margin-left: 20px;
+  height: 120px;
+}
 .pp-contestant-desc {
   white-space: pre-line;
 }
@@ -344,7 +379,7 @@ img.pp-video-play:hover {
     display: block;
     text-overflow: ellipsis;
 }
-.pp-amount-bar {
+.pp-amount-bar, .pp-other-submit {
     margin-top: 15px;
 }
 button.pp-amount-bar {
