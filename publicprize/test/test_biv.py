@@ -10,6 +10,7 @@ from publicprize import biv
 # Needed to initialize known biv.ids
 import publicprize.general.task
 import publicprize.general.model
+import werkzeug.exceptions
 
 def test_marker():
     assert biv.Marker(1) == 1
@@ -22,7 +23,7 @@ def test_index():
     assert biv.Index(9) == 9
     assert biv.Index(1e15 - 1) == 1e15 - 1
     for v in 0, int(1e15):
-        with pytest.raises(AssertionError):
+        with pytest.raises(werkzeug.exceptions.NotFound):
             biv.Index(v)
 
 def test_id():
