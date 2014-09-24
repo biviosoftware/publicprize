@@ -62,8 +62,9 @@ class Index(int):
         if isinstance(biv_index, cls):
             return biv_index
         bi = int(biv_index)
-        assert 0 < bi <= _MAX_INDEX, str(biv_index) + ': range'
-        return super().__new__(cls, bi)
+        if 0 < bi <= _MAX_INDEX:
+            return super().__new__(cls, bi)
+        werkzeug.exceptions.abort(404)
 
 
 class Marker(int):
