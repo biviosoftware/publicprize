@@ -65,6 +65,7 @@
 	{{ option('about', 'About') }}
       	{{ option('contestants', 'Contestants', contest.contestant_count()) }}
 	{{ option('submit-contestant', 'How to Enter') }}
+	{{ option('judges', 'Judges') }}
     </select>
     {% macro menu_link(value, text, count=0) -%}
     	<a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-button {% if selected == value %}pp-selected-button{% endif %}">{{ text }}
@@ -84,6 +85,7 @@
           </script>
       	  <a href="#" onclick="pp_show_login()" class="btn btn-default pp-button {% if selected == 'submit-contestant' %}pp-selected-button{% endif %}">How to Enter</a>
 	{%- endif -%}
+	{{ menu_link('judges', 'Judges') }}
   </div>
 </div>
 

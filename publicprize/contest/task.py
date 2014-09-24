@@ -31,6 +31,10 @@ class Contest(ppc.Task):
         """Default to contestant list"""
         return Contest.action_contestants(biv_obj)
 
+    def action_judges(biv_obj):
+        """List of judges page"""
+        return Contest._render_template(biv_obj, 'judges')
+
     def action_logo(biv_obj):
         """Contestant logo image"""
         return flask.send_file(
