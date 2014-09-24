@@ -54,6 +54,11 @@
 	  "display_name": "Bivio Software",
 	  "website": "http://www.bivio.biz",
 	  "logo_filename": "data/bivio-255x178.gif"
+	},
+        {
+	  "display_name": "Bryan Cave",
+	  "website": "http://www.bryancave.com",
+	  "logo_filename": "data/bryancave-255x178.gif"
 	}
       ],
 
