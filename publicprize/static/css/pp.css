@@ -194,19 +194,22 @@ a.pp-nav-logo:hover {
   font-size: 14px;
   display: block;
   margin-bottom: 7px;
+  margin-right: 1em;
 }
 .pp-summary-number {
   font-size: 24px;
   font-weight: bold;
   display: block;
   line-height: 30px;
+  margin-right: 1em;
 }
 .pp-summary-undertitle {
   font-size: 14px;
   display: block;
 }
-
-
+.pp-condensed-summary {
+  display: inline-block;
+}
 .pp-menu {
   width: 100%;
   margin-bottom: 1ex;
