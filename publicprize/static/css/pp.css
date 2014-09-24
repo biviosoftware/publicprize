@@ -147,6 +147,14 @@ a.pp-nav-logo:hover {
   font-size: 33px;
   font-weight: normal;
 }
+div.pp-contestant-entry {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+}
+div.pp-contestant-entry:hover {
+  background-color: #f9f9f9;
+  border-radius: 3px;
+}
 .pp-main {
   font-size: 18px;
   line-height: 1.5;
@@ -259,7 +267,7 @@ a.pp-selected-button:hover {
 .pp-contestant-entry,
 .pp-judges-page,
 .pp-about-page {
-  margin-top: 15px;
+  padding-top: 15px;
 }
 .pp-main > .pp-heading {
   font-size: 120%;
@@ -344,8 +352,9 @@ a.pp-selected-button:hover {
   margin-left: 20px;
   height: 120px;
 }
-.pp-contestant-desc {
+div.pp-contestant-desc {
   white-space: pre-line;
+  color: #555;
 }
 .pp-cancel-link {
     margin-left: 1em;
