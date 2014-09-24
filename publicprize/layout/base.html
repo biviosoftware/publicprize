@@ -11,7 +11,7 @@
     <title>{% block title %}{% endblock %} - Public Prize</title>
     <link href="/static/css/bootstrap-3.2.0.min.css" rel="stylesheet">
     <link href="/static/css/ladda-themeless-0.8.0.min.css" rel="stylesheet">
-    <link href="/static/css/pp.css?20140924-1" rel="stylesheet">
+    <link href="/static/css/pp.css?20140924-2" rel="stylesheet">
     <!--[if IE 10]>
       <script src="/static/js/msie/ie10-viewport-bug-workaround.js"></script>
     <![endif]-->
@@ -27,25 +27,15 @@
       <div class="container">
     	<nav class="pp-nav">
       	  <a class="pp-nav-logo" href="/"><img src="/static/img/logo.gif" alt="PUBLIC PRIZE"></a>
-      	  <div class="pp-nav-menu pull-right">
-
-	    {%- if session.get('user.is_logged_in') -%}
-
+	  {%- if session.get('user.is_logged_in') -%}
 	    {%- block logged_in_nav %}{% endblock -%}
-
-            <a class="pp-nav-item" href="{{ g.pub_obj.format_uri('logout') }}">Log out</a>
-
-	    {%- elif session.get('user.oauth_type') -%}
-
-            <a class="pp-nav-item" href="{{ g.pub_obj.get_login_uri() }}">Log in</a>
-
-	    {% else -%}
-
-            <a class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href="#">Sign up</a>
-            <a class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href="#">Log in</a>
-
-	    {%- endif %}
-      	  </div>
+            <a class="pp-nav-item pull-right" href="{{ g.pub_obj.format_uri('logout') }}">Log out</a>
+	  {%- elif session.get('user.oauth_type') -%}
+            <a class="pp-nav-item pull-right" href="{{ g.pub_obj.get_login_uri() }}">Log in</a>
+	  {% else -%}
+            <a class="pp-nav-item pull-right" data-toggle="modal" data-target="#loginModal" href="#">Log in</a>
+            <a class="pp-nav-item pull-right" data-toggle="modal" data-target="#signupModal" href="#">Sign up</a>
+	  {%- endif %}
     	</nav>
       </div>
       {%- endblock -%}
