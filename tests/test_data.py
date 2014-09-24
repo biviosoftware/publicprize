@@ -52,7 +52,6 @@ class SubmitEntryData(object):
                            'blaa blaa blaa blaa blaa blaa blaa blaa blaa ',
                            'blaa blaa blaa blaa blaa blaa blaa blaa blaa ',
                            'blaa blaa blaa blaa blaa blaa blaa blaa'
-                           ''' Not currently testing the following:
                            # test a very long description
                            '1000 blaas: blaa blaa blaa blaa blaa blaa blaa '
                            'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
@@ -155,7 +154,6 @@ class SubmitEntryData(object):
                            'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
                            'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
                            'blaa blaa blaa'
-                           # End not currently testing '''
                            ]
 
         self.good_contestant_descriptions = self.good_descs
