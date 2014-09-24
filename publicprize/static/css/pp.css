@@ -344,7 +344,7 @@ img.pp-video-play:hover {
     display: block;
     text-overflow: ellipsis;
 }
-.pp-amount-bar {
+.pp-amount-bar, .pp-other-submit {
     margin-top: 15px;
 }
 button.pp-amount-bar {
