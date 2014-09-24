@@ -5,22 +5,11 @@
     :license: Apache, see LICENSE for more details.
 """
 
-from publicprize.controller import db
-import datetime
-import flask
 import flask_script as fes
-import flask_script.commands
-import imghdr
-import json
-import locale
-import os
-import publicprize.auth.model as pam
+import manage
+from publicprize.controller import db
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
-import re
-import subprocess
-import urllib.request
-import manage
 
 # Needs to be explicit
 ppc.init()
