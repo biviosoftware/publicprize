@@ -144,13 +144,16 @@ class PublicPrizeTestCase(unittest.TestCase):
         self.good_data = test_data.SubmitEntryData().get_good_data()
         self.bad_data = test_data.SubmitEntryData().get_bad_data()
         for good_entry_variation in ParseData(self.good_data, self.bad_data).efficiently_gen_possible_good_entries():
+            num = int(random.random() * 10000)
+            display_name = '{0}{1}'.format(good_entry_variation[0], num)
+            print(display_name)
             self._visit_uri('/')
             self._visit_uri('/pub/new-test-user')
             self._verify_text('Log out')
             self._follow_link('Esprit Venture Challenge 2014')
             self._follow_link('How to Enter')
             self._submit_form({
-                'display_name': good_entry_variation[0],
+                'display_name': display_name,
                 'contestant_desc': good_entry_variation[1],
                 'youtube_url': good_entry_variation[2],
                 'slideshow_url': good_entry_variation[3],
@@ -164,10 +167,16 @@ class PublicPrizeTestCase(unittest.TestCase):
                 'agree_to_terms': good_entry_variation[11]  # True
             })
             self._verify_text('Thank you for submitting your entry')
-            self._verify_text(good_entry_variation[0])  # display_name
-            self._follow_link('My Entry')
-            for string in good_entry_variation:
-                self._verify_text(string)
+            self._verify_text(display_name)
+            self._follow_link(display_name)
+            dont_verify = {2, 3, 4, 6, 7, 8, 11}
+            for i, string in enumerate(good_entry_variation):
+                if dont_verify.__contains__(i):
+                    pass
+                else:
+                    print("verifying string #{0} contents:\n {1}\n...".format(i, string))
+                    self._verify_text(string)
+                    print("verified")
 
     def test_submit_entry(self):
         self._visit_uri('/')
