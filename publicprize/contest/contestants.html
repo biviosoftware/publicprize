@@ -23,10 +23,11 @@ Contestants
 	  <img class="pp-video-play" src="/static/img/play.png" alt="Play">
 	</a>
     </div>
-    <h3 class="media-heading"><a href="{{ contestant.format_uri('contestant') }}{{ macros.mobile_tag('title') }}">{{ contestant.display_name }}</a></h3>
-    <p class="pp-contestant-desc">{{ contestant.get_summary() }}
-    	<a href="{{ contestant.format_uri('contestant') }}" class="pp-read-more">[learn more]</a>
-    </p>
+    <a href="{{ contestant.format_uri('contestant') }}{{ macros.mobile_tag('title') }}">
+      <div class="pp-contestant-summary">
+      <h3 class="media-heading">{{ contestant.display_name }}</h3>
+      <div class="pp-contestant-desc">{{ contestant.get_summary() }}</div> <span class="pp-read-more">[learn more]</span>
+    </div></a>
 </div>
 <hr>
     
