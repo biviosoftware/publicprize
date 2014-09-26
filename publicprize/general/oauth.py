@@ -162,7 +162,7 @@ def _user_from_info(oauth_type, info):
     ppc.app().logger.info(info)
     if not info.get('email'):
         _client_error(
-            oauth, 'Your email must be provided to this App to login.')
+            oauth_type, 'Your email must be provided to this App to login.')
         return
     user = ppam.User.query.filter_by(
         oauth_type=oauth_type,
