@@ -209,7 +209,6 @@ class PublicPrizeTestCase(unittest.TestCase):
         url = None
         # exact match
         for link in self.current_page.find_all('a'):
-            print("*link text = '{}'".format(link.get_text()))
             if link.get_text() == link_text:
                 url = link['href']
                 break
