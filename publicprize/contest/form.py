@@ -34,29 +34,40 @@ class Contestant(flask_wtf.Form):
         website: project website (optional)
     """
     display_name = wtforms.StringField(
-        'Legal Name of Business', validators=[wtfv.DataRequired()])
+        'Legal Name of Business', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=100)])
     contestant_desc = wtforms.TextAreaField(
         'Summary of Business, Product and/or Service',
-        validators=[wtfv.DataRequired()])
+        validators=[wtfv.DataRequired(), wtfv.Length(max=10000)])
     youtube_url = wtforms.StringField(
-        'YouTube Video URL', validators=[wtfv.DataRequired()])
+        'YouTube Video URL', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=500)])
     slideshow_url = wtforms.StringField(
-        'SlideShare Pitch Deck URL', validators=[wtfv.DataRequired()])
+        'SlideShare Pitch Deck URL', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=500)])
     founder_desc = wtforms.TextAreaField(
-        'Your Bio', validators=[wtfv.DataRequired()])
-    website = wtforms.StringField('Business Website')
+        'Your Bio', validators=[wtfv.DataRequired(), wtfv.Length(max=10000)])
+    website = wtforms.StringField('Business Website', validators=[
+            wtfv.Length(max=500)])
     tax_id = wtforms.StringField(
-        'Business US Tax Id', validators=[wtfv.DataRequired()])
+        'Business US Tax Id', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=30)])
     business_phone = wtforms.StringField(
-        'Business Phone', validators=[wtfv.DataRequired()])
+        'Business Phone', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=100)])
     business_address = wtforms.TextAreaField(
-        'Business Mailing Address', validators=[wtfv.DataRequired()])
+        'Business Mailing Address', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=500)])
     agree_to_terms = wtforms.BooleanField(
         'Agree to Terms of Service', validators=[wtfv.DataRequired()])
-    founder2_name = wtforms.StringField('Other Founder Name')
-    founder2_desc = wtforms.TextAreaField('Other Founder Bio')
-    founder3_name = wtforms.StringField('Other Founder Name')
-    founder3_desc = wtforms.TextAreaField('Other Founder Bio')
+    founder2_name = wtforms.StringField('Other Founder Name', validators=[
+            wtfv.Length(max=100)])
+    founder2_desc = wtforms.TextAreaField('Other Founder Bio', validators=[
+            wtfv.Length(max=10000)])
+    founder3_name = wtforms.StringField('Other Founder Name', validators=[
+            wtfv.Length(max=100)])
+    founder3_desc = wtforms.TextAreaField('Other Founder Bio', validators=[
+            wtfv.Length(max=10000)])
 
     def execute(self, contest):
         """Validates and creates the contestant model"""
