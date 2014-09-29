@@ -92,7 +92,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._submit_form({
             'amount': 1,
         })
-        self._verify_text('Amount must be at least \$10')
+        self._verify_text('Amount must be at least $10')
         self._submit_form({
             'amount': 10000001,
         })
@@ -191,9 +191,9 @@ class PublicPrizeTestCase(unittest.TestCase):
             if link.get_text() == link_text:
                 url = link['href']
                 break
-        # regexp match
+        # partial match
         if not url:
-            regexp = re.compile(link_text)
+            regexp = re.compile(re.escape(link_text))
             for link in self.current_page.find_all('a'):
                 if re.search(regexp, link.get_text()):
                     url = link['href']
@@ -216,7 +216,7 @@ class PublicPrizeTestCase(unittest.TestCase):
             follow_redirects=True))
 
     def _verify_text(self, text):
-        assert self.current_page.find(text=re.compile(text))
+        assert self.current_page.find(text=re.compile(re.escape(text)))
 
     def _visit_uri(self, uri):
         assert uri

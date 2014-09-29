@@ -68,6 +68,7 @@ def authorize_complete(oauth_type):
         flask.session['oauth.{}.token'.format(oauth_type)] = (
             resp['access_token'], '')
         _user_from_info(
+            oauth,
             oauth_type,
             oauth.get(_OAUTH_PROVIDER_DATA_PATH[oauth_type]).data
         )
@@ -156,13 +157,15 @@ def _oauth_provider(name):
     return oauth
 
 
-def _user_from_info(oauth_type, info):
+def _user_from_info(oauth, oauth_type, info):
     """Saves oauth provider user info to user model.
     info arg contains email, id, name."""
     ppc.app().logger.info(info)
     if not info.get('email'):
+        if oauth_type =='facebook':
+            oauth.delete('{}/permissions'.format(info['id']), format=None)
         _client_error(
-            oauth, 'Your email must be provided to this App to login.')
+            oauth_type, 'Your email must be provided to this App to login.')
         return
     user = ppam.User.query.filter_by(
         oauth_type=oauth_type,

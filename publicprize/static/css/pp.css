@@ -151,9 +151,8 @@ div.pp-contestant-entry {
   padding-left: 0.5em;
   padding-right: 0.5em;
 }
-div.pp-contestant-entry:hover {
-  background-color: #f9f9f9;
-  border-radius: 3px;
+a.pp-contestant-link:focus {
+  text-decoration: none;
 }
 .pp-main {
   font-size: 18px;
@@ -352,7 +351,7 @@ a.pp-selected-button:hover {
   margin-left: 20px;
   height: 120px;
 }
-div.pp-contestant-desc {
+.pp-contestant-desc {
   white-space: pre-line;
   color: #555;
 }
