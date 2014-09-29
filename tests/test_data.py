@@ -23,7 +23,7 @@ GENERIC_FIELDS = {
             # to add additional entries
             'SingleWord'
         ],
-        'dev': [
+        'div': [
             '',
             #RN Another thing I like to do is annotate the value so that
             # we can know that the error produced is what we expect.  I
@@ -170,7 +170,7 @@ FIELDS = {
             'http://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement_bad_link'
         ]
     },
-    'website_url': {
+    'website': {
         'conf': [
             'www.google.com',
             'https://www.google.com',
@@ -182,13 +182,13 @@ FIELDS = {
             # ignored with a known length (MAX)
             # Use long url maker to go to google.com
             # MA: Fixed
-            'http://bivio.com/?x=ignored' + ('z' * MAX['url_length'] - 27)
+            'http://bivio.com/?x=ignored' + ('z' * (MAX['url_length'] - 27))
         ],
         'div': [
             '',
             'lsjdfl.alksdjflkdsj.clkj',
             'www.g00gle.com',
-            'http://bivio.com/?x=ignored' + ('z' * MAX['url_length'] - 26)
+            'http://bivio.com/?x=ignored' + ('z' * (MAX['url_length'] - 26))
         ]
     },
     'founder_desc': GENERIC_FIELDS['generic_desc'],
@@ -196,7 +196,7 @@ FIELDS = {
         'conf': ['22-7777777'],
         'div': ['']
     },
-    'phone_nums': {
+    'business_phone': {
         'conf': [
             '303-123-4567',
             '303 123 4567',
@@ -218,7 +218,7 @@ FIELDS = {
             '123 Pearl St'
         ]
     },
-    'founder2_name': GENERIC_FIELDS['display_name'],
+    'founder2_name': GENERIC_FIELDS['generic_name'],
     'founder2_desc': GENERIC_FIELDS['generic_desc'],
     'agree_to_terms': {
         'conf': [True],
