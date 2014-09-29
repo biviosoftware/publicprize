@@ -14,91 +14,62 @@ import itertools
 import test_data
 
 class ParseData(object):
-    """ Get a list of lists of good and bad data, and return various
-    combinations of these lists """
-    def __init__(self, good_data, bad_data):
+    """ Takes in a data set of the form:
+        SET = {
+            'item': {
+                'conf': []
+                'div': []
+            }, ...
+        }
+
+       Then returns various div and conf options
+    """
+    def __init__(self, data):
         """ good_data and bad_data should be lists of lists of data, containing
         at least one item each """
-        assert len(good_data) > 0
-        assert len(good_data) == len(bad_data)
-        for data_list in good_data:
-            assert len(data_list) > 0
-        for data_list in bad_data:
-            assert len(data_list) > 0
-        self.good_data = good_data
-        self.bad_data = bad_data
+        assert len(data) > 0
+        for key in data:
+            item = data[key]
+            assert item.__contains__('conf'), 'item: {0}'.format(item)
+            assert len(item['conf']) > 0
+            assert item.__contains__('div'), 'item: {0}'.format(item)
+            assert len(item['div']) > 0
+        self.data = data
 
-    def get_basic_good_entry(self):
-        return [data[0] for data in self.good_data]
+    def get_data_variations(self, data_type_string):
+        """ Efficiently returns sets of the form:
+            SET = {
+                'item': some_value,
+                'item2': some_value,
+                ...
+            },
 
-    def get_basic_bad_entry(self):
-        return [data[0] for data in self.bad_data]
+            such that all members of in either the 'conf' or 'div' subset of
+            'item', 'item2', ..., are eventually returned.
 
-    def gen_all_possible_good_entries(self):
-        for possible_combination in itertools.product(*self.good_data):
-            yield possible_combination  # note: this yields a tuple, not a list
-
-    def gen_all_possible_bad_entries(self):
-        for possible_combination in itertools.product(*self.bad_data):
-            yield possible_combination  # note: this yields a tuple, not a list
-
-    def _efficient_gen_possible_entries(self, entries_list):
-        """ generating every possible combination of data is probably overkill
-        in most cases. This just makes sure that every possible entry is
-        entered at some point (but not every single different combination of
-        entries is)
+            -- data_type_string: subtype for data, either 'conf' or 'div'
         """
-        # initialization stuff
-        num_items = len(entries_list)
-        positions = []  # store position in each list
-        for i in range(num_items):
-            positions.append(0) # position in each list starts at 0
+        positions = {}
+        data = {}
 
-        # now generate different possibilities
+        # initialization
+        for key in self.data:
+            item = self.data[key]
+            positions[key] = 0
+            data[key] = item[data_type_string][positions[key]]
+        yield data
+
+        # main loop
         done = False
         while done is False:
-            # we're done when no additional possible entries are left
-            # this is assumed, and the assumption is only revoke if one is
-            # found
             done = True
-            ret = []
-            for i in range(num_items):
-                ret.append(entries_list[i][positions[i]])
-                # if that sub_list has more data in it
-                if positions[i] < len(entries_list[i])-1:
-                    positions[i] += 1
+            for key in self.data:
+                item = self.data[key]
+                if len(item[data_type_string]) > positions[key] + 1:
+                    positions[key] += 1
+                    data[key] = item[data_type_string][positions[key]]
                     done = False
-            yield ret
-
-    def efficiently_gen_possible_good_entries(self):
-        for good_entry in self._efficient_gen_possible_entries(self.good_data):
-            yield good_entry
-
-    def efficiently_gen_possible_bad_entries(self):
-        for bad_entry in self._efficient_gen_possible_entries(self.bad_data):
-            yield bad_entry
-
-    def _gen_single_one_type_all_else_other_type_variations(self, primary_data, secondary_data):
-        """ spit out lists that are almost all from primary_data, with a single
-        entry from secondary_data. One list per each possible different sub-entry
-        in secondary_data
-        primary_data = list of lists of primary data
-        secondary_data = list of lists of secondary data"""
-        assert len(primary_data) == len(secondary_data)
-        variation = [data[0] for data in primary_data]
-        for i in range(len(primary_data)):
-            for j in range(len(secondary_data[i])):
-                variation[i] = secondary_data[i][j]
-                yield variation
-            variation[i] = primary_data[i][0]  # reset back to primary default
-
-    def gen_mostly_good_with_single_bad_variations(self):
-        for mostly_good_entry in self._gen_single_one_type_all_else_other_type_variations(self.good_data, self.bad_data):
-            yield mostly_good_entry
-
-    def gen_mostly_bad_with_single_good_variations(self):
-        for mostly_bad_entry in self._gen_single_one_type_all_else_other_type_variations(self.bad_data, self.good_data):
-            yield mostly_bad_entry
+            yield data
 
 
 class PublicPrizeTestCase(unittest.TestCase):
@@ -141,12 +112,12 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text('Page Not Found')
 
     def test_good_submit_entries(self):
-        self.good_data = test_data.SubmitEntryData().get_good_data()
-        self.bad_data = test_data.SubmitEntryData().get_bad_data()
-        for good_entry_variation in ParseData(self.good_data, self.bad_data).efficiently_gen_possible_good_entries():
+        data_gen = ParseData(test_data.FIELDS).get_data_variations('conf')
+        for data_variation in data_gen:
             num = int(random.random() * 10000)
-            display_name = '{0}{1}'.format(good_entry_variation[0], num)
-            print(display_name)
+            base_name = data_variation['display_name']
+            display_name = '{0}{1}'.format(base_name, num)
+
             self._visit_uri('/')
             self._visit_uri('/pub/new-test-user')
             self._verify_text('Log out')
@@ -154,28 +125,36 @@ class PublicPrizeTestCase(unittest.TestCase):
             self._follow_link('How to Enter')
             self._submit_form({
                 'display_name': display_name,
-                'contestant_desc': good_entry_variation[1],
-                'youtube_url': good_entry_variation[2],
-                'slideshow_url': good_entry_variation[3],
-                'website': good_entry_variation[4],
-                'founder_desc': good_entry_variation[5],
-                'tax_id': good_entry_variation[6],
-                'business_phone': good_entry_variation[7],
-                'business_address': good_entry_variation[8],
-                'founder2_name': good_entry_variation[9],
-                'founder2_desc': good_entry_variation[10],
-                'agree_to_terms': good_entry_variation[11]  # True
+                'contestant_desc': data_variation['contestant_desc'],
+                'youtube_url': data_variation['youtube_url'],
+                'slideshow_url': data_variation['slideshow_url'],
+                'website': data_variation['website'],
+                'founder_desc': data_variation['founder_desc'],
+                'tax_id': data_variation['tax_id'],
+                'business_phone': data_variation['business_phone'],
+                'business_address': data_variation['business_address'],
+                'founder2_name': data_variation['founder2_name'],
+                'founder2_desc': data_variation['founder2_desc'],
+                'agree_to_terms': data_variation['agree_to_terms']
             })
             self._verify_text('Thank you for submitting your entry')
             self._verify_text(display_name)
             self._follow_link(display_name)
-            dont_verify = {2, 3, 4, 6, 7, 8, 11}
-            for i, string in enumerate(good_entry_variation):
-                if dont_verify.__contains__(i):
+            dont_verify = {'youtube_url',
+                           'slideshow_url',
+                           'website',
+                           'tax_id',
+                           'business_phone',
+                           'business_address',
+                           'agree_to_terms'}
+            for data_item in data_variation:
+                if dont_verify.__contains__(data_item):
                     pass
                 else:
-                    print("verifying string #{0} contents:\n {1}\n...".format(i, string))
-                    self._verify_text(string)
+                    print("verifying string for {0} contents:\n"
+                          "{1}\n...".format(data_item,
+                                            data_variation[data_item]))
+                    self._verify_text(data_variation[data_item])
                     print("verified")
 
     def test_submit_entry(self):
