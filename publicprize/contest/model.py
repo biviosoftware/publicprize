@@ -182,7 +182,6 @@ class Contestant(db.Model, common.ModelWithDates):
     def get_summary(self):
         """Returns an excerpt for the Contestant.contestant_desc."""
         summary = self.contestant_desc
-        print("summary: {}".format(summary))
         match = re.search(r'^(.*?\s[a-z)]{3,}\.\s.*?\s[a-z)]{3,}\.\s)', summary)
         if match:
             return match.group(1)
