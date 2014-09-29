@@ -22,7 +22,6 @@ numconv==2.1.1
 oauthlib==0.6.3
 paypalrestsdk==1.3.0
 psycopg2==2.5.3
--e git+https://github.com/biviosoftware/publicprize@849bc9a3d237114e51776c65e5804541bb60cfb0#egg=publicprize-origin/master
 py==1.4.23
 pytest==2.6.1
 requests==2.4.0
