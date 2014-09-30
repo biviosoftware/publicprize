@@ -1,7 +1,7 @@
 {
   "Contest": [
     {
-      "display_name": "Esprit Venture Challenge 2014",
+      "display_name": "Esprit Venture Challenge",
       "tag_line": "Join us October 23, 2014",
       "logo_filename": "data/esprit-logo.gif",
       "end_date": "10/21/2014",
@@ -10,6 +10,11 @@
       },
 
       "Sponsor": [
+        {
+	  "display_name": "Boulder Chamber",
+	  "website": "http://boulderchamber.com/",
+	  "logo_filename": "data/logoBoulderChamber.png"
+	},
         {
 	  "display_name": "Casanova Ventures",
 	  "website": "http://casanovaventures.com/",
