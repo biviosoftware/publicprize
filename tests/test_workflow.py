@@ -28,7 +28,7 @@ class ParseData(object):
         """ good_data and bad_data should be lists of lists of data, containing
         at least one item each """
         assert len(data) > 0
-        for key in data:
+        for key, item in data.items():
             item = data[key]
             assert item.__contains__('conf'), 'item: {0}'.format(item)
             assert len(item['conf']) > 0
@@ -53,8 +53,7 @@ class ParseData(object):
         data = {}
 
         # initialization
-        for key in self.data:
-            item = self.data[key]
+        for key, item in self.data.items():
             positions[key] = 0
             data[key] = item[data_type_string][positions[key]]
         yield data
@@ -63,8 +62,7 @@ class ParseData(object):
         done = False
         while done is False:
             done = True
-            for key in self.data:
-                item = self.data[key]
+            for key, item in self.data.items():
                 if len(item[data_type_string]) > positions[key] + 1:
                     positions[key] += 1
                     data[key] = item[data_type_string][positions[key]]
