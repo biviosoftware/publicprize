@@ -22,6 +22,8 @@ GENERIC_FIELDS = {
             #MA I think 'SingleWord',\n] is probably best, as it will be easier
             # to add additional entries
             'SingleWord'
+            'Unicode monster: «ταБЬℓσ»: 1<2 & 4+1>3, now 20% off!',
+            'Escaped \' quotes \"'
         ],
         'dev': [
             '',
@@ -37,6 +39,8 @@ GENERIC_FIELDS = {
         'conf': [
             'Generic description',
             '!@#$%^&*()_+=-',  # test special characters
+            'Unicode monster: «ταБЬℓσ»: 1<2 & 4+1>3, now 20% off!',
+            'Escaped \' quotes \"',
             # test a long description
             ('150 blaas: blaa blaa blaa blaa blaa blaa blaa blaa blaa '
              'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
@@ -212,7 +216,11 @@ FIELDS = {
         'dev': ['']
     },
     'business_address': {
-        'conf': ['123 Pearl St\nBoulder CO 80303'],
+        'conf': [
+            '123 Pearl St\nBoulder CO 80303',
+            'Unicode monster: «ταБЬℓσ»: 1<2 & 4+1>3, now 20% off!',
+            'Escaped \' quotes \"'
+        ],
         'dev': [
             '',
             '123 Pearl St'
