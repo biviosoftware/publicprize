@@ -15,9 +15,9 @@
   <div class="pp-back-this-startup">
     <div class="pp-heading"><strong>Back this Boulder startup</strong></div>
     <form class="form-inline" method="POST" action="{{ contestant.format_uri('contestant') }}">
-      {{ amount_button('donate10') }}
-      {{ amount_button('donate25') }}
-      {{ amount_button('donate100') }}
+      {{- amount_button('donate10') -}}
+      {{- amount_button('donate25') -}}
+      {{- amount_button('donate100') -}}
       <button id="pp-other-button" class="btn btn-primary btn-lg pp-amount-bar
         {%- if form['amount'].errors %}	disabled
 	{%- endif %}">Other</button>
