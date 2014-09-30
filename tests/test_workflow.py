@@ -18,11 +18,11 @@ class ParseData(object):
         SET = {
             'item': {
                 'conf': []
-                'div': []
+                'dev': []
             }, ...
         }
 
-       Then returns various div and conf options
+       Then returns various dev and conf options
     """
     def __init__(self, data):
         """ good_data and bad_data should be lists of lists of data, containing
@@ -32,8 +32,8 @@ class ParseData(object):
             item = data[key]
             assert item.__contains__('conf'), 'item: {0}'.format(item)
             assert len(item['conf']) > 0
-            assert item.__contains__('div'), 'item: {0}'.format(item)
-            assert len(item['div']) > 0
+            assert item.__contains__('dev'), 'item: {0}'.format(item)
+            assert len(item['dev']) > 0
         self.data = data
 
     def get_data_variations(self, data_type_string):
@@ -44,10 +44,10 @@ class ParseData(object):
                 ...
             },
 
-            such that all members of in either the 'conf' or 'div' subset of
+            such that all members of in either the 'conf' or 'dev' subset of
             'item', 'item2', ..., are eventually returned.
 
-            -- data_type_string: subtype for data, either 'conf' or 'div'
+            -- data_type_string: subtype for data, either 'conf' or 'dev'
         """
         positions = {}
         data = {}

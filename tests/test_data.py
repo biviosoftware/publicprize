@@ -23,7 +23,7 @@ GENERIC_FIELDS = {
             # to add additional entries
             'SingleWord'
         ],
-        'div': [
+        'dev': [
             '',
             #RN Another thing I like to do is annotate the value so that
             # we can know that the error produced is what we expect.  I
@@ -33,7 +33,7 @@ GENERIC_FIELDS = {
         ]
     },
     'generic_desc': {
-        'div': [''],
+        'dev': [''],
         'conf': [
             'Generic description',
             '!@#$%^&*()_+=-',  # test special characters
@@ -151,7 +151,7 @@ FIELDS = {
         'conf': [
             'https://www.youtube.com/watch?v=K5pZlBgXBu0'
         ],
-        'div': [
+        'dev': [
             '',
             'https://www.youtube.co/watch?v=K5pZlBgXBu0',
             'https://www.youtube.com/watch?v=K5pZlBgXBu0lkjsdfjal',
@@ -164,7 +164,7 @@ FIELDS = {
             'http://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement',
             'https://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement'
         ],
-        'div': [
+        'dev': [
             '',
             'https://www.youtube.com/watch?v=K5pZlBgXBu0',
             'http://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement_bad_link'
@@ -184,7 +184,7 @@ FIELDS = {
             # MA: Fixed
             'http://bivio.com/?x=ignored' + ('z' * (MAX['url_length'] - 27))
         ],
-        'div': [
+        'dev': [
             '',
             'lsjdfl.alksdjflkdsj.clkj',
             'www.g00gle.com',
@@ -194,7 +194,7 @@ FIELDS = {
     'founder_desc': GENERIC_FIELDS['generic_desc'],
     'tax_id': {
         'conf': ['22-7777777'],
-        'div': ['']
+        'dev': ['']
     },
     'business_phone': {
         'conf': [
@@ -209,11 +209,11 @@ FIELDS = {
             '1 303 123 4567-3576',
             '1 303 123 4567 3576'
         ],
-        'div': ['']
+        'dev': ['']
     },
     'business_address': {
         'conf': ['123 Pearl St\nBoulder CO 80303'],
-        'div': [
+        'dev': [
             '',
             '123 Pearl St'
         ]
@@ -222,6 +222,6 @@ FIELDS = {
     'founder2_desc': GENERIC_FIELDS['generic_desc'],
     'agree_to_terms': {
         'conf': [True],
-        'div': [False]
+        'dev': [False]
     }
 }
