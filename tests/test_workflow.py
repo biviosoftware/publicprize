@@ -36,7 +36,7 @@ class ParseData(object):
             assert len(item['dev']) > 0
         self.data = data
 
-    def get_data_variations(self, data_type_string):
+    def get_data_variations(self, data_subtype):
         """ Efficiently returns sets of the form:
             SET = {
                 'item': some_value,
@@ -47,7 +47,7 @@ class ParseData(object):
             such that all members of in either the 'conf' or 'dev' subset of
             'item', 'item2', ..., are eventually returned.
 
-            -- data_type_string: subtype for data, either 'conf' or 'dev'
+            -- data_subtype: subtype for data, either 'conf' or 'dev'
         """
         positions = {}
         data = {}
@@ -55,7 +55,7 @@ class ParseData(object):
         # initialization
         for key, item in self.data.items():
             positions[key] = 0
-            data[key] = item[data_type_string][positions[key]]
+            data[key] = item[data_subtype][positions[key]]
         yield data
 
         # main loop
@@ -63,9 +63,9 @@ class ParseData(object):
         while done is False:
             done = True
             for key, item in self.data.items():
-                if len(item[data_type_string]) > positions[key] + 1:
+                if len(item[data_subtype]) > positions[key] + 1:
                     positions[key] += 1
-                    data[key] = item[data_type_string][positions[key]]
+                    data[key] = item[data_subtype][positions[key]]
                     done = False
             yield data
 
