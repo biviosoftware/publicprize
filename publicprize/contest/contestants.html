@@ -6,6 +6,64 @@ Contestants
 {{ super() }}
 {% endblock %}
 
+{% block contest_header %}
+<div class="col-sm-9">
+
+  <div class="row">
+    <div class="col-sm-4 hidden-xs">
+      <a class="pp-title-link" href="{{ contest.format_uri('about') }}">
+        <img style="width:100%; margin-bottom:1ex" src="/static/img/rosie200.jpg" alt="We Can Do It!">
+      </a>
+    </div>
+    <div class="col-sm-8">
+      <p class="text-primary pp-contest-title">
+        <a class="pp-title-link" href="{{ contest.format_uri('about') }}">
+        Hey, Boulder!  We are the Startup Capital of the US.
+        Show them why we are #1!
+	</a>
+      </p>
+      <p class="pp-contest-desc">
+        <a class="pp-title-link" href="{{ contest.format_uri('about') }}">
+	Vote with your dollars for the best Boulder startup.
+	The <span class="pp-tag-title">Esprit Venture Challenge</span>
+	is the Boulder Chamber’s
+	friendly crowdfunding contest.  Promote innovation
+	in Boulder. Let’s keep our community #1!
+	<span class="pp-contest-more">[more]</span>
+	</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+{%- macro summary(item_class) -%}
+  <div class="{{ item_class }}">
+    <span class="pp-summary-number">${{ contest.donor_executed_amount() }}</span>
+    <span class="pp-summary-name">Raised</span>
+  </div>
+  <div class="{{ item_class }}">
+    <span class="pp-summary-number">{{ contest.donor_count() }}</span>
+    <span class="pp-summary-name">Contributions</span>
+  </div>
+  <div class="{{ item_class }}">
+    <span class="pp-summary-number">{{ contest.days_remaining() }}</span>
+    <span class="pp-summary-undertitle">days to go</span>
+  </div>
+{%- endmacro -%}
+      
+
+<div class="col-sm-3">
+    <div class="pp-summary">
+	<div class="hidden-xs">
+	  {{ summary("pp-normal-summary") }}
+        </div>
+	<div class="visible-xs">
+	  {{ summary("pp-condensed-summary") }}
+	</div>
+    </div>
+</div>
+{% endblock %}
+
 {% block contest_content %}
 <div class="pp-main">
 
@@ -16,18 +74,20 @@ Contestants
     	{#- show video as still image, playback on detail page, this avoids
 	a long lag time when loading a page with lots of videos -#}
         <a href="{{
-	    contestant.format_uri('contestant', query={"autoplay": 1})
+	    contestant.format_uri(None, query={"autoplay": 1})
 	}}">
           <img class="pp-video-thumbnail" src="https://img.youtube.com/vi/{{ contestant.youtube_code }}/mqdefault.jpg" alt="{{ contestant.display_name }}">
 	  {#- TODO(pjm): use bootstrap play glyph -#}
 	  <img class="pp-video-play" src="/static/img/play.png" alt="Play">
 	</a>
     </div>
-    <a href="{{ contestant.format_uri('contestant') }}{{ macros.mobile_tag('title') }}">
+    <a href="{{ contestant.format_uri() }}{{ macros.mobile_tag('title') }}">
       <div class="pp-contestant-summary">
       <h3 class="media-heading">{{ contestant.display_name }}</h3>
-      <div class="pp-contestant-desc">{{ contestant.get_summary() }}</div> <span class="pp-read-more">[learn more]</span>
+      <div class="pp-contestant-desc">{{ contestant.get_summary() }}</div>
     </div></a>
+      <a href="{{ contestant.format_uri() }}" class="pull-right btn btn-primary btn-lg">Learn More</a>
+
 </div>
 <hr>
     
