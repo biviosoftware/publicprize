@@ -83,7 +83,7 @@ class PublicPrizeTestCase(unittest.TestCase):
 
     def test_contribution(self):
         self._visit_uri('/')
-        self._follow_link('Esprit Venture Challenge 2014')
+        self._follow_link('Esprit Venture Challenge')
         self._follow_link('Contestants')
         self._follow_link('gazeMetrix')
         self._submit_form({
@@ -121,8 +121,9 @@ class PublicPrizeTestCase(unittest.TestCase):
             self._visit_uri('/')
             self._visit_uri('/pub/new-test-user')
             self._verify_text('Log out')
-            self._follow_link('Esprit Venture Challenge 2014')
-            self._follow_link('How to Enter')
+            self._follow_link('Esprit Venture Challenge')
+#            self._follow_link('How to Enter')
+            self._visit_uri(self.current_uri + '/submit-contestant')
             self._submit_form({
                 'display_name': display_name,
                 'contestant_desc': data_variation['contestant_desc'],
@@ -161,8 +162,9 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._visit_uri('/')
         self._visit_uri('/pub/new-test-user')
         self._verify_text('Log out')
-        self._follow_link('Esprit Venture Challenge 2014')
-        self._follow_link('How to Enter')
+        self._follow_link('Esprit Venture Challenge')
+#        self._follow_link('How to Enter')
+        self._visit_uri(self.current_uri + '/submit-contestant')
         num = int(random.random() * 10000)
         name = 'Test Entry {}, WÜN'.format(num)
         self._submit_form({
@@ -214,6 +216,7 @@ class PublicPrizeTestCase(unittest.TestCase):
             url,
             data=data,
             follow_redirects=True))
+        self.current_uri = url
 
     def _verify_text(self, text):
         assert self.current_page.find(text=re.compile(re.escape(text)))
@@ -221,6 +224,7 @@ class PublicPrizeTestCase(unittest.TestCase):
     def _visit_uri(self, uri):
         assert uri
         self._set_current_page(self.client.get(uri, follow_redirects=True))
+        self.current_uri = uri
 
 if __name__ == '__main__':
     unittest.main()
