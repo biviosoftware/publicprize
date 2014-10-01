@@ -123,8 +123,8 @@ a:hover {
   font-weight: normal;
 }
 div.pp-contestant-entry {
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 a.pp-contestant-link:focus {
   text-decoration: none;
