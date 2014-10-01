@@ -75,11 +75,13 @@ a:hover {
   padding-bottom: 8px;
   vertical-align: middle;
   white-space: nowrap;
+  font-weight: 500;
 }
 .pp-nav-title-mobile {
   margin-left: 1em;
   margin-bottom: 1ex;
   font-size: 24px;
+  font-weight: 500;
 }
 
 .pp-content {
@@ -196,12 +198,6 @@ a.pp-contestant-link:focus {
   width: 100%;
   margin-bottom: 1ex;
 }
-.pp-menu-xs {
-  font-weight: bold;
-  margin-top: 2ex;
-  margin-bottom: 1ex;
-}
-
 .pp-menu-button {
   margin-bottom: 3px;
   font-weight: bold;
@@ -213,10 +209,7 @@ a.pp-contestant-link:focus {
 }
 .pp-selected-menu-button,
 a.pp-selected-button:hover {
-  min-width: 7em;
   border-bottom: 3px solid #FCB03C;
-  font-weight: bold;
-  width: 33.3333%;
   margin-bottom: 0px;
 }
 
@@ -342,6 +335,7 @@ a.pp-selected-button:hover {
 }
 img.pp-video-thumbnail {
     width: 100%;
+    margin-bottom: 0.5ex;
 }
 img.pp-video-play {
     height: auto;
@@ -477,4 +471,7 @@ input.pp-agree-checkbox {
 }
 .pp-contestant-bottom-amount-bar {
   margin-top: 30px;
+}
+.pp-learn-more {
+  margin-top: 1ex;
 }
