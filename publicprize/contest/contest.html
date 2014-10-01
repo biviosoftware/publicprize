@@ -19,27 +19,15 @@
 {% block contest_header %}{% endblock %}
 
 <div class="col-sm-12">
-    {% macro option(value, text, count=0) -%}
-    	<option value="{{ contest.format_uri(value) }}"
-      	    {%- if selected == value %} selected="selected"{% endif -%}>
-	    {{- text -}}
-	    {% if count %} ({{ count }}){% endif -%}
-	</option>
-    {%- endmacro -%}
-    <select class="pp-menu-xs form-control visible-xs" onchange="window.location = this.options[this.selectedIndex].value;">
-	{{ option('about', 'About') }}
-      	{{ option('contestants', 'Contestants', contest.contestant_count()) }}
-	{{ option('judges', 'Judges') }}
-    </select>
-    {% macro menu_link(value, text, count=0) -%}
-    	<a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-menu-button {% if selected == value %}pp-selected-menu-button{% endif %}">{{ text }}
-	    {%- if count %} <span class="badge">{{ count }}</span>{% endif -%}
-	</a>
-    {%- endmacro -%}
-    <div class="btn-group pp-menu hidden-xs">
-	{{ menu_link('about', 'About') }}
-        {{ menu_link('contestants', 'Contestants', contest.contestant_count()) }}
-	{{ menu_link('judges', 'Judges') }}
+  {% macro menu_link(value, text, count=0) -%}
+    <a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-menu-button {% if selected == value %}pp-selected-menu-button{% endif %}">{{ text }}
+      {%- if count %} <span class="badge">{{ count }}</span>{% endif -%}
+    </a>
+  {%- endmacro -%}
+  <div class="btn-group pp-menu">
+    {{ menu_link('about', 'About') }}
+    {{ menu_link('contestants', 'Contestants', contest.contestant_count()) }}
+    {{ menu_link('judges', 'Judges') }}
   </div>
 </div>
 
