@@ -68,7 +68,7 @@ Contestants
 <div class="pp-main">
 
 {% for contestant in contest.get_public_contestants(randomize=True) %}
-
+<div class="row">
 <div class="pp-contestant-entry clearfix">
     <div class="col-sm-7 pull-left">
     	{#- show video as still image, playback on detail page, this avoids
@@ -87,7 +87,7 @@ Contestants
       <div class="pp-contestant-desc">{{ contestant.get_summary() }}</div>
     </div></a>
       <a href="{{ contestant.format_uri() }}" class="pull-right btn btn-primary btn-lg">Learn More</a>
-
+</div>
 </div>
 <hr>
     
