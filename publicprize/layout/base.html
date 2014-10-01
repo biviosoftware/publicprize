@@ -9,9 +9,9 @@
     <meta name="description" content="Public Prize, crowdfunded contests.">
     <link rel="icon" type="image/png" href="/static/img/favicon.png">
     <title>{% block title %}{% endblock %} - Public Prize</title>
-    <link href="/static/css/bootstrap-3.2.0.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-3.2.0.min.css?20140930" rel="stylesheet">
     <link href="/static/css/ladda-themeless-0.8.0.min.css" rel="stylesheet">
-    <link href="/static/css/pp.css?20140929" rel="stylesheet">
+    <link href="/static/css/pp.css?20141001-1" rel="stylesheet">
     <!--[if IE 10]>
       <script src="/static/js/msie/ie10-viewport-bug-workaround.js"></script>
     <![endif]-->
@@ -22,25 +22,33 @@
     {% endblock -%}
   </head>
   <body>
-    <div class="pp-nav-masthead">
-      {%- block masthead -%}
+    <div class="navbar navbar-default">
       <div class="container">
-    	<nav class="pp-nav">
+    	<div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
       	  <a class="pp-nav-logo" href="/"><img src="/static/img/logo.gif" alt="PUBLIC PRIZE"></a>
-	  {%- if session.get('user.is_logged_in') -%}
-	    {%- block logged_in_nav %}{% endblock -%}
-            <a class="pp-nav-item pull-right" href="{{ g.pub_obj.format_uri('logout') }}">Log out</a>
-	  {%- elif session.get('user.oauth_type') -%}
-            <a class="pp-nav-item pull-right" href="{{ g.pub_obj.get_login_uri() }}">Log in</a>
-	  {% else -%}
-            <a class="pp-nav-item pull-right" data-toggle="modal" data-target="#loginModal" href="#">Log in</a>
-            <a class="pp-nav-item pull-right" data-toggle="modal" data-target="#signupModal" href="#">Sign up</a>
-	  {%- endif %}
-    	</nav>
+	  {%- block navtitle -%}{%- endblock -%}
+        </div>
+	<div class="navbar-collapse collapse">
+	  <ul class="nav navbar-nav navbar-right">
+	    {%- if session.get('user.is_logged_in') -%}
+	      {%- block logged_in_nav %}{% endblock -%}
+              <li><a class="pp-nav-item" href="{{ g.pub_obj.format_uri('logout') }}">Log out</a></li>
+	    {%- elif session.get('user.oauth_type') -%}
+              <li><a class="pp-nav-item" href="{{ g.pub_obj.get_login_uri() }}">Log in</a></li>
+	    {% else -%}
+              <li><a class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href="#">Sign up</a></li>
+              <li><a class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href="#">Log in</a></li>
+	    {%- endif %}
+	  </ul>
+	</div>
       </div>
-      {%- endblock -%}
     </div>
-    <div class="container pp-content">
+    <div class="container pp-content"><div class="row">
       {%- with messages = get_flashed_messages() -%}
         {%- if messages -%}
       	  <div class="alert alert-success alert-dismissible">
@@ -52,7 +60,7 @@
       	{%- endif -%}
       {%- endwith -%}
       {% block content %}{% endblock %}
-    </div>
+    </div></div>
     <div class="pp-footer">
       {%- block footer %}
       <div class="container">

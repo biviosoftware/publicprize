@@ -6,102 +6,28 @@
 
 {% block logged_in_nav %}
   {% if contest.user_submission_url() %}
-    <a class="pp-nav-item" href="{{ contest.user_submission_url() }}">My Entry</a>
+    <li><a class="pp-nav-item" href="{{ contest.user_submission_url() }}">My Entry</a></li>
   {% endif %}
 {% endblock %}
 
+{%- block navtitle -%}<span class="pp-nav-title hidden-xs">{{ contest.display_name }}</span>{%- endblock -%}
+
 {% block content %}
 
-<div class="col-sm-9">
+<span class="pp-nav-title-mobile visible-xs">{{ contest.display_name }}</span>
 
-  <div class="row">
-    <div class="col-sm-4 hidden-xs">
-      <a class="pp-title-link" href="{{ contest.format_uri('about') }}">
-        <img style="width:100%; margin-bottom:1ex" src="/static/img/rosie200.jpg" alt="We Can Do It!">
-      </a>
-    </div>
-    <div class="col-sm-8">
-      <p class="text-primary pp-contest-title">
-        <a class="pp-title-link" href="{{ contest.format_uri('about') }}">
-        Hey, Boulder!  We are the Startup Capital of the US.
-        Show them why we are #1!
-	</a>
-      </p>
-      <p class="pp-contest-desc">
-        <a class="pp-title-link" href="{{ contest.format_uri('about') }}">
-	Vote with your dollars for the best Boulder startup.
-	The <span class="pp-tag-title">Esprit Venture Challenge</span>
-	is the Boulder Chamber’s
-	friendly crowdfunding contest.  Promote innovation
-	in Boulder. Let’s keep our community #1!
-	<span class="pp-contest-more">[more]</span>
-	</a>
-      </p>
-    </div>
-  </div>
-</div>
-
-{%- macro summary(item_class) -%}
-  <div class="{{ item_class }}">
-    <span class="pp-summary-number">${{ contest.donor_executed_amount() }}</span>
-    <span class="pp-summary-name">Raised</span>
-  </div>
-  <div class="{{ item_class }}">
-    <span class="pp-summary-number">{{ contest.donor_count() }}</span>
-    <span class="pp-summary-name">Contributions</span>
-  </div>
-  <div class="{{ item_class }}">
-    <span class="pp-summary-number">{{ contest.days_remaining() }}</span>
-    <span class="pp-summary-undertitle">days to go</span>
-  </div>
-{%- endmacro -%}
-      
-
-<div class="col-sm-3">
-    <div class="pp-summary">
-      	<a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819"><img class="pp-esprit-logo hidden-xs" src="/static/img/esprit255.png" alt="Esprit Venture Challege 2014" /></a>
-	<div class="hidden-xs">
-	  {{ summary("pp-normal-summary") }}
-        </div>
-	<div class="visible-xs">
-	  {{ summary("pp-condensed-summary") }}
-	</div>
-    </div>
-</div>
+{% block contest_header %}{% endblock %}
 
 <div class="col-sm-12">
-    {% macro option(value, text, count=0) -%}
-    	<option value="{{ contest.format_uri(value) }}"
-      	    {%- if selected == value %} selected="selected"{% endif -%}>
-	    {{- text -}}
-	    {% if count %} ({{ count }}){% endif -%}
-	</option>
-    {%- endmacro -%}
-    <select class="pp-menu-xs form-control visible-xs" onchange="window.location = this.options[this.selectedIndex].value;">
-	{{ option('about', 'About') }}
-      	{{ option('contestants', 'Contestants', contest.contestant_count()) }}
-	{{ option('submit-contestant', 'How to Enter') }}
-	{{ option('judges', 'Judges') }}
-    </select>
-    {% macro menu_link(value, text, count=0) -%}
-    	<a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-button {% if selected == value %}pp-selected-button{% endif %}">{{ text }}
-	    {%- if count %} <span class="badge">{{ count }}</span>{% endif -%}
-	</a>
-    {%- endmacro -%}
-    <div class="btn-group pp-menu hidden-xs">
-	{{ menu_link('about', 'About') }}
-        {{ menu_link('contestants', 'Contestants', contest.contestant_count()) }}
-	{%- if session.get('user.biv_id'): -%}
-	  {{ menu_link('submit-contestant', 'How to Enter') }}
-	{%- else -%}
-          <script>
-            function pp_show_login() {
-              $('#pp_how_to_enter_modal').modal('show');
-            }
-          </script>
-      	  <a href="#" onclick="pp_show_login()" class="btn btn-default pp-button {% if selected == 'submit-contestant' %}pp-selected-button{% endif %}">How to Enter</a>
-	{%- endif -%}
-	{{ menu_link('judges', 'Judges') }}
+  {% macro menu_link(value, text, count=0) -%}
+    <a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-menu-button {% if selected == value %}pp-selected-menu-button{% endif %}">{{ text }}
+      {%- if count %} <span class="badge">{{ count }}</span>{% endif -%}
+    </a>
+  {%- endmacro -%}
+  <div class="btn-group pp-menu">
+    {{ menu_link('about', 'About') }}
+    {{ menu_link('contestants', 'Contestants', contest.contestant_count()) }}
+    {{ menu_link('judges', 'Judges') }}
   </div>
 </div>
 
@@ -109,14 +35,18 @@
   {% block contest_content %}{% endblock %}
 </div>
 
-<div class="col-sm-3 col-sm-offset-1 col-xs-8 col-xs-offset-2 pp-sidebar">
-  <a class="pp-chamber-link" href="http://boulderchamber.com/"><img style="width: 100%" src="/static/img/logoBoulderChamber.png" alt="Boulder Chamber" /></a>
-  {% for sponsor in contest.get_sponsors(randomize=True) %}
-    <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
-      <a href="{{ sponsor.website }}">
-        <img style="width: 100%" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
+<div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">
+  <a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819"><img class="pp-esprit-logo hidden-xs" src="/static/img/esprit255.png" alt="Esprit Venture Challege 2014" /></a>
+  <div class="row">
+    {% for sponsor in contest.get_sponsors(randomize=True) %}
+    <div class="col-sm-12 col-xs-6">
+      <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
+        <a href="{{ sponsor.website }}">
+          <img style="width: 100%" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
+      </div>
     </div>
-  {% endfor %}
+    {% endfor %}
+  </div>
 </div>  
 
 {{ macros.signin_modal('pp_how_to_enter_modal', 'Sign up', next=contest.format_uri('submit-contestant')) }}
