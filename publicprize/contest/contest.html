@@ -35,14 +35,18 @@
   {% block contest_content %}{% endblock %}
 </div>
 
-<div class="col-sm-3 col-sm-offset-1 col-xs-8 col-xs-offset-2 pp-sidebar">
+<div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">
   <a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819"><img class="pp-esprit-logo hidden-xs" src="/static/img/esprit255.png" alt="Esprit Venture Challege 2014" /></a>
-  {% for sponsor in contest.get_sponsors(randomize=True) %}
-    <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
-      <a href="{{ sponsor.website }}">
-        <img style="width: 100%" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
+  <div class="row">
+    {% for sponsor in contest.get_sponsors(randomize=True) %}
+    <div class="col-sm-12 col-xs-6">
+      <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
+        <a href="{{ sponsor.website }}">
+          <img style="width: 100%" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
+      </div>
     </div>
-  {% endfor %}
+    {% endfor %}
+  </div>
 </div>  
 
 {{ macros.signin_modal('pp_how_to_enter_modal', 'Sign up', next=contest.format_uri('submit-contestant')) }}
