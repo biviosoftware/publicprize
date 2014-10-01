@@ -11,7 +11,7 @@ import re
 import unittest
 import publicprize.controller
 import itertools
-import test_data
+from tests import test_data
 
 class ParseData(object):
     """ Takes in a data set of the form:
@@ -68,6 +68,27 @@ class ParseData(object):
                     data[key] = item[data_subtype][positions[key]]
                     done = False
             yield data
+
+    def get_mostly_one_single_other(self, main_subtype):
+        """ Get sets that are almost entirely one subtype, with a single
+            element from the other subtype. Only one item from the main
+            subtype is given, while all items in the secondary subtype
+            are eventually returned in separate sets
+
+            -- main_subtype: 'conf' or 'dev'. Whichever one you want your data
+               to be mostly comprised of.
+        """
+        assert main_subtype == 'conf' or main_subtype == 'dev'
+        secondary_subtype = 'dev' if main_subtype == 'conf' else 'conf'
+        main_subtype_set = next(self.get_data_variations(main_subtype))
+        data = main_subtype_set
+
+        positions = {}
+        for field, contents in data.items():
+            for item in contents[secondary_subtype]:
+                data[field] = item
+                yield data
+            data[field] = main_subtype_set[field]
 
 
 class PublicPrizeTestCase(unittest.TestCase):
