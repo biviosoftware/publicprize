@@ -15,7 +15,8 @@ GENERIC_FIELDS = {
             # text parser
             '@#$%^&*()',
             # calculated to maximum length string.
-            'x' * MAX['display_name'],
+            # TODO(pjm): hacked in -4 because some tests add random suffix
+            'x' * (MAX['display_name'] - 4),
             #RN Not sure if we should be using 'SingleWord',\n] or this way.
             # what's your opinion?  I prefer first way, but not sure it
             # works in all Python or is "pythonic"
