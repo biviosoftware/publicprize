@@ -190,7 +190,6 @@ FIELDS = {
             'http://bivio.com/?x=ignored' + ('z' * (MAX['url_length'] - 27))
         ],
         'dev': [
-            '',
             'lsjdfl.alksdjflkdsj.clkj',
             'www.g00gle.com',
             'http://bivio.com/?x=ignored' + ('z' * (MAX['url_length'] - 26))
@@ -227,8 +226,14 @@ FIELDS = {
             '123 Pearl St'
         ]
     },
-    'founder2_name': GENERIC_FIELDS['generic_name'],
-    'founder2_desc': GENERIC_FIELDS['generic_desc'],
+    'founder2_name': {
+        'conf': GENERIC_FIELDS['generic_name']['conf'],
+        'dev': ['x' * (MAX['display_name'] + 1)]
+    },
+    'founder2_desc': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf'],
+        'dev': ['x' * (MAX['display_name'] + 1)]
+    },
     'agree_to_terms': {
         'conf': [True],
         'dev': [False]
