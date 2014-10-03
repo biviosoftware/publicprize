@@ -70,7 +70,7 @@ def add_sponsor(contest_id, display_name, website, logo_filename):
         logo_type=imghdr.what(None, logo)
         ))
     _add_owner(contest_id, sponsor_id)
-    
+
 
 @_MANAGER.command
 def create_db():
@@ -145,7 +145,7 @@ def refresh_founder_avatars():
         except socket.timeout:
             print('socket timeout for url: {}'.format(user.avatar_url))
             continue
-        
+
         for founder in founders:
             _update_founder_avatar(founder, image)
             count += 1
@@ -236,7 +236,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
 
         if is_production:
             break
-            
+
         for contestant in contest['Contestant']:
             contestant_id = _add_model(pcm.Contestant(
                 # TODO(pjm): there must be a way to do this in a map()
@@ -261,7 +261,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
                 _add_owner(contestant_id, donor_id)
 
     db.session.commit()
-    
+
 
 # TODO(pjm): normalize up binary fields, combine with _create_contest()
 def _create_founder(founder):
