@@ -104,6 +104,7 @@ def create_prod_db():
     _create_database(is_production=True)
 
 
+@_MANAGER.command
 @_MANAGER.option('-f', '--force', help='do not prompt before overwriting db')
 def create_test_db(force_prompt=False):
     """Recreates the database and loads the test data from
