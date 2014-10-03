@@ -104,11 +104,13 @@ def create_prod_db():
     _create_database(is_production=True)
 
 
-@_MANAGER.command
-def create_test_db():
+@_MANAGER.option('-f', '--force', help='do not prompt before overwriting db')
+def create_test_db(force_prompt=False):
     """Recreates the database and loads the test data from
     data/test_data.json"""
-    _create_database(is_prompt_forced=True)
+    # Force boolean-ness, may be unecessary
+    force_prompt = True if force_prompt else False
+    _create_database(is_prompt_forced=force_prompt)
 
 
 @_MANAGER.command
