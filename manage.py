@@ -108,13 +108,17 @@ def create_prod_db():
 def create_test_db():
     """Recreates the database and loads the test data from
     data/test_data.json"""
-    _create_database()
+    _create_database(is_prompt_forced=True)
 
 
 @_MANAGER.command
-def drop_db():
+def drop_db(auto_force=False):
     """Destroy the database"""
-    if fes.prompt_bool('Drop database?'):
+    if auto_force:
+        confirmed = True
+    else:
+        confirmed = fes.prompt_bool('Drop database?')
+    if confirmed:
         # db.drop_all()
         c = ppc.app().config['PUBLICPRIZE']['DATABASE']
         e = os.environ.copy()
@@ -212,9 +216,9 @@ def _create_contest(contest):
     return model
 
 
-def _create_database(is_production=False):
+def _create_database(is_production=False, is_prompt_forced=False):
     """Recreate the database and import data from json data file."""
-    drop_db()
+    drop_db(auto_force=is_prompt_forced)
     create_db()
     data = json.load(open('data/test_data.json', 'r'))
 
