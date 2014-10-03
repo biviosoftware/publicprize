@@ -69,7 +69,8 @@ class ParseData(object):
                     done = False
             yield data
 
-    def get_mostly_one_single_other(self, main_subtype):
+    # TODO: this name is way too long
+    def get_mostly_one_type_single_other_type_variations(self, main_subtype):
         """ Get sets that are almost entirely one subtype, with a single
             element from the other subtype. Only one item from the main
             subtype is given, while all items in the secondary subtype
@@ -80,15 +81,16 @@ class ParseData(object):
         """
         assert main_subtype == 'conf' or main_subtype == 'dev'
         secondary_subtype = 'dev' if main_subtype == 'conf' else 'conf'
-        main_subtype_set = next(self.get_data_variations(main_subtype))
-        data = main_subtype_set
+        ret_data = next(self.get_data_variations(main_subtype))
+        full_data = self.data
 
-        positions = {}
-        for field, contents in data.items():
-            for item in contents[secondary_subtype]:
-                data[field] = item
-                yield data
-            data[field] = main_subtype_set[field]
+        for field in ret_data:
+            if full_data[field][secondary_subtype] is None:
+                continue  # skip empty fields
+            for item in full_data[field][secondary_subtype]:
+                ret_data[field] = item
+                yield ret_data, field
+            ret_data[field] = full_data[field][main_subtype]
 
 
 class PublicPrizeTestCase(unittest.TestCase):
@@ -176,6 +178,53 @@ class PublicPrizeTestCase(unittest.TestCase):
                                             data_variation[data_item]))
                     self._verify_text(data_variation[data_item])
                     print("verified")
+
+    def test_dev_submit_entries(self):
+        """ Try a bunch of submissions with mostly good data, and a single
+            bad piece of data. No submissions should be accepted by the
+            How To Enter page. This test assumes that test_good_submit_entries
+            passed, otherwise it's possible that a submission won't be
+            accepted because of the supposedly conforming data that it contains
+        """
+        main_subtype = 'conf'
+        dev_entry_gen = ParseData(test_data.FIELDS).get_mostly_one_type_single_other_type_variations(main_subtype)
+        for data_variation, deving_field in dev_entry_gen:
+            self._visit_uri('/')
+            self._visit_uri('/pub/new-test-user')
+            self._verify_text('Log out')
+            self._follow_link('Esprit Venture Challenge')
+#            self._follow_link('How to Enter')
+            self._visit_uri(self.current_uri + '/submit-contestant')
+
+            if deving_field != 'display_name': # we're not testing display_name
+                num = int(random.random() * 10000)
+                base_name = data_variation['display_name']
+                display_name = '{0}{1}'.format(base_name, num)
+            else:  # we are testing display_name
+                display_name = data_variation['display_name']
+
+            self._submit_form({
+                'display_name': display_name,
+                'contestant_desc': data_variation['contestant_desc'],
+                'youtube_url': data_variation['youtube_url'],
+                'slideshow_url': data_variation['slideshow_url'],
+                'website': data_variation['website'],
+                'founder_desc': data_variation['founder_desc'],
+                'tax_id': data_variation['tax_id'],
+                'business_phone': data_variation['business_phone'],
+                'business_address': data_variation['business_address'],
+                'founder2_name': data_variation['founder2_name'],
+                'founder2_desc': data_variation['founder2_desc'],
+                'agree_to_terms': data_variation['agree_to_terms']
+            })
+            print('deviating field: {}\n'
+                  "field_contents: '{}'\n"
+                  'verifying...'.format(deving_field,
+                                        data_variation[deving_field]))
+            # It should not work, so we should still be on the
+            # 'Submit Your Entry' page
+            self._verify_text('Submit Your Entry')
+            print('...verified')
 
     def test_submit_entry(self):
         self._visit_uri('/')
