@@ -70,7 +70,7 @@ def add_sponsor(contest_id, display_name, website, logo_filename):
         logo_type=imghdr.what(None, logo)
         ))
     _add_owner(contest_id, sponsor_id)
-
+    
 
 @_MANAGER.command
 def create_db():
@@ -104,23 +104,17 @@ def create_prod_db():
     _create_database(is_production=True)
 
 
-@_MANAGER.option('-f', '--force', help='do not prompt before overwriting db')
-def create_test_db(force_prompt=False):
+@_MANAGER.command
+def create_test_db():
     """Recreates the database and loads the test data from
     data/test_data.json"""
-    # Force boolean-ness, may be unecessary
-    force_prompt = True if force_prompt else False
-    _create_database(is_prompt_forced=force_prompt)
+    _create_database()
 
 
 @_MANAGER.command
-def drop_db(auto_force=False):
+def drop_db():
     """Destroy the database"""
-    if auto_force:
-        confirmed = True
-    else:
-        confirmed = fes.prompt_bool('Drop database?')
-    if confirmed:
+    if fes.prompt_bool('Drop database?'):
         # db.drop_all()
         c = ppc.app().config['PUBLICPRIZE']['DATABASE']
         e = os.environ.copy()
@@ -147,7 +141,7 @@ def refresh_founder_avatars():
         except socket.timeout:
             print('socket timeout for url: {}'.format(user.avatar_url))
             continue
-
+        
         for founder in founders:
             _update_founder_avatar(founder, image)
             count += 1
@@ -218,9 +212,9 @@ def _create_contest(contest):
     return model
 
 
-def _create_database(is_production=False, is_prompt_forced=False):
+def _create_database(is_production=False):
     """Recreate the database and import data from json data file."""
-    drop_db(auto_force=is_prompt_forced)
+    drop_db()
     create_db()
     data = json.load(open('data/test_data.json', 'r'))
 
@@ -238,7 +232,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
 
         if is_production:
             break
-
+            
         for contestant in contest['Contestant']:
             contestant_id = _add_model(pcm.Contestant(
                 # TODO(pjm): there must be a way to do this in a map()
@@ -263,7 +257,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
                 _add_owner(contestant_id, donor_id)
 
     db.session.commit()
-
+    
 
 # TODO(pjm): normalize up binary fields, combine with _create_contest()
 def _create_founder(founder):
