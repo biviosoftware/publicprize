@@ -158,8 +158,8 @@ FIELDS = {
         ],
         'dev': [
             '',
-            'https://www.youtube.co/watch?v=K5pZlBgXBu0',
-            'https://www.youtube.com/watch?v=K5pZlBgXBu0lkjsdfjal',
+            'https://www.youtube.co/watch?v=K5pZlBgXBu0',  #invalid video, extension of a valid one
+            'https://www.youtube.com/watch?v=K5pZlBgXBu0lkjsdfjal', #completely invalid video
             'http://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement',
             'https://www.google.com'
         ]
