@@ -31,9 +31,11 @@ class ParseData(object):
         for key, item in data.items():
             item = data[key]
             assert item.__contains__('conf'), 'item: {0}'.format(item)
-            assert len(item['conf']) > 0
+            if item['conf'] is not None:
+                assert len(item['conf']) > 0
             assert item.__contains__('dev'), 'item: {0}'.format(item)
-            assert len(item['dev']) > 0
+            if item['dev'] is not None:
+                assert len(item['dev']) > 0
         self.data = data
 
     def get_data_variations(self, data_subtype):
@@ -54,6 +56,8 @@ class ParseData(object):
 
         # initialization
         for key, item in self.data.items():
+            if item[data_subtype] is None:
+                continue  # ignore null fields
             positions[key] = 0
             data[key] = item[data_subtype][positions[key]]
         yield data
@@ -63,6 +67,8 @@ class ParseData(object):
         while done is False:
             done = True
             for key, item in self.data.items():
+                if item[data_subtype] is None:
+                    continue  # ignore null fields
                 if len(item[data_subtype]) > positions[key] + 1:
                     positions[key] += 1
                     data[key] = item[data_subtype][positions[key]]
@@ -132,9 +138,9 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._visit_uri('/_10299/');
         self._verify_text('Page Not Found')
 
-    def test_good_submit_entries(self):
-        data_gen = ParseData(test_data.FIELDS).get_data_variations('conf')
-        for data_variation in data_gen:
+    def test_conf_submit_entries(self):
+        conf_entry_gen = ParseData(test_data.FIELDS).get_data_variations('conf')
+        for data_variation in conf_entry_gen:
             num = int(random.random() * 10000)
             base_name = data_variation['display_name']
             display_name = '{0}{1}'.format(base_name, num)
