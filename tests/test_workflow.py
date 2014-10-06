@@ -11,32 +11,34 @@ import re
 import unittest
 import publicprize.controller
 import itertools
-import test_data
+from tests import test_data
 
 class ParseData(object):
     """ Takes in a data set of the form:
         SET = {
             'item': {
                 'conf': []
-                'div': []
+                'dev': []
             }, ...
         }
 
-       Then returns various div and conf options
+       Then returns various dev and conf options
     """
     def __init__(self, data):
         """ good_data and bad_data should be lists of lists of data, containing
         at least one item each """
         assert len(data) > 0
-        for key in data:
+        for key, item in data.items():
             item = data[key]
             assert item.__contains__('conf'), 'item: {0}'.format(item)
-            assert len(item['conf']) > 0
-            assert item.__contains__('div'), 'item: {0}'.format(item)
-            assert len(item['div']) > 0
+            if item['conf'] is not None:
+                assert len(item['conf']) > 0
+            assert item.__contains__('dev'), 'item: {0}'.format(item)
+            if item['dev'] is not None:
+                assert len(item['dev']) > 0
         self.data = data
 
-    def get_data_variations(self, data_type_string):
+    def get_data_variations(self, data_subtype):
         """ Efficiently returns sets of the form:
             SET = {
                 'item': some_value,
@@ -44,32 +46,57 @@ class ParseData(object):
                 ...
             },
 
-            such that all members of in either the 'conf' or 'div' subset of
+            such that all members of in either the 'conf' or 'dev' subset of
             'item', 'item2', ..., are eventually returned.
 
-            -- data_type_string: subtype for data, either 'conf' or 'div'
+            -- data_subtype: subtype for data, either 'conf' or 'dev'
         """
         positions = {}
         data = {}
 
         # initialization
-        for key in self.data:
-            item = self.data[key]
+        for key, item in self.data.items():
+            if item[data_subtype] is None:
+                continue  # ignore null fields
             positions[key] = 0
-            data[key] = item[data_type_string][positions[key]]
+            data[key] = item[data_subtype][positions[key]]
         yield data
 
         # main loop
         done = False
         while done is False:
             done = True
-            for key in self.data:
-                item = self.data[key]
-                if len(item[data_type_string]) > positions[key] + 1:
+            for key, item in self.data.items():
+                if item[data_subtype] is None:
+                    continue  # ignore null fields
+                if len(item[data_subtype]) > positions[key] + 1:
                     positions[key] += 1
-                    data[key] = item[data_type_string][positions[key]]
+                    data[key] = item[data_subtype][positions[key]]
                     done = False
             yield data
+
+    # TODO: this name is way too long
+    def get_mostly_one_type_single_other_type_variations(self, main_subtype):
+        """ Get sets that are almost entirely one subtype, with a single
+            element from the other subtype. Only one item from the main
+            subtype is given, while all items in the secondary subtype
+            are eventually returned in separate sets
+
+            -- main_subtype: 'conf' or 'dev'. Whichever one you want your data
+               to be mostly comprised of.
+        """
+        assert main_subtype == 'conf' or main_subtype == 'dev'
+        secondary_subtype = 'dev' if main_subtype == 'conf' else 'conf'
+        ret_data = next(self.get_data_variations(main_subtype))
+        full_data = self.data
+
+        for field in ret_data:
+            if full_data[field][secondary_subtype] is None:
+                continue  # skip empty fields
+            for item in full_data[field][secondary_subtype]:
+                ret_data[field] = item
+                yield ret_data, field
+            ret_data[field] = full_data[field][main_subtype]
 
 
 class PublicPrizeTestCase(unittest.TestCase):
@@ -111,9 +138,9 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._visit_uri('/_10299/');
         self._verify_text('Page Not Found')
 
-    def test_good_submit_entries(self):
-        data_gen = ParseData(test_data.FIELDS).get_data_variations('conf')
-        for data_variation in data_gen:
+    def test_conf_submit_entries(self):
+        conf_entry_gen = ParseData(test_data.FIELDS).get_data_variations('conf')
+        for data_variation in conf_entry_gen:
             num = int(random.random() * 10000)
             base_name = data_variation['display_name']
             display_name = '{0}{1}'.format(base_name, num)
@@ -157,6 +184,53 @@ class PublicPrizeTestCase(unittest.TestCase):
                                             data_variation[data_item]))
                     self._verify_text(data_variation[data_item])
                     print("verified")
+
+    def test_dev_submit_entries(self):
+        """ Try a bunch of submissions with mostly good data, and a single
+            bad piece of data. No submissions should be accepted by the
+            How To Enter page. This test assumes that test_good_submit_entries
+            passed, otherwise it's possible that a submission won't be
+            accepted because of the supposedly conforming data that it contains
+        """
+        main_subtype = 'conf'
+        dev_entry_gen = ParseData(test_data.FIELDS).get_mostly_one_type_single_other_type_variations(main_subtype)
+        for data_variation, deving_field in dev_entry_gen:
+            self._visit_uri('/')
+            self._visit_uri('/pub/new-test-user')
+            self._verify_text('Log out')
+            self._follow_link('Esprit Venture Challenge')
+#            self._follow_link('How to Enter')
+            self._visit_uri(self.current_uri + '/submit-contestant')
+
+            if deving_field != 'display_name': # we're not testing display_name
+                num = int(random.random() * 10000)
+                base_name = data_variation['display_name']
+                display_name = '{0}{1}'.format(base_name, num)
+            else:  # we are testing display_name
+                display_name = data_variation['display_name']
+
+            self._submit_form({
+                'display_name': display_name,
+                'contestant_desc': data_variation['contestant_desc'],
+                'youtube_url': data_variation['youtube_url'],
+                'slideshow_url': data_variation['slideshow_url'],
+                'website': data_variation['website'],
+                'founder_desc': data_variation['founder_desc'],
+                'tax_id': data_variation['tax_id'],
+                'business_phone': data_variation['business_phone'],
+                'business_address': data_variation['business_address'],
+                'founder2_name': data_variation['founder2_name'],
+                'founder2_desc': data_variation['founder2_desc'],
+                'agree_to_terms': data_variation['agree_to_terms']
+            })
+            print('deviating field: {}\n'
+                  "field_contents: '{}'\n"
+                  'verifying...'.format(deving_field,
+                                        data_variation[deving_field]))
+            # It should not work, so we should still be on the
+            # 'Submit Your Entry' page
+            self._verify_text('Submit Your Entry')
+            print('...verified')
 
     def test_submit_entry(self):
         self._visit_uri('/')
