@@ -11,7 +11,7 @@
 {%- endmacro -%}
 
 {%- macro amount_bar() -%}
-  {% if form and contestant.is_public %}
+  {% if form and form['donate10'] and contestant.is_public %}
   <div class="pp-back-this-startup">
     <div class="pp-heading"><strong>Back this Boulder startup</strong></div>
     <form class="form-inline" method="POST" action="{{ contestant.format_uri('contestant') }}">
@@ -72,11 +72,13 @@
       </div>
     </div>
     <div class="pp-abstract">
+        {%- block social_links %}
 	<div class="pp-detail-social">
 	    <a target="_blank" class="pp-social-icon" href="https://facebook.com/sharer.php?u={{ contestant_url|urlencode }}&amp;title={{ contestant.display_name|urlencode }}"><img src="/static/img/facebook30.png" alt="Facebook"></a>
 	    <a target="_blank" class="pp-social-icon" href="https://twitter.com/intent/tweet?text={{ contestant_tweet|urlencode }}&amp;hashtags=EspritVentureChallenge&amp;url={{ contestant_url|urlencode }}&amp;via=publicprize"><img src="/static/img/twitter30.png" alt="Twitter"></a>
 	    <a target="_blank" class="pp-social-icon" href="https://plus.google.com/share?url={{ contestant_url|urlencode }}"><img src="/static/img/google30.png" alt="Google+"></a>
 	</div>
+	{% endblock -%}
     	<h3 class="pp-heading">Summary</h3>
     	<p class="pp-contestant-desc">{{ contestant.contestant_desc }}</p>
     </div>
@@ -92,7 +94,7 @@
     <div class="pp-founders clearfix">
     	<h3 class="pp-heading">Founders</h3>
 
-    	{% for founder in founders %}
+    	{% for founder in contestant.get_founders() %}
 	  {% if founder.founder_avatar %}
     	    <div class="pp-item pp-item-with-avatar">
     	      <img class="pp-thumb" src="{{ founder.format_uri('founder-avatar') }}" alt="{{ founder.display_name }}"/>
