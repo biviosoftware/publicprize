@@ -49,7 +49,7 @@ class Contestant(flask_wtf.Form):
     founder_desc = wtforms.TextAreaField(
         'Your Bio', validators=[wtfv.DataRequired(), wtfv.Length(max=10000)])
     website = wtforms.StringField(
-        'Business Website', validators=[wtfv.Length(max=500)])
+        'Business Website', validators=[wtfv.Length(max=100)])
     tax_id = wtforms.StringField(
         'Business US Tax Id', validators=[
             wtfv.DataRequired(), wtfv.Length(max=30)])
