@@ -15,6 +15,7 @@ import publicprize.controller as ppc
 ppc.init()
 _MANAGER = fes.Manager(ppc.app())
 
+
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
 @_MANAGER.option('-s', '--name', help='Sponsor name')
 @_MANAGER.option('-w', '--website', help='Sponsor website')
@@ -33,6 +34,11 @@ def add_sponsor(contest, name, website, input_file):
     manage.add_sponsor(model.biv_id, name, website, input_file)
 
 
+@_MANAGER.command
+def judge_tables():
+    """Creates database tables for Judge and JudgeScore models."""
+    pcm.Judge.__table__.create(bind=db.get_engine(ppc.app()))
+    pcm.JudgeScore.__table__.create(bind=db.get_engine(ppc.app()))
+
 if __name__ == '__main__':
     _MANAGER.run()
-    
