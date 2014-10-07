@@ -251,7 +251,9 @@ class Contestant(flask_wtf.Form):
             return
         code = self._youtube_code()
         if code:
-            if not self._get_url_content('http://youtu.be/' + code):
+            html = self._get_url_content('http://youtu.be/' + code)
+            # TODO(pjm): need better detection for not-found page
+            if not html or re.search(r'<title>YouTube</title>', html):
                 self.youtube_url.errors = [
                     'Unknown YouTube VIDEO_ID: ' + code + '.']
         else:
