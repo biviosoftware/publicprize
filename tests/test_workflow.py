@@ -162,7 +162,6 @@ class PublicPrizeTestCase(unittest.TestCase):
                 'business_phone': data_variation['business_phone'],
                 'business_address': data_variation['business_address'],
                 'founder2_name': data_variation['founder2_name'],
-                'founder2_desc': data_variation['founder2_desc'],
                 'agree_to_terms': data_variation['agree_to_terms']
             })
             self._verify_text('Thank you for submitting your entry')
@@ -220,7 +219,6 @@ class PublicPrizeTestCase(unittest.TestCase):
                 'business_phone': data_variation['business_phone'],
                 'business_address': data_variation['business_address'],
                 'founder2_name': data_variation['founder2_name'],
-                'founder2_desc': data_variation['founder2_desc'],
                 'agree_to_terms': data_variation['agree_to_terms']
             })
             print('deviating field: {}\n'
