@@ -83,6 +83,9 @@ a:hover {
   font-size: 24px;
   font-weight: 500;
 }
+.pp-nav-important {
+  background-color: #FCE00C;
+}
 
 .pp-content {
   min-height: 370px;
@@ -195,20 +198,18 @@ a.pp-contestant-link:focus {
   display: inline-block;
 }
 .pp-menu {
-  width: 100%;
   margin-bottom: 1ex;
 }
 .pp-menu-button {
   margin-bottom: 3px;
   font-weight: bold;
-  width: 33.3333%;
 }
 .pp-menu-button:hover {
   background-color: transparent;
   border: 1px solid #FCB03C;
 }
 .pp-selected-menu-button,
-a.pp-selected-button:hover {
+a.pp-selected-menu-button:hover {
   border-bottom: 3px solid #FCB03C;
   margin-bottom: 0px;
 }
@@ -475,4 +476,25 @@ input.pp-agree-checkbox {
 }
 .pp-learn-more {
   margin-top: 1ex;
+}
+.pp-judgement {
+  margin-left: -10px;
+  margin-right: -10px;
+}
+.pp-judgement label {
+  margin-top: 1ex;
+}
+.pp-judgement h2 {
+  margin-top: 75px;
+}
+.pp-question {
+  margin-top: 4ex;
+}
+.pp-question-text {
+  font-weight: bold;
+}
+.pp-total-score {
+  font-size: 20px;
+  margin-top: 1ex;
+  margin-bottom: 1ex;
 }
