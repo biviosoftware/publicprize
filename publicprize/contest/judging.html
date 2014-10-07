@@ -1,0 +1,41 @@
+{% extends 'contest/contest.html' %}
+
+{% block title %}
+Judging
+{{ super() }}
+{% endblock %}
+
+{% block sponsor_list %}
+{% endblock %}
+
+{%- macro judge_link(contestant, text) -%}
+  <a href="{{ contestant.format_uri('judging') }}">{{ text }}</a>
+{%- endmacro -%}
+
+{% block contest_content %}
+<br />
+<table class="table table-hover">
+  <tr>
+    <th>Contestant</th>
+    <th>Score (max 60)</th>
+  </tr>
+{% for contestant in contest.get_public_contestants(userRandomize=True) %}
+  <tr>
+    <td>{{ judge_link(contestant, contestant.display_name) }}</td>
+    <td>
+      {% if contestant.is_scored_by_judge_user() %}
+        {% if contestant.is_partial_scored_by_judge_user() %}
+          {{ judge_link(contestant, 'Partial Score') }}
+        {% else %}
+      	  <div class="progress">
+	    <div class="progress-bar" role="progressbar" aria-valuenow="{{ '%.0f' % (contestant.get_score_for_judge_user() / 60 * 100) }}" style="width: {{ '%.2f' % (contestant.get_score_for_judge_user() / 60 * 100) }}%;">{{ '%.2f' % contestant.get_score_for_judge_user() }}</div>
+      	  </div>
+        {% endif %}
+      {% else %}
+	{{ judge_link(contestant, 'Not Scored') }}
+      {% endif %}
+    </td>
+  </tr>
+{% endfor %}
+</table>
+{% endblock %}

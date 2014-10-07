@@ -1,0 +1,160 @@
+{% extends 'contest/detail.html' %}
+{% import "layout/macros.html" as macros %}
+
+{% block title %}
+Judging {{ contestant.display_name }}
+{{ super() }}
+{% endblock %}
+
+{% block contest_content_class %}col-sm-6{% endblock %}
+{% block social_links %}{% endblock %}
+
+{%- macro radio_buttons(field) -%}
+  <div class="btn-group btn-group-justified" data-toggle="buttons">
+  {%- for option in field -%}
+    <label class="btn btn-default {%- if option.checked %} active{% endif %}">
+      {{ option }}{{ option.label.text.replace(' ', '<br />') | safe }}
+    </label>
+  {%- endfor -%}
+  </div>
+{%- endmacro -%}
+
+{%- macro question(number, text, bullets) -%}
+  <div class="pp-question">
+  <div class="pp-question-text">{{ '{}. {} ({} pts)'.format(number, text, form.get_points_for_question(number)) }}</div>
+    <ul>
+      {%- for bullet in bullets -%}
+        <li>{{ bullet }}</li>
+      {%- endfor -%}
+    </ul>
+    <label id="{{ 'label-question{}'.format(number) }}" data-points="{{ form.get_points_for_question(number) }}">Select Rating Below</label>
+    {{ radio_buttons(form['question{}'.format(number)]) }}
+    {{ macros.form_field(form['question{}_comment'.format(number)]) }}
+  </div>
+{%- endmacro -%}
+
+{% block sponsor_list %}
+<div class="col-sm-6">
+  <div class="pp-judgement">
+    <h2>Scoring</h2>
+    <div class="alert alert-success">
+Question scoring and comments will be shared with the competitor
+at the end of the judging period. You may return here to change a score or
+comment at any time up until the end of the judging period.
+    </div>
+    <form id="pp-judge-form" method="POST" action="{{ contestant.format_uri('judging') }}">
+
+      {{ question(1, 'Quality of Pitch Deck',
+    	[
+    	  'Clear and engaging',
+    	  'Brief and concise',
+          'Not inordinately technical'
+    	]) }}
+
+      {{ question(2, 'Quality of Pitch Video',
+    	[
+    	  'Content is presented clearly, with an economy of expression',
+    	  'Pitch Video is compelling',
+    	  'Visuals are of high quality and are used efficiently'
+    	]) }}
+
+      {{ question(3, 'Concept/Vision',
+    	[
+    	  'The entrant\'s goal is expressed clearly',
+          'The entrant details realistic steps to achieve their goal',
+    	  'The entrant\'s product(s) and/or service(s) provide utility and appeal, potentially addressing a bona fide customer need'
+    	]) }}
+
+      {{ question(4, 'Quality of Business Summary',
+    	[
+    	  'Engaging',
+    	  'Presents the business clearly'
+    	]) }}
+
+      {{ question(5, 'Assessment of Business Components',
+    	[
+    	  'Entrant demonstrates a competitive advantage',
+    	  'Entrant demonstrates a plausible growth plan',
+    	  'Entrant\'s market is clearly defined',
+    	  'Entrant clearly expresses their management experience and ability to execute'
+    	]) }}
+
+      {{ question(6, 'Connection to Boulder',
+    	[
+    	  'Entrant and/or its products or services are environmentally friendly',
+    	  'The business idea will have social benefits for society',
+    	  'The local implementation of the entrant’s business plan, will positively impact Boulder County (e.g., create jobs or improve the environment)'
+    	]) }}
+
+      <label class="pp-total-score" id="total-score"></label>
+      {{ macros.form_field(form.general_comment) }}
+      {{ macros.submit_button('Update Score') }}
+      <div class="text-muted pull-right" id="pp-auto-save-alert"></div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script>
+
+function pp_auto_save() {
+  pp_save_form();
+  setTimeout("pp_auto_save()", 60000);
+}
+
+function pp_option_info(option) {
+  var label = $('#label-' + option.name)
+  return [
+    label,
+    label.data('points') * (option.value - 1) / 3
+  ];
+}
+
+function pp_recalculate_scores() {
+  var score = 0;
+  var total = 0;
+  $("[type=radio]").each(function() {
+    if (this.checked) {
+      info = pp_option_info(this);
+      score += parseFloat(info[1]);
+      total += parseFloat(info[0].data('points'));
+    }
+  })
+  $("#total-score").text('Total Score: ' + score.toFixed(2) + ' / ' + total);
+}
+
+function pp_save_form() {
+  f = $("#pp-judge-form");
+  $.post(f.attr("action"), f.serializeArray(), function() {
+    var d = new Date();
+    $('#pp-auto-save-alert').text('Autosaved at ' + d.toLocaleTimeString());
+  });
+}
+
+function pp_set_score_text(info) {
+  info[0].text('Points: ' + info[1].toFixed(2));
+}
+  
+$(function() {
+  $("[type=radio]").change(function() {
+    var info = pp_option_info(this);
+    info[0].fadeOut(function() {
+      pp_set_score_text(info);
+    }).fadeIn();
+    pp_recalculate_scores();
+    pp_save_form();
+    return true;
+  });
+  $("[type=radio]").each(function() {
+    if (this.checked)
+      pp_set_score_text(pp_option_info(this));
+  })
+  pp_recalculate_scores();
+  setTimeout("pp_auto_save()", 60000);
+});
+
+</script>
+{% endblock %}
