@@ -35,6 +35,13 @@ class Contest(ppc.Task):
         """List of judges page"""
         return Contest._render_template(biv_obj, 'judges')
 
+    def action_judging(biv_obj):
+        """List of contestants for judgement"""
+        return Contest._render_template(
+            biv_obj,
+            'judging',
+        )
+    
     def action_logo(biv_obj):
         """Contestant logo image"""
         return flask.send_file(
@@ -42,6 +49,23 @@ class Contest(ppc.Task):
             'image/{}'.format(biv_obj.logo_type)
         )
 
+    def action_new_test_judge(biv_obj):
+        """Creates a new test user and judge models and log in."""
+        # will raise an exception unless TEST_USER is configured
+        flask.g.pub_obj.task_class().action_new_test_user()
+        judge = pcm.Judge()
+        pcm.db.session.add(judge)
+        pcm.db.session.flush()
+        pam.db.session.add(pam.BivAccess(
+            source_biv_id=flask.session['user.biv_id'],
+            target_biv_id=judge.biv_id
+        ))
+        pam.db.session.add(pam.BivAccess(
+            source_biv_id=biv_obj.biv_id,
+            target_biv_id=judge.biv_id
+        ))
+        return flask.redirect('/')
+    
     def action_rules(biv_obj):
         return flask.redirect('/static/pdf/rules.pdf')
     
@@ -87,13 +111,16 @@ class Contestant(ppc.Task):
         """Default to contestant page"""
         return Contestant.action_contestant(biv_obj)
 
+    def action_judging(biv_obj):
+        """Contestant judgement"""
+        return pcf.Judgement().execute(biv_obj)
+    
     def action_thank_you(biv_obj):
         """Show a Thank you page with social media links for contestant."""
         return flask.render_template(
             'contest/thank-you.html',
             contestant=biv_obj,
             contest=biv_obj.get_contest(),
-            founders=biv_obj.get_founders(),
             contestant_url=biv_obj.format_absolute_uri(),
             contestant_tweet="I just backed " + biv_obj.display_name
         )
