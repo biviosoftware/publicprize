@@ -23,8 +23,10 @@ GENERIC_FIELDS = {
             #MA I think 'SingleWord',\n] is probably best, as it will be easier
             # to add additional entries
             'SingleWord'
+            'Unicode monster: «ταБЬℓσ»: 1<2 & 4+1>3, now 20% off!',
+            'Escaped \' quotes \"'
         ],
-        'div': [
+        'dev': [
             '',
             #RN Another thing I like to do is annotate the value so that
             # we can know that the error produced is what we expect.  I
@@ -34,10 +36,12 @@ GENERIC_FIELDS = {
         ]
     },
     'generic_desc': {
-        'div': [''],
+        'dev': [''],
         'conf': [
             'Generic description',
             '!@#$%^&*()_+=-',  # test special characters
+            'Unicode monster: «ταБЬℓσ»: 1<2 & 4+1>3, now 20% off!',
+            'Escaped \' quotes \"',
             # test a long description
             ('150 blaas: blaa blaa blaa blaa blaa blaa blaa blaa blaa '
              'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
@@ -152,10 +156,10 @@ FIELDS = {
         'conf': [
             'https://www.youtube.com/watch?v=K5pZlBgXBu0'
         ],
-        'div': [
+        'dev': [
             '',
-            'https://www.youtube.co/watch?v=K5pZlBgXBu0',
-            'https://www.youtube.com/watch?v=K5pZlBgXBu0lkjsdfjal',
+            'https://www.youtube.co/watch?v=K5pZlBgXBu0',  #invalid video, extension of a valid one
+            'https://www.youtube.com/watch?v=K5pZlBgXBu0lkjsdfjal', #completely invalid video
             'http://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement',
             'https://www.google.com'
         ]
@@ -165,7 +169,7 @@ FIELDS = {
             'http://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement',
             'https://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement'
         ],
-        'div': [
+        'dev': [
             '',
             'https://www.youtube.com/watch?v=K5pZlBgXBu0',
             'http://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement_bad_link'
@@ -185,8 +189,7 @@ FIELDS = {
             # MA: Fixed
             'http://bivio.com/?x=ignored' + ('z' * (MAX['url_length'] - 27))
         ],
-        'div': [
-            '',
+        'dev': [
             'lsjdfl.alksdjflkdsj.clkj',
             'www.g00gle.com',
             'http://bivio.com/?x=ignored' + ('z' * (MAX['url_length'] - 26))
@@ -195,7 +198,7 @@ FIELDS = {
     'founder_desc': GENERIC_FIELDS['generic_desc'],
     'tax_id': {
         'conf': ['22-7777777'],
-        'div': ['']
+        'dev': ['']
     },
     'business_phone': {
         'conf': [
@@ -210,19 +213,29 @@ FIELDS = {
             '1 303 123 4567-3576',
             '1 303 123 4567 3576'
         ],
-        'div': ['']
+        'dev': ['']
     },
     'business_address': {
-        'conf': ['123 Pearl St\nBoulder CO 80303'],
-        'div': [
+        'conf': [
+            '123 Pearl St\nBoulder CO 80303',
+            'Unicode monster: «ταБЬℓσ»: 1<2 & 4+1>3, now 20% off!',
+            'Escaped \' quotes \"'
+        ],
+        'dev': [
             '',
             '123 Pearl St'
         ]
     },
-    'founder2_name': GENERIC_FIELDS['generic_name'],
-    'founder2_desc': GENERIC_FIELDS['generic_desc'],
+    'founder2_name': {
+        'conf': GENERIC_FIELDS['generic_name']['conf'],
+        'dev': ['x' * (MAX['display_name'] + 1)]
+    },
+    'founder2_desc': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf'],
+        'dev': ['x' * (MAX['display_name'] + 1)]
+    },
     'agree_to_terms': {
         'conf': [True],
-        'div': [False]
+        'dev': [False]
     }
 }
