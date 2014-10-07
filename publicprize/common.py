@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-""" The controller routes all requests to the appropriate task module.
-Also contains superclasses for Task and Model.
+""" Common model classes.
 
     :copyright: Copyright (c) 2014 Bivio Software, Inc.  All Rights Reserved.
     :license: Apache, see LICENSE for more details.
@@ -25,5 +24,5 @@ class ModelWithDates(controller.Model):
     )
     modified_date_time = controller.db.Column(
         controller.db.DateTime,
-        server_onupdate=sqlalchemy.text('current_timestamp')
+        onupdate=sqlalchemy.text('current_timestamp')
     )
