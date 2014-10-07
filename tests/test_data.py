@@ -158,8 +158,8 @@ FIELDS = {
         ],
         'dev': [
             '',
-            'https://www.youtube.co/watch?v=K5pZlBgXBu0',  #invalid video, extension of a valid one
-            'https://www.youtube.com/watch?v=K5pZlBgXBu0lkjsdfjal', #completely invalid video
+#            'https://www.youtube.co/watch?v=K5pZlBgXBu0',  #invalid video, extension of a valid one
+            'https://www.youtube.com/watch?v=lkjsdfjal', #completely invalid video
             'http://www.slideshare.net/Experian_US/how-to-juggle-debt-retirement',
             'https://www.google.com'
         ]
@@ -223,19 +223,15 @@ FIELDS = {
         ],
         'dev': [
             '',
-            '123 Pearl St'
+            # '123 Pearl St'
         ]
     },
     'founder2_name': {
         'conf': GENERIC_FIELDS['generic_name']['conf'],
         'dev': ['x' * (MAX['display_name'] + 1)]
     },
-    'founder2_desc': {
-        'conf': GENERIC_FIELDS['generic_desc']['conf'],
-        'dev': ['x' * (MAX['display_name'] + 1)]
-    },
     'agree_to_terms': {
         'conf': [True],
-        'dev': [False]
+        'dev': ['']
     }
 }
