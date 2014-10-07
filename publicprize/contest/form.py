@@ -13,7 +13,7 @@ import locale
 import paypalrestsdk
 import paypalrestsdk.exceptions
 import publicprize.auth.model as pam
-import publicprize.contest.model as ppcm
+import publicprize.contest.model as pcm
 import publicprize.controller as ppc
 import re
 import socket
@@ -21,6 +21,7 @@ import sys
 import urllib.request
 import wtforms
 import wtforms.validators as wtfv
+
 
 class Contestant(flask_wtf.Form):
     """Project submission form.
@@ -47,8 +48,8 @@ class Contestant(flask_wtf.Form):
             wtfv.DataRequired(), wtfv.Length(max=500)])
     founder_desc = wtforms.TextAreaField(
         'Your Bio', validators=[wtfv.DataRequired(), wtfv.Length(max=10000)])
-    website = wtforms.StringField('Business Website', validators=[
-            wtfv.Length(max=500)])
+    website = wtforms.StringField(
+        'Business Website', validators=[wtfv.Length(max=500)])
     tax_id = wtforms.StringField(
         'Business US Tax Id', validators=[
             wtfv.DataRequired(), wtfv.Length(max=30)])
@@ -60,14 +61,14 @@ class Contestant(flask_wtf.Form):
             wtfv.DataRequired(), wtfv.Length(max=500)])
     agree_to_terms = wtforms.BooleanField(
         'Agree to Terms of Service', validators=[wtfv.DataRequired()])
-    founder2_name = wtforms.StringField('Other Founder Name', validators=[
-            wtfv.Length(max=100)])
-    founder2_desc = wtforms.TextAreaField('Other Founder Bio', validators=[
-            wtfv.Length(max=10000)])
-    founder3_name = wtforms.StringField('Other Founder Name', validators=[
-            wtfv.Length(max=100)])
-    founder3_desc = wtforms.TextAreaField('Other Founder Bio', validators=[
-            wtfv.Length(max=10000)])
+    founder2_name = wtforms.StringField(
+        'Other Founder Name', validators=[wtfv.Length(max=100)])
+    founder2_desc = wtforms.TextAreaField(
+        'Other Founder Bio', validators=[wtfv.Length(max=10000)])
+    founder3_name = wtforms.StringField(
+        'Other Founder Name', validators=[wtfv.Length(max=100)])
+    founder3_desc = wtforms.TextAreaField(
+        'Other Founder Bio', validators=[wtfv.Length(max=10000)])
 
     def execute(self, contest):
         """Validates and creates the contestant model"""
@@ -89,7 +90,7 @@ class Contestant(flask_wtf.Form):
     def validate(self):
         """Performs superclass wtforms validation followed by url
         field validation"""
-        super().validate()
+        super(Contestant, self).validate()
         self._validate_youtube()
         self._validate_slideshare()
         self._validate_website()
@@ -109,7 +110,7 @@ class Contestant(flask_wtf.Form):
 
     def _add_founders(self, contestant):
         """Add the current user as a founder and any optional founders."""
-        founder = ppcm.Founder()
+        founder = pcm.Founder()
         self.populate_obj(founder)
         founder.display_name = flask.session['user.display_name']
         self._add_founder(contestant, founder)
@@ -120,12 +121,12 @@ class Contestant(flask_wtf.Form):
             )
         )
         if self.founder2_name.data:
-            self._add_founder(contestant, ppcm.Founder(
+            self._add_founder(contestant, pcm.Founder(
                 display_name=str(self.founder2_name.data),
                 founder_desc=str(self.founder2_desc.data),
             ))
         if self.founder3_name.data:
-            self._add_founder(contestant, ppcm.Founder(
+            self._add_founder(contestant, pcm.Founder(
                 display_name=str(self.founder3_name.data),
                 founder_desc=str(self.founder3_desc.data),
             ))
@@ -170,7 +171,7 @@ class Contestant(flask_wtf.Form):
                 contestant.format_absolute_uri()
             )
         ))
-        
+
     def _slideshare_code(self):
         """Download slideshare url and extract embed code.
         The original url may not have the code.
@@ -192,11 +193,12 @@ class Contestant(flask_wtf.Form):
     def _update_models(self, contest):
         """Creates the Contestant and Founder models
         and adds BivAccess models to join the contest and Founder models"""
-        contestant = ppcm.Contestant()
+        contestant = pcm.Contestant()
         self.populate_obj(contestant)
         contestant.youtube_code = self._youtube_code()
         contestant.slideshow_code = self._slideshare_code()
-        contestant.is_public = ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
+        contestant.is_public = \
+            ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
         contestant.is_under_review = False
         ppc.db.session.add(contestant)
         ppc.db.session.flush()
@@ -284,13 +286,12 @@ class Donate(flask_wtf.Form):
             contestant_url=contestant.format_absolute_uri(),
             contestant_tweet="Help us win! " + contestant.display_name,
             form=self,
-            founders=contestant.get_founders()
         )
 
     def execute_payment(self, contestant):
         """Handles return task from paypal. Calls paypal with payment and
         payer IDs to complete the transaction."""
-        donor = ppcm.Donor.unsafe_load_from_session()
+        donor = pcm.Donor.unsafe_load_from_session()
         if not donor:
             ppc.app().logger.warn('missing session donor')
             flask.flash('The referenced contribution was already processed.')
@@ -315,7 +316,7 @@ class Donate(flask_wtf.Form):
 
     def validate(self):
         """Ensure the amount is present and at least $10"""
-        super().validate()
+        super(Donate, self).validate()
         amount = None
 
         if self.donate10.data:
@@ -326,10 +327,10 @@ class Donate(flask_wtf.Form):
             amount = 100
         elif self.amount.data:
             try:
-              if float(self.amount.data) < 10:
-                  self.amount.errors = ['Amount must be at least $10.']
-              elif float(self.amount.data) > 1000000:
-                  self.amount.errors = ['Amount too large.']
+                if float(self.amount.data) < 10:
+                    self.amount.errors = ['Amount must be at least $10.']
+                elif float(self.amount.data) > 1000000:
+                    self.amount.errors = ['Amount too large.']
             except ValueError:
                 self.amount.errors = ['Please enter an amount.']
         else:
@@ -342,7 +343,7 @@ class Donate(flask_wtf.Form):
 
     def _create_donor(self, contestant):
         """Create a new donor model and link to the parent contestant."""
-        donor = ppcm.Donor()
+        donor = pcm.Donor()
         self.populate_obj(donor)
         donor.donor_state = 'submitted'
         ppc.db.session.add(donor)
@@ -446,6 +447,117 @@ class Donate(flask_wtf.Form):
         donor.donor_state = 'pending_confirmation'
         ppc.db.session.add(donor)
         self._link_donor_to_user(donor)
+
+
+class Judgement(flask_wtf.Form):
+    """Judgement form.
+
+    Fields:
+        question(1 .. 6): question score
+        question(1 ..6)_comment: comments for survey question
+        general_comment: End of survey comments
+    """
+    def _comment_field(label='Comments'):
+        return wtforms.TextAreaField(
+            label, validators=[wtfv.Length(max=10000)])
+
+    def _question_field(number):
+        return wtforms.RadioField(
+            'Question {}'.format(number),
+            choices=[
+                ('1', 'Unsatisfactory'),
+                ('2', 'Improvement Needed'),
+                ('3', 'Meets Expectations'),
+                ('4', 'Exceeds Expectations')
+            ]
+        )
+
+    question1 = _question_field('1')
+    question1_comment = _comment_field()
+    question2 = _question_field('2')
+    question2_comment = _comment_field()
+    question3 = _question_field('3')
+    question3_comment = _comment_field()
+    question4 = _question_field('4')
+    question4_comment = _comment_field()
+    question5 = _question_field('5')
+    question5_comment = _comment_field()
+    question6 = _question_field('6')
+    question6_comment = _comment_field()
+    general_comment = _comment_field('General Comments')
+
+    def execute(self, contestant):
+        """Saves scores for questions."""
+        if self.is_submitted():
+            if self.validate():
+                self._save_scores(contestant)
+                flask.flash('Thank you for scoring contestant {}.'.format(
+                    contestant.display_name))
+                return flask.redirect(
+                    contestant.get_contest().format_uri('judging'))
+        else:
+            self._load_scores(contestant)
+        return flask.render_template(
+            'contest/judge-contestant.html',
+            contestant=contestant,
+            contest=contestant.get_contest(),
+            form=self
+        )
+
+    @classmethod
+    def get_points_for_question(cls, number):
+        return pcm.JudgeScore.get_points_for_question(number)
+
+    def validate(self):
+        """Clear any errors for unselected radio choices."""
+        super(Judgement, self).validate()
+        for num in range(1, 7):
+            self['question{}'.format(num)].errors = None
+        _log_errors(self)
+        return not self.errors
+
+    def _load_scores(self, contestant):
+        """Load scores from database."""
+        for num in range(1, 7):
+            score = self._unsafe_get_score(contestant, num)
+            if not score:
+                continue
+            self['question{}'.format(num)].data = str(score.judge_score)
+            self['question{}_comment'.format(num)].data = score.judge_comment
+        question0 = self._unsafe_get_score(contestant, 0)
+        if score:
+            self.general_comment.data = question0.judge_comment
+
+    def _save_score(self, contestant, num, val, comment):
+        """Save a question score to database."""
+        score = self._unsafe_get_score(contestant, num)
+        if not score:
+            score = pcm.JudgeScore()
+            score.judge_biv_id = flask.session['user.biv_id']
+            score.contestant_biv_id = contestant.biv_id
+            score.question_number = int(num)
+        score.judge_score = int(val)
+        score.judge_comment = comment
+        ppc.db.session.add(score)
+
+    def _save_scores(self, contestant):
+        """Saves scores to database."""
+        for num in range(1, 7):
+            val = self['question{}'.format(num)].data
+            # TODO(pjm): hack - val may have been coerced to string "None"
+            if val is None or val == 'None':
+                val = 0
+            self._save_score(contestant, num, val,
+                             str(self['question{}_comment'.format(num)].data))
+        self._save_score(contestant, 0, 0, str(self.general_comment.data))
+
+    def _unsafe_get_score(self, contestant, num):
+        """Loads a question score from database."""
+        return pcm.JudgeScore.query.filter_by(
+            judge_biv_id=flask.session['user.biv_id'],
+            contestant_biv_id=contestant.biv_id,
+            question_number=int(num)
+        ).first()
 
 
 def _log_errors(form):
