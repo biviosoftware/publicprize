@@ -5,6 +5,9 @@
 {% endblock %}
 
 {% block logged_in_nav %}
+  {% if contest.is_judge() %}
+    <li><a class="pp-nav-item pp-nav-important" href="{{ contest.format_uri('judging') }}">Judging</a>
+  {% endif %}
   {% if contest.user_submission_url() %}
     <li><a class="pp-nav-item" href="{{ contest.user_submission_url() }}">My Entry</a></li>
   {% endif %}
@@ -24,17 +27,18 @@
       {%- if count %} <span class="badge">{{ count }}</span>{% endif -%}
     </a>
   {%- endmacro -%}
-  <div class="btn-group pp-menu">
+  <div class="btn-group btn-group-justified pp-menu">
     {{ menu_link('about', 'About') }}
     {{ menu_link('contestants', 'Contestants', contest.contestant_count()) }}
     {{ menu_link('judges', 'Judges') }}
   </div>
 </div>
 
-<div class="col-sm-8">
+<div class="{% block contest_content_class %}col-sm-8{% endblock %}">
   {% block contest_content %}{% endblock %}
 </div>
 
+{% block sponsor_list %}
 <div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">
   <a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819"><img class="pp-esprit-logo hidden-xs" src="/static/img/esprit255.png" alt="Esprit Venture Challege 2014" /></a>
   <div class="row">
@@ -48,6 +52,7 @@
     {% endfor %}
   </div>
 </div>  
+{% endblock %}
 
 {{ macros.signin_modal('pp_how_to_enter_modal', 'Sign up', next=contest.format_uri('submit-contestant')) }}
 
