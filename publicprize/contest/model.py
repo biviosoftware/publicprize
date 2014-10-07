@@ -51,6 +51,7 @@ class Contest(db.Model, common.ModelWithDates):
         ).count()
 
     def days_remaining(self):
+        """Days remaining for this Contest."""
         return (self.end_date - datetime.date.today()).days
 
     def donor_count(self):
@@ -89,14 +90,35 @@ class Contest(db.Model, common.ModelWithDates):
             random.shuffle(sponsors)
         return sponsors
 
-    def get_public_contestants(self, randomize=False):
+    def get_public_contestants(self, randomize=False, userRandomize=False):
+        """Return a list of contestants for this Contest. List will be
+        randomized if randomize is True. If userRandomize is True, the list
+        will be randomized with a seed based on the current user name."""
         contestants = Contestant.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == Contestant.biv_id
         ).filter(Contestant.is_public == True).all()  # noqa
         if randomize:
             random.shuffle(contestants)
+        if userRandomize:
+            random.Random(flask.session['user.display_name']).shuffle(
+                contestants)
         return contestants
+
+    def is_judge(self):
+        """Returns True if the current user is a judge for this Contest"""
+        #return True
+        if not flask.session.get('user.is_logged_in'):
+            return False
+        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
+        if Judge.query.select_from(pam.BivAccess, access_alias).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == access_alias.target_biv_id,
+            access_alias.source_biv_id == flask.session['user.biv_id']
+        ).first():
+            return True
+        return False
+
 
     def user_submission_url(self):
         """Returns the current user's submission url or None.
@@ -179,6 +201,14 @@ class Contestant(db.Model, common.ModelWithDates):
             return match.group(1)
         return self.slideshow_code
 
+    def get_score_for_judge_user(self):
+        """Returns this contestant's score for the current logged in judge"""
+        total = 0.0
+        for score in self._get_score_info_for_judge_user():
+            total += JudgeScore.get_points_for_question(
+                score.question_number) * (int(score.judge_score) - 1) / 3
+        return total
+
     def get_summary(self):
         """Returns an excerpt for the Contestant.contestant_desc."""
         summary = self.contestant_desc
@@ -191,9 +221,24 @@ class Contestant(db.Model, common.ModelWithDates):
             return match.group(1)
         return summary
 
+    def is_partial_scored_by_judge_user(self):
+        # TODO(pjm): need meta data for question count
+        return len(self._get_score_info_for_judge_user()) != 6
+
+    def is_scored_by_judge_user(self):
+        return len(self._get_score_info_for_judge_user()) > 0
+
     def is_youtube_slideshow(self):
         """Returns true if the slideshow is Youtube, not Slideshare."""
         return re.search(r'^youtube\:', self.slideshow_code)
+
+    def _get_score_info_for_judge_user(self):
+        return JudgeScore.query.filter(
+            JudgeScore.judge_biv_id == flask.session['user.biv_id'],
+            JudgeScore.contestant_biv_id == self.biv_id,
+            JudgeScore.question_number > 0,
+            JudgeScore.judge_score > 0
+        ).all()
 
 
 class Donor(db.Model, common.ModelWithDates):
@@ -266,6 +311,51 @@ class Founder(db.Model, common.ModelWithDates):
     avatar_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='avatar_type'))
 
 
+class Judge(db.Model, common.ModelWithDates):
+    """judge database model.
+
+    Fields:
+        biv_id: primary ID
+        judge_company: judge's company
+        judge_title: judge's title within the company
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('judge_s', start=1009, increment=1000),
+        primary_key=True
+    )
+    judge_company = db.Column(db.String(100))
+    judge_title = db.Column(db.String(100))
+
+
+class JudgeScore(db.Model, common.ModelWithDates):
+    """judge_score database model.
+
+    Fields:
+        judge_biv_id: judge's User.biv_id
+        contestant_biv_id: contestant ID
+        question_number: question
+        judge_score: contestant's score
+        judge_comment: judge's comment to contestant
+    """
+    judge_biv_id = db.Column(db.Numeric(18), primary_key=True)
+    contestant_biv_id = db.Column(db.Numeric(18), primary_key=True)
+    question_number = db.Column(db.Numeric(9), primary_key=True)
+    judge_score = db.Column(db.Numeric(9))
+    judge_comment = db.Column(db.String)
+
+    @classmethod
+    def get_points_for_question(cls, number):
+        return [
+            10,
+            10,
+            10,
+            5,
+            10,
+            15
+        ][int(number) - 1];
+
+
 class Sponsor(db.Model, common.ModelWithDates):
     """sponsor database model.
 
@@ -285,10 +375,11 @@ class Sponsor(db.Model, common.ModelWithDates):
     website = db.Column(db.String(100))
     sponsor_logo = db.Column(db.LargeBinary)
     logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
-
+        
 
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
 Contestant.BIV_MARKER = biv.register_marker(3, Contestant)
 Donor.BIV_MARKER = biv.register_marker(7, Donor)
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
 Sponsor.BIV_MARKER = biv.register_marker(8, Sponsor)
+Judge.BIV_MARKER = biv.register_marker(9, Sponsor)
