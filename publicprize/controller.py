@@ -96,10 +96,14 @@ class Model(object):
         return flask.url_for(
             '_route',
             path=self.format_uri(action),
-            _external=True
+            _external=True,
+            _scheme=(
+                'http' if app().config['PUBLICPRIZE']['TEST_MODE']
+                else 'https')
         )
 
-    def format_uri(self, action=None, path_info=None, query=None, preserve_next=False, next=None):
+    def format_uri(self, action=None, path_info=None, query=None,
+                   preserve_next=False, next=None):
         """Creates a URI for this biv_obj appending action and path_info"""
         biv_id = biv.Id(self.biv_id)
         uri = '/' + biv_id.to_biv_uri()
