@@ -247,6 +247,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
                 youtube_code=contestant['youtube_code'],
                 slideshow_code=contestant['slideshow_code'],
                 contestant_desc=contestant['contestant_desc'],
+                website=contestant['website'],
                 is_public=True,
                 is_under_review=False
             ))
