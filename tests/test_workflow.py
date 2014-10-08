@@ -230,6 +230,34 @@ class PublicPrizeTestCase(unittest.TestCase):
             self._verify_text('Submit Your Entry')
             print('...verified')
 
+    def test_judging(self):
+        self._visit_uri('/')
+        self._follow_link('Esprit Venture Challenge')
+        self._visit_uri(self.current_uri + '/new-test-judge')
+        self._follow_link('Esprit Venture Challenge')
+        self._follow_link('Judging')
+        self._follow_link('gazeMetrix')
+        self._submit_form({
+            'question1_comment': 'comments for question 1',
+            'question2': 3,
+            'general_comment': 'my general comments'
+        })
+        self._follow_link('Partial Score')
+        self._verify_text('comments for question 1')
+        self._submit_form({
+            'question1': 4,
+            'question2': 4,
+            'question3': 4,
+            'question4': 4,
+            'question5': 4,
+            'question5_comment': 'comments for question 5',
+            'question6': 4,
+            'general_comment': 'new comments'
+        })
+        self._verify_text('60.00')
+        self._follow_link('gazeMetrix')
+        self._verify_text('new comments')
+        
     def test_submit_entry(self):
         self._visit_uri('/')
         self._visit_uri('/pub/new-test-user')
