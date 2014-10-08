@@ -221,6 +221,12 @@ class Contestant(db.Model, common.ModelWithDates):
             return match.group(1)
         return summary
 
+    def get_website(self):
+        """Returns the contestant website, prepending http:// if necessary."""
+        if self.website and not re.search(r'^http', self.website):
+            return 'http://{}'.format(self.website)
+        return self.website
+
     def is_partial_scored_by_judge_user(self):
         # TODO(pjm): need meta data for question count
         return len(self._get_score_info_for_judge_user()) != 6
