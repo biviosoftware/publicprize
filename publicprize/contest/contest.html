@@ -1,5 +1,10 @@
 {% extends 'layout/base.html' %}
 
+{% block head %}
+{{ super() }}
+<meta property="og:image" content="https://www.publicprize.com/static/img/rosie200.jpg" /> 
+{% endblock %}
+
 {% block title %}
 - {{ contest.display_name }}
 {% endblock %}
