@@ -461,10 +461,14 @@ input.pp-agree-checkbox {
 .pp-detail-social {
   float: right;
 }
+.pp-contest-social {
+  padding-left: 0.5em;
+  margin-top: 1ex;
+  margin-bottom: 1ex;
+}
 .pp-detail-social .pp-social-icon img {
   margin: 0;
   margin-left: 0.5em;
-  border-radius: 6px;
 }
 .pp-contestant .pp-heading {
   margin-top: 30px;
