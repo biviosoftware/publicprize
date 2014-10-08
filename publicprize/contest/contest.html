@@ -28,7 +28,7 @@
     {%- endmacro %}
     <div class="btn-group btn-group-justified pp-menu">
       {{- menu_link('about', 'About') }}
-      {{- menu_link('contestants', 'Contestants', contest.contestant_count()) }}
+      {{- menu_link(None, 'Contestants', contest.contestant_count()) }}
       {{- menu_link('judges', 'Judges') }}
     </div>
   </div>
