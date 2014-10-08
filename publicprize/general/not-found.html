@@ -1,10 +1,8 @@
 {% extends 'layout/base.html' %}
 
-{% block title %}Page Not Found{% endblock %}
+{%- block title %}Page Not Found{% endblock %}
 
-{% block content %}
-<h1>Page Not Found</h1>
-
-<p>The requested URL {{ request.path }} was not found on this server.</p>
-
-{% endblock %}
+{%- block content %}
+  <h1>Page Not Found</h1>
+  <p>The requested URL {{ request.path }} was not found on this server.</p>
+{%- endblock %}
