@@ -1,42 +1,42 @@
 
-{%- macro error_class(field) -%}
-  {% if field.errors %}has-error{% endif %}
-{%- endmacro -%}
+{%- macro error_class(field) %}
+  {%- if field.errors %}has-error{% endif %}
+{%- endmacro %}
 
-{%- macro errors(field) -%}
-  {% if field.errors %}
+{%- macro errors(field) %}
+  {%- if field.errors %}
     <span class="pp-form-error text-danger"><strong>{{ field.errors[0] }}</strong></span>
-  {% endif %}
-{%- endmacro -%}
+  {%- endif %}
+{%- endmacro %}
 
-{%- macro form_field(field, help_text=None, hint=None, label=None) -%}
+{%- macro form_field(field, help_text=None, hint=None, label=None) %}
   <div class="form-group {{ error_class(field) }}">
-    {%- if hint -%}
-      {{ label_with_hint(field, hint, label=label) }}
-    {% else %}
-      {{ label or field.label }}
-    {%- endif -%}
-    {{ errors(field) }}
-    {%- if help_text -%}
+    {%- if hint %}
+      {{- label_with_hint(field, hint, label=label) }}
+    {%- else %}
+      {{- label or field.label }}
+    {%- endif %}
+    {{- errors(field) }}
+    {%- if help_text %}
       <div class="input-group">
-        {{ field(class="form-control") }}
+        {{- field(class="form-control") }}
         <span class="input-group-addon"><span class= "pp-tooltip" data-toggle="tooltip" title="{{ help_text }}"><span class="glyphicon glyphicon-info-sign text-primary"></span></span></span>
       </div>
-    {% else %}
-      {{ field(class="form-control") }}
-    {% endif %}
+    {%- else %}
+      {{- field(class="form-control") }}
+    {%- endif %}
   </div>
-{%- endmacro -%}
+{%- endmacro %}
 
-{%- macro mobile_tag(name) -%}
-  {%- if request.MOBILE -%}/#{{ name }}{%- endif -%}
-{%- endmacro -%}
+{%- macro mobile_tag(name) %}
+  {%- if request.MOBILE %}/#{{ name }}{%- endif %}
+{%- endmacro %}
 
-{%- macro label_with_hint(field, hint, label=None) -%}
+{%- macro label_with_hint(field, hint, label=None) %}
   <label for="{{ field.name }}">{{ label or field.label.text }} <span class="text-muted"><small>({{ hint }})</small></span></label>
-{%- endmacro -%}
+{%- endmacro %}
 
-{%- macro signin_modal(id, text, next=None) -%}
+{%- macro signin_modal(id, text, next=None) %}
   <div class="modal fade" id="{{ id }}" tabindex="-1" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -52,12 +52,12 @@
       </div>
   </div>
 </div>
-{%- endmacro -%}
+{%- endmacro %}
   
-{%- macro submit_button(text) -%}  
+{%- macro submit_button(text) %}  
   <button type="submit" class="pp-big-button btn btn-primary btn-lg ladda-button" data-style="expand-left"><span class="ladda-label">{{ text }}</span></button>
-{%- endmacro -%}
+{%- endmacro %}
     
-{%- macro support_mailto(text) -%}  
+{%- macro support_mailto(text) %}  
 <a href="mailto:{{ config['PUBLICPRIZE']['SUPPORT_EMAIL'] }}">{{ text }}</a>
-{%- endmacro -%}
+{%- endmacro %}
