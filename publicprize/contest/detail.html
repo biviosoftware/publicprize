@@ -91,6 +91,11 @@
         {%- endif -%}
       </div>
     </div>
+    {%- if contestant.website %}
+      <div class="pp-website clearfix">
+      {{ contestant.display_name }} Website: <a href="{{ contestant.get_website() }}">{{ contestant.website }}</a>
+      </div>
+    {% endif -%}
     <div class="pp-founders clearfix">
     	<h3 class="pp-heading">Founders</h3>
 
