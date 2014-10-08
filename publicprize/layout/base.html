@@ -1,12 +1,16 @@
-{% import "layout/macros.html" as macros %}
 <!DOCTYPE html>
+{%- import "layout/macros.html" as macros %}
 <html lang="en">
   <head>
     {%- block head %}
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Public Prize, crowdfunded contests.">
+    {%- block meta_description %}
+      <meta name="description" content="Public Prize, crowdfunded contests.">
+      <meta property="og:description" content="Public Prize, crowdfunded contests.">
+    {%- endblock %}
+    <meta property="og:site_name" content="Public Prize">
     <link rel="icon" type="image/png" href="/static/img/favicon.png">
     <title>{% block title %}{% endblock %} - Public Prize</title>
     <link href="/static/css/bootstrap-3.2.0.min.css?20140930" rel="stylesheet">
@@ -19,7 +23,8 @@
       <script src="/static/js/msie/html5shiv.min.js"></script>
       <script src="/static/js/msie/respond.min.js"></script>
     <![endif]-->
-    {% endblock -%}
+    {%- endblock %}
+    {%- block social_meta %}{% endblock %}
   </head>
   <body>
     <div class="navbar navbar-default">
@@ -31,16 +36,16 @@
             <span class="icon-bar"></span>
           </button>
       	  <a class="pp-nav-logo" href="/"><img src="/static/img/logo.gif" alt="PUBLIC PRIZE"></a>
-	  {%- block navtitle -%}{%- endblock -%}
+	  {%- block navtitle %}{% endblock %}
         </div>
 	<div class="navbar-collapse collapse">
 	  <ul class="nav navbar-nav navbar-right">
-	    {%- if session.get('user.is_logged_in') -%}
-	      {%- block logged_in_nav %}{% endblock -%}
+	    {%- if session.get('user.is_logged_in') %}
+	      {%- block logged_in_nav %}{% endblock %}
               <li><a class="pp-nav-item" href="{{ g.pub_obj.format_uri('logout') }}">Log out</a></li>
-	    {%- elif session.get('user.oauth_type') -%}
+	    {%- elif session.get('user.oauth_type') %}
               <li><a class="pp-nav-item" href="{{ g.pub_obj.get_login_uri() }}">Log in</a></li>
-	    {% else -%}
+	    {%- else %}
               <li><a class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href="#">Sign up</a></li>
               <li><a class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href="#">Log in</a></li>
 	    {%- endif %}
@@ -49,17 +54,17 @@
       </div>
     </div>
     <div class="container pp-content"><div class="row">
-      {%- with messages = get_flashed_messages() -%}
-        {%- if messages -%}
+      {%- with messages = get_flashed_messages() %}
+        {%- if messages %}
       	  <div class="alert alert-success alert-dismissible">
     	    <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
-            {%- for message in messages -%}
+            {%- for message in messages %}
 	      <strong>{{ message }}</strong>
-            {%- endfor -%}
+            {%- endfor %}
 	  </div>
-      	{%- endif -%}
-      {%- endwith -%}
-      {% block content %}{% endblock %}
+      	{%- endif %}
+      {%- endwith %}
+      {%- block content %}{% endblock %}
     </div></div>
     <div class="pp-footer">
       {%- block footer %}
@@ -75,12 +80,10 @@
    	  </div>
         </div>
       </div>
-      {% endblock -%}
+      {%- endblock %}
     </div>
-
-    {{ macros.signin_modal('signupModal', 'Sign up') }}
-    {{ macros.signin_modal('loginModal', 'Log in') }}
-
+    {{- macros.signin_modal('signupModal', 'Sign up') }}
+    {{- macros.signin_modal('loginModal', 'Log in') }}
     {%- block scripts %}
     <script src="/static/js/jquery/jquery-1.11.1.min.js"></script>
     <script src="/static/js/bootstrap/bootstrap-3.2.0.min.js"></script>
@@ -95,6 +98,6 @@
       ga('create', 'UA-52749380-3', 'auto');
       ga('send', 'pageview');
     </script>
-    {% endblock -%}
+    {%- endblock %}
   </body>
 </html>
