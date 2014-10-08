@@ -1,64 +1,54 @@
 {% extends 'layout/base.html' %}
 
-{% block head %}
-{{ super() }}
-<meta property="og:image" content="https://www.publicprize.com/static/img/rosie200x200.jpg" /> 
-{% endblock %}
+{%- block title %}
+  {%- block subtitle %}{% endblock %} - {{ contest.display_name }}
+{%- endblock %}
 
-{% block title %}
-- {{ contest.display_name }}
-{% endblock %}
-
-{% block logged_in_nav %}
-  {% if contest.is_judge() %}
+{%- block logged_in_nav %}
+  {%- if contest.is_judge() %}
     <li><a class="pp-nav-item pp-nav-important" href="{{ contest.format_uri('judging') }}">Judging</a>
-  {% endif %}
-  {% if contest.user_submission_url() %}
+  {%- endif %}
+  {%- if contest.user_submission_url() %}
     <li><a class="pp-nav-item" href="{{ contest.user_submission_url() }}">My Entry</a></li>
-  {% endif %}
-{% endblock %}
+  {%- endif %}
+{%- endblock %}
 
-{%- block navtitle -%}<span class="pp-nav-title hidden-xs">{{ contest.display_name }}</span>{%- endblock -%}
+{%- block navtitle %}
+  <span class="pp-nav-title hidden-xs">{{ contest.display_name }}</span>
+{%- endblock %}
 
-{% block content %}
-
-<span class="pp-nav-title-mobile visible-xs">{{ contest.display_name }}</span>
-
-{% block contest_header %}{% endblock %}
-
-<div class="col-sm-12">
-  {% macro menu_link(value, text, count=0) -%}
-    <a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-menu-button {% if selected == value %}pp-selected-menu-button{% endif %}">{{ text }}
-      {%- if count %} <span class="badge">{{ count }}</span>{% endif -%}
-    </a>
-  {%- endmacro -%}
-  <div class="btn-group btn-group-justified pp-menu">
-    {{ menu_link('about', 'About') }}
-    {{ menu_link('contestants', 'Contestants', contest.contestant_count()) }}
-    {{ menu_link('judges', 'Judges') }}
-  </div>
-</div>
-
-<div class="{% block contest_content_class %}col-sm-8{% endblock %}">
-  {% block contest_content %}{% endblock %}
-</div>
-
-{% block sponsor_list %}
-<div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">
-  <a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819"><img class="pp-esprit-logo hidden-xs" src="/static/img/esprit255.png" alt="Esprit Venture Challege 2014" /></a>
-  <div class="row">
-    {% for sponsor in contest.get_sponsors(randomize=True) %}
-    <div class="col-sm-12 col-xs-6">
-      <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
-        <a href="{{ sponsor.website }}">
-          <img style="width: 100%" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
-      </div>
+{%- block content %}
+  <span class="pp-nav-title-mobile visible-xs">{{ contest.display_name }}</span>
+  {%- block contest_header %}{% endblock %}
+  <div class="col-sm-12">
+    {%- macro menu_link(value, text, count=0) %}
+      <a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-menu-button {% if selected == value %}pp-selected-menu-button{% endif %}">{{ text }}
+        {%- if count %} <span class="badge">{{ count }}</span>{% endif %}
+      </a>
+    {%- endmacro %}
+    <div class="btn-group btn-group-justified pp-menu">
+      {{- menu_link('about', 'About') }}
+      {{- menu_link('contestants', 'Contestants', contest.contestant_count()) }}
+      {{- menu_link('judges', 'Judges') }}
     </div>
-    {% endfor %}
   </div>
-</div>  
-{% endblock %}
-
-{{ macros.signin_modal('pp_how_to_enter_modal', 'Sign up', next=contest.format_uri('submit-contestant')) }}
-
-{% endblock %}
+  <div class="{% block contest_content_class %}col-sm-8{% endblock %}">
+    {%- block contest_content %}{% endblock %}
+  </div>
+  {%- block sponsor_list %}
+    <div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">
+      <a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819"><img class="pp-esprit-logo hidden-xs" src="/static/img/esprit255.png" alt="Esprit Venture Challege 2014" /></a>
+      <div class="row">
+        {%- for sponsor in contest.get_sponsors(randomize=True) %}
+        <div class="col-sm-12 col-xs-6">
+          <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
+            <a href="{{ sponsor.website }}">
+              <img style="width: 100%" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
+          </div>
+        </div>
+        {%- endfor %}
+      </div>
+    </div>  
+  {%- endblock %}
+  {{- macros.signin_modal('pp_how_to_enter_modal', 'Sign up', next=contest.format_uri('submit-contestant')) }}
+{%- endblock %}
