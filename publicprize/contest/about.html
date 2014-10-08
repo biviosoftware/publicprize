@@ -1,120 +1,118 @@
 {% extends 'contest/contest.html' %}
 
-{% block title %}
-About
-{{ super() }}
-{% endblock %}
+{% block subtitle %}About{% endblock %}
 
 {% block contest_content %}
 <div class="pp-main pp-about-page">
-<div class="pp-heading">Boulder's Own Startup Competition</div>
-<p>
-The Boulder Chamber Esprit Venture Challenge is a community-oriented,
-friendly startup competition with a twist.  Everyone gets a say
-in who wins.
-</p>
-<p>
-You get to back innovation in Boulder by voting with your dollars.
-The more you give, the higher the contestant's score.  Most importantly,
-the startups get to keep your contributions so all contestants win!
-</p>
-<div class="pp-section">Why get involved?</div>
-<div class="media">
-<p>
-<a class="pp-about-inset pp-about-boulderfuse media-object" href="http://boulderfuse.com"><img src="/static/img/boulderfuse300.jpg" alt="Boulder Fuse" /><span class="pp-about-caption">Fuse at the Riverside</span></a>
-What does it mean to love Boulder?  It means getting involved so we have an
-even better city, because you are part of it.  We are a community like
-no other, from our love of the outdoors to innovation.
-</p>
-<p>
-You know Boulder is special.  We have more scientists, athletes, and
-entpreneurs per capita than any other city in the U.S.  Inc. magazine
-recently named Boulder
-<a href="http://www.inc.com/magazine/201312/boulder-colorado-fast-growing-business.html">America's Startup Capital</a>.
-</p>
+  <div class="pp-heading">Boulder's Own Startup Competition</div>
+  <p>
+    The Boulder Chamber Esprit Venture Challenge is a community-oriented,
+    friendly startup competition with a twist.  Everyone gets a say
+    in who wins.
+  </p>
+  <p>
+    You get to back innovation in Boulder by voting with your dollars.
+    The more you give, the higher the contestant's score.  Most importantly,
+    the startups get to keep your contributions so all contestants win!
+  </p>
+  <div class="pp-section">Why get involved?</div>
+  <div class="media">
+    <p>
+      <a class="pp-about-inset pp-about-boulderfuse media-object" href="http://boulderfuse.com"><img src="/static/img/boulderfuse300.jpg" alt="Boulder Fuse" /><span class="pp-about-caption">Fuse at the Riverside</span></a>
+      What does it mean to love Boulder?  It means getting involved so
+      we have an even better city, because you are part of it.  We are
+      a community like no other, from our love of the outdoors to
+      innovation.
+    </p>
+    <p>
+      You know Boulder is special.  We have more scientists, athletes, and
+      entpreneurs per capita than any other city in the U.S.  Inc. magazine
+      recently named Boulder
+      <a href="http://www.inc.com/magazine/201312/boulder-colorado-fast-growing-business.html">America's Startup Capital</a>.
+    </p>
+  </div>
+  <p>
+    Startups stoke Boulder's economy and keep Boulder at the forefront of
+    innovation.  From environmental technology to business process
+    intelligence, Boulder's entrepreneurs are solving the world's
+    problems, one startup at a time.
+  </p>
+  <p>
+    You can help increase the pace of innovation by contributing to
+    Boulder startups.  The Esprit Venture Challenge is showcasing Boulder
+    startups so you get to choose which one to back with your hard-earned
+    dollars.  Think of how it would feel to be behind green energy
+    solutions or the next Apple, Facebook, or Google!
+  </p>
+  <p>
+    For the price of a movie admission, you will help a Boulder
+    entrepreneur succeed, and maybe even be the winner of the Boulder
+    Chamber Esprit Venture Challenge!
+  </p>
+  <div class="pp-section">How does it work?</div>
+  <div class="media">
+    <p>
+      <a class="pp-about-impacthubboulder media-object" href="http://impacthubboulder.com"><img src="/static/img/impacthubboulder570.jpg" alt="Impact Hub Boulder" /><span class="pp-about-caption">Impact Hub Boulder</span></a>
+      The Esprit Venture Challenge is for seed-stage businesses,
+      specifically, startups with a combined revenue and capital of less than
+      $1,000,000.  Contestants submit a brief description, a video, a slide
+      presentation, and founder bios.  Once approved, these entries appear
+      on the contest site on their own page as well as in a randomized list
+      of all contestants.
+    </p>
+  </div>
+  <p>
+    The contest combines crowdfunding and expert input.  A panel of judges
+    will rate each contestant individually according to a fixed set of
+    criteria.  The judges will also give the startups valuable expert
+    feedback about their business idea, presentation, etc.  The judges'
+    score accounts for 60% of the contestant's total score.  
+  </p>
+  <p>
+    The startups are also competing for community backing in a fair and
+    open way.  The crowdfunding counts up to 40% towards their total
+    score.  The calculation works like this: the startup with the most
+    money raised gets the top score.  The other contestants then get a
+    score relative to the top startup.  For example, if the top
+    startup raises $60,000 and another startup raises $45,000, then
+    top startup gets the full 40%, and the other startup gets 30%
+    ($45,000 divide by $60,000 times 40%).
+  </p>
+  <p>
+    Startups have till midnight on September 28, 2014 to submit their
+    entries.  You have till midnight on October 21, 2014 to back your
+    favorite startup.
+  </p>
+  <p>
+    Please rule the <a href="{{ contest.format_uri('rules') }}">Official Contest Rules</a>
+    for a complete explanation.
+  </p>
+  <div class="pp-section">Esprit Entrepreneur</div>
+  <p>
+    <a class="pp-about-inset pp-about-esprit" href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819"><img src="/static/img/esprit300.gif" alt="Esprit Entrepreneur" /></a>
+    The Esprit Venture Challenge winners will be announced at the
+    Esprit Entrepreneur program on October 23, 2014 at 4:45p at the
+    <a href="http://www.stjulien.com">St. Julien</a>.
+    The awards ceremony will be followed by a reception.  You can
+    register for the event at the
+    <a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819">Esprit Entrepreneur site</a>.
+  </p>
+  <p>
+    Now in its 30th year, Esprit is the region's top event for
+    entrepreneurial success. Join the Boulder Chamber and Amy Cosper,
+    VP and Editor in Chief of Entrepreneur Magazine, and local
+    entrepreneurs for this two day event and learn how to Soar through
+    Change. The one constant in today's and tomorrow's marketplace is
+    change. At this year's Esprit Entrepreneur, the Boulder Chamber
+    gathers leading experts and business leaders to show innovative
+    ways to transform change from uncertainty to success. Learn what
+    the future holds, find out how to manage through "chaos," discover
+    how to create positive market disruption, and get the real scoop
+    on how to use social media to drive customer awareness!
+  </p>
+  <p>
+    To learn more, visit the
+    <a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819">Esprit Entrepreneur site</a>.
+  </p>
 </div>
-<p>
-Startups stoke Boulder's economy and keep Boulder at the forefront of
-innovation.  From environmental technology to business process
-intelligence, Boulder's entrepreneurs are solving the world's
-problems, one startup at a time.
-</p>
-<p>
-You can help increase the pace of innovation by contributing to
-Boulder startups.  The Esprit Venture Challenge is showcasing Boulder
-startups so you get to choose which one to back with your hard-earned
-dollars.  Think of how it would feel to be behind green energy
-solutions or the next Apple, Facebook, or Google!
-</p>
-<p>
-For the price of a movie admission, you will help a Boulder
-entrepreneur succeed, and maybe even be the winner of the Boulder
-Chamber Esprit Venture Challenge!
-</p>
-<div class="pp-section">How does it work?</div>
-<div class="media">
-<p>
-<a class="pp-about-impacthubboulder media-object" href="http://impacthubboulder.com"><img src="/static/img/impacthubboulder570.jpg" alt="Impact Hub Boulder" /><span class="pp-about-caption">Impact Hub Boulder</span></a>
-The Esprit Venture Challenge is for seed-stage businesses,
-specifically, startups with a combined revenue and capital of less than
-$1,000,000.  Contestants submit a brief description, a video, a slide
-presentation, and founder bios.  Once approved, these entries appear
-on the contest site on their own page as well as in a randomized list
-of all contestants.
-</p>
-</div>
-<p>
-The contest combines crowdfunding and expert input.  A panel of judges
-will rate each contestant individually according to a fixed set of
-criteria.  The judges will also give the startups valuable expert
-feedback about their business idea, presentation, etc.  The judges'
-score accounts for 60% of the contestant's total score.  
-</p>
-<p>
-The startups are also competing for community backing in a fair and
-open way.  The crowdfunding counts up to 40% towards their total
-score.  The calculation works like this: the startup with the most
-money raised gets the top score.  The other contestants then get a
-score relative to the top startup.  For example, if the top startup
-raises $60,000 and another startup raises $45,000, then top startup
-gets the full 40%, and the other startup gets 30% ($45,000 divide by
-$60,000 times 40%).
-</p>
-<p>
-Startups have till midnight on September 28, 2014 to submit their
-entries.  You have till midnight on October 21, 2014 to back your
-favorite startup.
-</p>
-<p>
-Please rule the <a href="{{ contest.format_uri('rules') }}">Official Contest Rules</a>
-for a complete explanation.
-</p>
-<div class="pp-section">Esprit Entrepreneur</div>
-<p>
-<a class="pp-about-inset pp-about-esprit" href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819"><img src="/static/img/esprit300.gif" alt="Esprit Entrepreneur" /></a>
-The Esprit Venture Challenge winners will be announced at the Esprit
-Entrepreneur program on October 23, 2014 at 4:45p at the
-<a href="http://www.stjulien.com">St. Julien</a>.
-The awards ceremony will be followed by a
-reception.  You can register for the event at the
-<a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819">Esprit Entrepreneur site</a>.
-</p>
-<p>
-Now in its 30th year, Esprit is the region's top event for
-entrepreneurial success. Join the Boulder Chamber and Amy Cosper, VP
-and Editor in Chief of Entrepreneur Magazine, and local entrepreneurs
-for this two day event and learn how to Soar through Change. The one
-constant in today's and tomorrow's marketplace is change. At this
-year's Esprit Entrepreneur, the Boulder Chamber gathers leading
-experts and business leaders to show innovative ways to transform
-change from uncertainty to success. Learn what the future holds, find
-out how to manage through "chaos," discover how to create positive
-market disruption, and get the real scoop on how to use social media
-to drive customer awareness!
-</p>
-<p>
-To learn more, visit the
-<a href="http://cm.boulderchamber.com/events/details/esprit-entrepreneur-2014-4819">Esprit Entrepreneur site</a>.
-</p>
-</div>
-{% endblock %}
+{%- endblock %}
