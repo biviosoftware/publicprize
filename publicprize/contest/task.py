@@ -25,6 +25,7 @@ class Contest(ppc.Task):
         return Contest._render_template(
             biv_obj,
             'contestants',
+            contest_url=biv_obj.format_absolute_uri(),
         )
 
     def action_index(biv_obj):
