@@ -268,7 +268,7 @@ class Donate(flask_wtf.Form):
     """
     # TODO(pjm): DecimalField doesn't accept '' value...
     amount = wtforms.StringField('Contribution Amount')
-    donate10 = wtforms.SubmitField('$10')
+    donate5 = wtforms.SubmitField('$5')
     donate25 = wtforms.SubmitField('$25')
     donate100 = wtforms.SubmitField('$100')
     other_amount = wtforms.SubmitField('Other Amount')
@@ -321,8 +321,8 @@ class Donate(flask_wtf.Form):
         super(Donate, self).validate()
         amount = None
 
-        if self.donate10.data:
-            amount = 10
+        if self.donate5.data:
+            amount = 5
         elif self.donate25.data:
             amount = 25
         elif self.donate100.data:
