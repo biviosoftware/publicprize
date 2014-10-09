@@ -9,11 +9,13 @@ import datetime
 import decimal
 import flask
 import locale
+import math
 from publicprize.controller import db
 from publicprize import common
 from publicprize import controller
 from publicprize import biv
 import publicprize.auth.model as pam
+import pytz
 import random
 import re
 import sqlalchemy.orm
@@ -52,7 +54,10 @@ class Contest(db.Model, common.ModelWithDates):
 
     def days_remaining(self):
         """Days remaining for this Contest."""
-        return (self.end_date - datetime.date.today()).days
+        time_left = self._time_remaining()
+        if time_left.days > 0:
+            return time_left.days
+        return 0
 
     def donor_count(self):
         """Returns the total donor count across all the contestants"""
@@ -105,6 +110,18 @@ class Contest(db.Model, common.ModelWithDates):
                 contestants)
         return contestants
 
+    def get_timezone(self):
+        """Returns the timezone used by this contest."""
+        # TODO(pjm): either store in config or per contest
+        return pytz.timezone('US/Mountain')
+
+    def hours_remaining(self):
+        """Hours remaining for this Contest."""
+        hours = math.floor(self._time_remaining().total_seconds() / (60 * 60))
+        if hours > 0:
+            return hours
+        return 0
+
     def is_judge(self):
         """Returns True if the current user is a judge for this Contest"""
         if not flask.session.get('user.is_logged_in'):
@@ -117,7 +134,6 @@ class Contest(db.Model, common.ModelWithDates):
         ).first():
             return True
         return False
-
 
     def user_submission_url(self):
         """Returns the current user's submission url or None.
@@ -145,6 +161,15 @@ class Contest(db.Model, common.ModelWithDates):
                 if res.is_public:
                     return res.format_uri('contestant')
         return None
+
+    def _time_remaining(self):
+        """Returns the time remaining using the contest time zone."""
+        tz = self.get_timezone()
+        end_of_day = tz.localize(
+            datetime.datetime(
+                self.end_date.year, self.end_date.month, self.end_date.day,
+                23, 59, 59))
+        return end_of_day - datetime.datetime.now(tz)
 
 
 class Contestant(db.Model, common.ModelWithDates):
