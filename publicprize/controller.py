@@ -115,10 +115,13 @@ class Model(object):
                 + ': path_info requires an action'
             uri += '/' + path_info
         # TODO(pjm): 'next' handling needs to be refactored
-        if preserve_next and 'next' in flask.request.args:
+        if preserve_next:
             if not query:
                 query = {}
-            query['next'] = flask.request.args['next']
+            if 'next' in flask.request.args:
+                query['next'] = flask.request.args['next']
+            else:
+                query['next'] = '/'
         elif next:
             if not query:
                 query = {}
