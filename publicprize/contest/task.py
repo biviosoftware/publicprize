@@ -6,6 +6,7 @@
 """
 
 import flask
+from functools import wraps
 import io
 import publicprize.contest.form as pcf
 import publicprize.contest.model as pcm
@@ -13,6 +14,15 @@ import publicprize.controller as ppc
 import publicprize.auth.model as pam
 import werkzeug.exceptions
 
+def user_is_judge(func):
+    """Require the current user is a judge or throw a forbidden error."""
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        """If user is not logged in, redirects to the appropriate oauth task"""
+        if not args[0].is_judge():
+            werkzeug.exceptions.abort(403)
+        return func(*args, **kwargs)
+    return decorated_function
 
 class Contest(ppc.Task):
     """Contest actions"""
@@ -36,6 +46,8 @@ class Contest(ppc.Task):
         """List of judges page"""
         return Contest._render_template(biv_obj, 'judges')
 
+    @ppc.login_required
+    @user_is_judge
     def action_judging(biv_obj):
         """List of contestants for judgement"""
         return Contest._render_template(
@@ -112,6 +124,8 @@ class Contestant(ppc.Task):
         """Default to contestant page"""
         return Contestant.action_contestant(biv_obj)
 
+    @ppc.login_required
+    @user_is_judge
     def action_judging(biv_obj):
         """Contestant judgement"""
         return pcf.Judgement().execute(biv_obj)
