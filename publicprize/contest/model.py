@@ -107,7 +107,6 @@ class Contest(db.Model, common.ModelWithDates):
 
     def is_judge(self):
         """Returns True if the current user is a judge for this Contest"""
-        #return True
         if not flask.session.get('user.is_logged_in'):
             return False
         access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
@@ -226,6 +225,10 @@ class Contestant(db.Model, common.ModelWithDates):
         if self.website and not re.search(r'^http', self.website):
             return 'http://{}'.format(self.website)
         return self.website
+
+    def is_judge(self):
+        """Returns True if the current user is a judge for this Contest"""
+        return self.get_contest().is_judge()
 
     def is_partial_scored_by_judge_user(self):
         # TODO(pjm): need meta data for question count
@@ -359,7 +362,7 @@ class JudgeScore(db.Model, common.ModelWithDates):
             5,
             10,
             15
-        ][int(number) - 1];
+        ][int(number) - 1]
 
 
 class Sponsor(db.Model, common.ModelWithDates):
