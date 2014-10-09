@@ -20,8 +20,13 @@
     <span class="pp-summary-name">Contributions</span>
   </div>
   <div class="{{ item_class }}">
-    <span class="pp-summary-number">{{ contest.days_remaining() }}</span>
-    <span class="pp-summary-undertitle">days to go</span>
+    {% if contest.days_remaining() > 0 %}
+      <span class="pp-summary-number">{{ contest.days_remaining() }}</span>
+      <span class="pp-summary-undertitle">days to go</span>
+    {% else %}
+      <span class="pp-summary-number">{{ contest.hours_remaining() }}</span>
+      <span class="pp-summary-undertitle">hours to go</span>
+    {% endif %}
   </div>
 {%- endmacro %}
       
