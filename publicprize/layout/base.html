@@ -42,12 +42,12 @@
 	  <ul class="nav navbar-nav navbar-right">
 	    {%- if session.get('user.is_logged_in') %}
 	      {%- block logged_in_nav %}{% endblock %}
-              <li><a class="pp-nav-item" href="{{ g.pub_obj.format_uri('logout') }}">Log out</a></li>
+              <li><a rel="nofollow" class="pp-nav-item" href="{{ g.pub_obj.format_uri('logout') }}">Log out</a></li>
 	    {%- elif session.get('user.oauth_type') %}
-              <li><a class="pp-nav-item" href="{{ g.pub_obj.get_login_uri() }}">Log in</a></li>
+              <li><a rel="nofollow" class="pp-nav-item" href="{{ g.pub_obj.get_login_uri() }}">Log in</a></li>
 	    {%- else %}
-              <li><a class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href="#">Sign up</a></li>
-              <li><a class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href="#">Log in</a></li>
+              <li><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href="#">Sign up</a></li>
+              <li><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href="#">Log in</a></li>
 	    {%- endif %}
 	  </ul>
 	</div>
