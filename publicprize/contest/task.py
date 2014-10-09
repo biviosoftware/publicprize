@@ -18,7 +18,7 @@ def user_is_judge(func):
     """Require the current user is a judge or throw a forbidden error."""
     @wraps(func)
     def decorated_function(*args, **kwargs):
-        """If user is not logged in, redirects to the appropriate oauth task"""
+        """Throw a forbidden exception if the user is not a judge."""
         if not args[0].is_judge():
             werkzeug.exceptions.abort(403)
         return func(*args, **kwargs)
