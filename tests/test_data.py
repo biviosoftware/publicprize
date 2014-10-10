@@ -235,3 +235,43 @@ SUBMIT_ENTRY_FIELDS = {
         'dev': ['']
     }
 }
+
+# MA: I'm not sure what would constitute a deviating entry here
+JUDGING_FIELDS = {
+    'question1': {
+        'conf': {1, 2, 3, 4}
+    },
+    'question2': {
+        'conf': {1, 2, 3, 4}
+    },
+    'question3': {
+        'conf': {1, 2, 3, 4}
+    },
+    'question4': {
+        'conf': {1, 2, 3, 4}
+    },
+    'question5': {
+        'conf': {1, 2, 3, 4}
+    },
+    'question6': {
+        'conf': {1, 2, 3, 4}
+    },
+    'question1_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf']
+    },
+    'question2_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf']
+    },
+    'question3_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf']
+    },
+    'question4_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf']
+    },
+    'question5_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf']
+    },
+    'question6_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf']
+    }
+}
