@@ -148,7 +148,7 @@ GENERIC_FIELDS = {
     }
 }
 
-FIELDS = {
+SUBMIT_ENTRY_FIELDS = {
     #RN
     'display_name': GENERIC_FIELDS['generic_name'],
     'contestant_desc': GENERIC_FIELDS['generic_desc'],

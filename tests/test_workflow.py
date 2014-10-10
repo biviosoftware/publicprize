@@ -139,7 +139,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text('Page Not Found')
 
     def test_conf_submit_entries(self):
-        conf_entry_gen = ParseData(test_data.FIELDS).get_data_variations('conf')
+        conf_entry_gen = ParseData(test_data.SUBMIT_ENTRY_FIELDS).get_data_variations('conf')
         for data_variation in conf_entry_gen:
             num = int(random.random() * 10000)
             base_name = data_variation['display_name']
@@ -192,7 +192,7 @@ class PublicPrizeTestCase(unittest.TestCase):
             accepted because of the supposedly conforming data that it contains
         """
         main_subtype = 'conf'
-        dev_entry_gen = ParseData(test_data.FIELDS).get_mostly_one_type_single_other_type_variations(main_subtype)
+        dev_entry_gen = ParseData(test_data.SUBMIT_ENTRY_FIELDS).get_mostly_one_type_single_other_type_variations(main_subtype)
         for data_variation, deving_field in dev_entry_gen:
             self._visit_uri('/')
             self._visit_uri('/pub/new-test-user')
@@ -257,7 +257,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text('60.00')
         self._follow_link('gazeMetrix')
         self._verify_text('new comments')
-        
+
     def test_submit_entry(self):
         self._visit_uri('/')
         self._visit_uri('/pub/new-test-user')
