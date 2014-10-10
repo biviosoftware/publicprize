@@ -33,6 +33,10 @@ class General(controller.Task):
         """Facebook login response"""
         return oauth.authorize_complete('facebook')
 
+    def action_forbidden(biv_obj):
+        """Forbidden page"""
+        return flask.render_template('general/forbidden.html'), 403
+
     def action_google_login(biv_obj):
         """Login with google."""
         return oauth.authorize(
@@ -54,9 +58,6 @@ class General(controller.Task):
         """Logout"""
         return oauth.logout()
 
-    def action_privacy(biv_obj):
-        return flask.redirect('/static/pdf/privacy.pdf')
-
     def action_not_found(biv_obj):
         """Not found page"""
         return flask.render_template('general/not-found.html'), 404
@@ -76,6 +77,9 @@ class General(controller.Task):
         )
         oauth.add_user_to_session(user)
         return flask.redirect('/')
+
+    def action_privacy(biv_obj):
+        return flask.redirect('/static/pdf/privacy.pdf')
 
     def action_terms(biv_obj):
         return flask.redirect('/static/pdf/terms.pdf')
