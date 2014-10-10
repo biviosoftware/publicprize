@@ -220,6 +220,12 @@ def _route(path):
     return _dispatch_action(action, biv_obj)
 
 
+@_app.errorhandler(403)
+def _route_403(_):
+    """Forbidden error page."""
+    return _route(biv.URI_FOR_ERROR + '/' + 'forbidden')
+
+
 @_app.errorhandler(404)
 def _route_404(_):
     """Not found page."""
