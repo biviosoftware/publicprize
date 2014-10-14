@@ -14,6 +14,7 @@ import publicprize.controller as ppc
 import publicprize.auth.model as pam
 import werkzeug.exceptions
 
+
 def user_is_judge(func):
     """Require the current user is a judge or throw a forbidden error."""
     @wraps(func)
@@ -23,6 +24,7 @@ def user_is_judge(func):
             werkzeug.exceptions.abort(403)
         return func(*args, **kwargs)
     return decorated_function
+
 
 class Contest(ppc.Task):
     """Contest actions"""
@@ -54,7 +56,7 @@ class Contest(ppc.Task):
             biv_obj,
             'judging',
         )
-    
+
     def action_logo(biv_obj):
         """Contestant logo image"""
         return flask.send_file(
@@ -78,10 +80,10 @@ class Contest(ppc.Task):
             target_biv_id=judge.biv_id
         ))
         return flask.redirect('/')
-    
+
     def action_rules(biv_obj):
         return flask.redirect('/static/pdf/rules.pdf')
-    
+
     @ppc.login_required
     def action_submit_contestant(biv_obj):
         """Submit project page"""
@@ -129,7 +131,7 @@ class Contestant(ppc.Task):
     def action_judging(biv_obj):
         """Contestant judgement"""
         return pcf.Judgement().execute(biv_obj)
-    
+
     def action_thank_you(biv_obj):
         """Show a Thank you page with social media links for contestant."""
         return flask.render_template(
@@ -139,6 +141,7 @@ class Contestant(ppc.Task):
             contestant_url=biv_obj.format_absolute_uri(),
             contestant_tweet="I just backed " + biv_obj.display_name
         )
+
 
 class Founder(ppc.Task):
     """Founder actions"""
@@ -158,4 +161,3 @@ class Sponsor(ppc.Task):
             io.BytesIO(biv_obj.sponsor_logo),
             'image/{}'.format(biv_obj.logo_type)
         )
-    
