@@ -11,6 +11,7 @@ import re
 import unittest
 import publicprize.controller
 import itertools
+import decimal
 from tests import test_data
 
 class ParseData(object):
@@ -98,6 +99,18 @@ class ParseData(object):
                 yield ret_data, field
             ret_data[field] = full_data[field][main_subtype]
 
+    def get_random_variation(self, data_subtype):
+        """ Gets a single random variation of self.data['data_subtype']
+            fields with None values are skipped
+        """
+        assert data_subtype == 'conf' or data_subtype == 'dev'
+        data = {}
+        for key, item in self.data.items():
+            if item is None:
+                continue  # ignore empty fields
+            data[key] = random.sample(item[data_subtype], 1)[0]  # random.sample returns a list
+        return data
+
 
 class PublicPrizeTestCase(unittest.TestCase):
     def setUp(self):
@@ -133,13 +146,13 @@ class PublicPrizeTestCase(unittest.TestCase):
     def test_not_found(self):
         self._visit_uri('/x')
         self._verify_text('Page Not Found')
-        self._visit_uri('/_102/x');
+        self._visit_uri('/_102/x')
         self._verify_text('Page Not Found')
-        self._visit_uri('/_10299/');
+        self._visit_uri('/_10299/')
         self._verify_text('Page Not Found')
 
     def test_conf_submit_entries(self):
-        conf_entry_gen = ParseData(test_data.FIELDS).get_data_variations('conf')
+        conf_entry_gen = ParseData(test_data.SUBMIT_ENTRY_FIELDS).get_data_variations('conf')
         for data_variation in conf_entry_gen:
             num = int(random.random() * 10000)
             base_name = data_variation['display_name']
@@ -192,7 +205,7 @@ class PublicPrizeTestCase(unittest.TestCase):
             accepted because of the supposedly conforming data that it contains
         """
         main_subtype = 'conf'
-        dev_entry_gen = ParseData(test_data.FIELDS).get_mostly_one_type_single_other_type_variations(main_subtype)
+        dev_entry_gen = ParseData(test_data.SUBMIT_ENTRY_FIELDS).get_mostly_one_type_single_other_type_variations(main_subtype)
         for data_variation, deving_field in dev_entry_gen:
             self._visit_uri('/')
             self._visit_uri('/pub/new-test-user')
@@ -230,6 +243,68 @@ class PublicPrizeTestCase(unittest.TestCase):
             self._verify_text('Submit Your Entry')
             print('...verified')
 
+    def test_judging_math(self):
+        dataParser = ParseData(test_data.JUDGING_FIELDS)
+        self._visit_uri('/')
+        self._follow_link('Esprit Venture Challenge')
+        self._visit_uri(self.current_uri + '/new-test-judge')
+        self._follow_link('Esprit Venture Challenge')
+        self._follow_link('Judging')
+
+        # Try 15 random judging variations
+        for _ in range(15):
+            conf_data = dataParser.get_random_variation('conf')
+            self._follow_link('gazeMetrix')
+
+            expected_points = decimal.Decimal(0)
+            multipliers = {
+                1: decimal.Decimal(0),
+                2: decimal.Decimal(1) / decimal.Decimal(3),
+                3: decimal.Decimal(2) / decimal.Decimal(3),
+                4: decimal.Decimal(1)
+            }
+            for i in range(1, 7):
+                key = 'question{}'.format(i)
+                base_points = test_data.JUDGING_POINTS[key]
+                multiplier = multipliers[conf_data[key]]
+                expected_points += base_points * multiplier
+
+            self._submit_form({
+                'question1': conf_data['question1'],
+                'question2': conf_data['question2'],
+                'question3': conf_data['question3'],
+                'question4': conf_data['question4'],
+                'question5': conf_data['question5'],
+                'question6': conf_data['question6'],
+            })
+
+            # perform any appropriate rounding, then convert to string
+            # avoid floating point errors while rounding
+            old_precision = decimal.getcontext().prec
+            decimal.getcontext().prec = 2
+            rounded_expected_points = expected_points * 1
+            decimal.getcontext().prec = old_precision
+
+            expected_points_text = str(rounded_expected_points)
+
+            errorstring = ("question1: {}".format(conf_data['question1']),
+                           "question2: {}".format(conf_data['question2']),
+                           "question3: {}".format(conf_data['question3']),
+                           "question4: {}".format(conf_data['question4']),
+                           "question5: {}".format(conf_data['question5']),
+                           "question6: {}".format(conf_data['question6'])
+                          )
+
+            self._verify_text(expected_points_text, errorstring)
+
+    def test_judging_security(self):
+        self._visit_uri('/')
+        self._visit_uri('/pub/new-test-user')
+        self._verify_text('Log out')
+        self._follow_link('Esprit Venture Challenge')
+        self._visit_uri(self.current_uri + '/judging')
+        self._verify_text('Forbidden')
+
     def test_judging(self):
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')
@@ -257,7 +332,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text('60.00')
         self._follow_link('gazeMetrix')
         self._verify_text('new comments')
-        
+
     def test_submit_entry(self):
         self._visit_uri('/')
         self._visit_uri('/pub/new-test-user')
@@ -318,8 +393,8 @@ class PublicPrizeTestCase(unittest.TestCase):
             follow_redirects=True))
         self.current_uri = url
 
-    def _verify_text(self, text):
-        assert self.current_page.find(text=re.compile(re.escape(text)))
+    def _verify_text(self, text, errorstring=""):
+        assert self.current_page.find(text=re.compile(re.escape(text))), errorstring
 
     def _visit_uri(self, uri):
         assert uri
