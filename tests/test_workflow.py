@@ -318,8 +318,8 @@ class PublicPrizeTestCase(unittest.TestCase):
             follow_redirects=True))
         self.current_uri = url
 
-    def _verify_text(self, text):
-        assert self.current_page.find(text=re.compile(re.escape(text)))
+    def _verify_text(self, text, errorstring=""):
+        assert self.current_page.find(text=re.compile(re.escape(text))), errorstring
 
     def _visit_uri(self, uri):
         assert uri
