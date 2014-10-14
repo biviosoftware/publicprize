@@ -98,6 +98,18 @@ class ParseData(object):
                 yield ret_data, field
             ret_data[field] = full_data[field][main_subtype]
 
+    def get_random_variation(self, data_subtype):
+        """ Gets a single random variation of self.data['data_subtype']
+            fields with None values are skipped
+        """
+        assert data_subtype == 'conf' or data_subtype == 'dev'
+        data = {}
+        for key, item in self.data.items():
+            if item is None:
+                continue  # ignore empty fields
+            data[key] = random.sample(item[data_subtype], 1)[0]  # random.sample returns a list
+        return data
+
 
 class PublicPrizeTestCase(unittest.TestCase):
     def setUp(self):
