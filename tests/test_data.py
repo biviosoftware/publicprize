@@ -249,12 +249,12 @@ POINTS_PER_QUESTION = [
 JUDGING_POINTS = {
     # MA: I'm not sure whether or not python enables list/set comprehensions
     # nested in data like this. I'm just doing it via hardcoding for now
-    'question1_points': POINTS_PER_QUESTION[0],
-    'question2_points': POINTS_PER_QUESTION[1],
-    'question3_points': POINTS_PER_QUESTION[2],
-    'question4_points': POINTS_PER_QUESTION[3],
-    'question5_points': POINTS_PER_QUESTION[4],
-    'question6_points': POINTS_PER_QUESTION[5],
+    'question1': POINTS_PER_QUESTION[0],
+    'question2': POINTS_PER_QUESTION[1],
+    'question3': POINTS_PER_QUESTION[2],
+    'question4': POINTS_PER_QUESTION[3],
+    'question5': POINTS_PER_QUESTION[4],
+    'question6': POINTS_PER_QUESTION[5],
 }
 
 # MA: I'm not sure what would constitute a deviating entry here
