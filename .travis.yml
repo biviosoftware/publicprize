@@ -8,7 +8,7 @@ env:
 install:
   - pip install -r requirements.txt
 before_script:
-  - python manage.py create_test_db
+  - python manage.py create_test_db -f 
 script:
   - python setup.py test
 
