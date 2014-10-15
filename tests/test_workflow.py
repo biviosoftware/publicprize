@@ -281,7 +281,10 @@ class PublicPrizeTestCase(unittest.TestCase):
             # perform any appropriate rounding, then convert to string
             # avoid floating point errors while rounding
             old_precision = decimal.getcontext().prec
-            decimal.getcontext().prec = 2
+            if expected_points < 10:
+                decimal.getcontext().prec = 3
+            else:
+                decimal.getcontext().prec = 4
             rounded_expected_points = expected_points * 1
             decimal.getcontext().prec = old_precision
 
