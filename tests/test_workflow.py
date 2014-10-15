@@ -301,12 +301,20 @@ class PublicPrizeTestCase(unittest.TestCase):
             self._verify_text(expected_points_text, errorstring)
 
     def test_judging_security(self):
+        # Test that public users cannot visit the judging page
         self._visit_uri('/')
         self._visit_uri('/pub/new-test-user')
         self._verify_text('Log out')
         self._follow_link('Esprit Venture Challenge')
         self._visit_uri(self.current_uri + '/judging')
-        self._verify_text('Forbidden')
+        self._verify_text('Forbidden', 'public users should not be able to visit the judging page')
+        # Test that judges from another contest cannot visit the judging page
+        self._visit_uri('/')
+        self._follow_link('Empty Contest')
+        self._visit_uri(self.current_uri + '/new-test-judge')
+        self._follow_link('Esprit Venture Challenge')
+        self._visit_uri(self.current_uri + '/judging')
+        self._verify_text('Forbidden', 'judges from another contest should not be able to visit the judging page')
 
     def test_judging(self):
         self._visit_uri('/')
