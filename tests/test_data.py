@@ -148,7 +148,7 @@ GENERIC_FIELDS = {
     }
 }
 
-FIELDS = {
+SUBMIT_ENTRY_FIELDS = {
     #RN
     'display_name': GENERIC_FIELDS['generic_name'],
     'contestant_desc': GENERIC_FIELDS['generic_desc'],
@@ -233,5 +233,82 @@ FIELDS = {
     'agree_to_terms': {
         'conf': [True],
         'dev': ['']
+    }
+}
+
+# This is a hardcopy of the values listed in publicprize/contest/model.py
+POINTS_PER_QUESTION = [
+    10,
+    10,
+    10,
+    5,
+    10,
+    15
+]
+
+JUDGING_POINTS = {
+    # MA: I'm not sure whether or not python enables list/set comprehensions
+    # nested in data like this. I'm just doing it via hardcoding for now
+    'question1': POINTS_PER_QUESTION[0],
+    'question2': POINTS_PER_QUESTION[1],
+    'question3': POINTS_PER_QUESTION[2],
+    'question4': POINTS_PER_QUESTION[3],
+    'question5': POINTS_PER_QUESTION[4],
+    'question6': POINTS_PER_QUESTION[5],
+}
+
+# MA: I'm not sure what would constitute a deviating entry here
+JUDGING_FIELDS = {
+    'question1': {
+        'conf': {1, 2, 3, 4},
+        'dev': None
+    },
+    'question2': {
+        'conf': {1, 2, 3, 4},
+        'dev': None
+    },
+    'question3': {
+        'conf': {1, 2, 3, 4},
+        'dev': None
+    },
+    'question4': {
+        'conf': {1, 2, 3, 4},
+        'dev': None
+    },
+    'question5': {
+        'conf': {1, 2, 3, 4},
+        'dev': None
+    },
+    'question6': {
+        'conf': {1, 2, 3, 4},
+        'dev': None
+    },
+    'question1_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf'],
+        'dev': None
+    },
+    'question2_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf'],
+        'dev': None
+    },
+    'question3_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf'],
+        'dev': None
+    },
+    'question4_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf'],
+        'dev': None
+    },
+    'question5_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf'],
+        'dev': None
+    },
+    'question6_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf'],
+        'dev': None
+    },
+    'general_comment': {
+        'conf': GENERIC_FIELDS['generic_desc']['conf'],
+        'dev': None
     }
 }
