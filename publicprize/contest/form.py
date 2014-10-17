@@ -510,6 +510,10 @@ class Judgement(flask_wtf.Form):
     def get_points_for_question(cls, number):
         return pcm.JudgeScore.get_points_for_question(number)
 
+    @classmethod
+    def get_text_for_question(cls, number):
+        return pcm.JudgeScore.get_text_for_question(number)
+
     def validate(self):
         """Clear any errors for unselected radio choices."""
         super(Judgement, self).validate()
