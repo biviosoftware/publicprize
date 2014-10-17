@@ -12,7 +12,7 @@
 
 {%- macro summary(item_class) %}
   <div class="{{ item_class }}">
-    <span class="pp-summary-number">${{ contest.donor_executed_amount() }}</span>
+    <span class="pp-summary-number">${{ contest.donor_executed_amount() | pp_amount(0) }}</span>
     <span class="pp-summary-name">Raised</span>
   </div>
   <div class="{{ item_class }}">
