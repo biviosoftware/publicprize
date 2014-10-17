@@ -7,7 +7,7 @@
 
 import flask
 from publicprize import controller
-from publicprize.auth.model import User
+import publicprize.auth.model as pam
 import publicprize.contest.model
 import publicprize.general.oauth as oauth
 import werkzeug
@@ -62,6 +62,18 @@ class General(controller.Task):
         """Not found page"""
         return flask.render_template('general/not-found.html'), 404
 
+    def action_new_test_admin(biv_obj):
+        """Create a new test user, logs in, sets Admin status."""
+        General.action_new_test_user(biv_obj)
+        admin = pam.Admin()
+        pam.db.session.add(admin)
+        pam.db.session.flush()
+        pam.db.session.add(pam.BivAccess(
+            source_biv_id=flask.session['user.biv_id'],
+            target_biv_id=admin.biv_id
+        ))
+        return flask.redirect('/')
+        
     def action_new_test_user(biv_obj):
         """Creates a new test user model and log in."""
         if not controller.app().config['PUBLICPRIZE']['TEST_USER']:
@@ -69,7 +81,7 @@ class General(controller.Task):
         name = 'F{} L{}'.format(
             werkzeug.security.gen_salt(6).lower(),
             werkzeug.security.gen_salt(8).lower())
-        user = User(
+        user = pam.User(
             display_name=name,
             user_email='{}@localhost'.format(name.lower().replace(' ', '')),
             oauth_type='test',
