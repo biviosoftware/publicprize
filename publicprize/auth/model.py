@@ -5,12 +5,37 @@
     :license: Apache, see LICENSE for more details.
 """
 
+import flask
 from publicprize import biv
 from publicprize import common
 from publicprize import controller
 from publicprize.controller import db
 import sqlalchemy
 import werkzeug.exceptions
+
+
+class Admin(db.Model, common.ModelWithDates):
+    """Administrative marker.
+    Fields:
+        biv_id: primary ID
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('admin_s', start=1010, increment=1000),
+        primary_key=True
+    )
+
+    def is_admin():
+        """Returns True if the logged in user is an admin."""
+        if not flask.session.get('user.is_logged_in'):
+            return False
+        if Admin.query.select_from(BivAccess).filter(
+            BivAccess.source_biv_id == flask.session['user.biv_id'],
+            BivAccess.target_biv_id == Admin.biv_id
+        ).first():
+            return True
+        return False
+
 
 class BivAccess(db.Model, controller.Model):
     """BivAccess links ownership between models. For example, a Contest model
@@ -68,5 +93,6 @@ class User(db.Model, common.ModelWithDates):
     avatar_url = db.Column(db.String(100))
     __table_args__ = (sqlalchemy.UniqueConstraint('oauth_type', 'oauth_id'),)
 
+Admin.BIV_MARKER = biv.register_marker(10, Admin)
 BivAccess.BIV_MARKER = biv.register_marker(5, BivAccess)
 User.BIV_MARKER = biv.register_marker(6, User)
