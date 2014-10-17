@@ -34,6 +34,7 @@ class BetterLogger(werkzeug.serving.BaseRequestHandler):
 
     @app.teardown_request
     def _teardown(response):
+        """Called before context has been popped"""
         user_state = '""'
         if 'user.biv_id' in flask.session:
             user_state = 'l'
@@ -60,18 +61,21 @@ _MANAGER = fes.Manager(ppc.app())
 _MANAGER.add_command('runserver', RunServerWithBetterLogger())
 
 
+@_MANAGER.option('-u', '--user', help='User biv_id or email')
+def add_admin(user):
+    """Link the User model to an Admin model."""
+    _add_owner(
+        _lookup_user(user).biv_id,
+        _add_model(pam.Admin())
+    )
+
+
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 def add_judge(contest, user):
     """Link the User model to a Judge model."""
     contest_model = pcm.Contest().query.filter_by(biv_id=contest).one()
-    user_model = None
-    if re.search(r'\@', user):
-        user_model = pam.User.query.filter_by(user_email=user).one()
-    elif re.search(r'^\d+$', user):
-        user_model = pam.User.query.filter_by(biv_id=user).one()
-    else:
-        raise Exception('invalid user, expecting biv_id or email')
+    user_model = _lookup_user(user)
     judge = pcm.Judge.query.select_from(pam.BivAccess).filter(
         pam.BivAccess.source_biv_id == user_model.biv_id,
     ).first()
@@ -161,7 +165,8 @@ def drop_db(auto_force=False):
 def refresh_founder_avatars():
     """Download the User.avatar_url and store in Founder.founder_avatar."""
     count = 0
-    for user in pam.User.query.filter(pam.User.avatar_url != None).all():
+    for user in pam.User.query.filter(
+            pam.User.avatar_url != None).all():  # noqa
         founders = _founders_for_user(user, without_avatars=True)
         if len(founders) == 0:
             continue
@@ -307,6 +312,7 @@ def _create_founder(founder):
 
 
 def _founders_for_user(user, without_avatars=None):
+    """Returns the Founder models associated with the User model."""
     query = pcm.Founder.query.select_from(
         pam.BivAccess
     ).filter(
@@ -314,10 +320,21 @@ def _founders_for_user(user, without_avatars=None):
         pam.BivAccess.target_biv_id == pcm.Founder.biv_id,
     )
     if without_avatars:
-        query = query.filter(pcm.Founder.founder_avatar == None)
+        query = query.filter(pcm.Founder.founder_avatar == None)  # noqa
     return query.all()
 
+
+def _lookup_user(user):
+    """Returns a User model from a biv_id or user_email"""
+    if re.search(r'\@', user):
+        return pam.User.query.filter_by(user_email=user).one()
+    if re.search(r'^\d+$', user):
+        return pam.User.query.filter_by(biv_id=user).one()
+    raise Exception('invalid user: {}, expecting biv_id or email'.format(user))
+
+
 def _read_image_from_file(file_name):
+    """Reads the image file and returns data."""
     image_file = open(file_name, 'rb')
     image = image_file.read()
     image_file.close()
@@ -325,6 +342,7 @@ def _read_image_from_file(file_name):
 
 
 def _update_founder_avatar(founder, image):
+    """Update Founder.founder_avatar."""
     print("replaced image for founder: {}".format(founder.biv_id))
     founder.founder_avatar = image
     founder.avatar_type = imghdr.what(None, image)
