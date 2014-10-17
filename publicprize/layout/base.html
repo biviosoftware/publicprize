@@ -13,9 +13,11 @@
     <meta property="og:site_name" content="Public Prize">
     <link rel="icon" type="image/png" href="/static/img/favicon.png">
     <title>{% block title %}{% endblock %} - Public Prize</title>
+    {%- block css %}
     <link href="/static/css/bootstrap-3.2.0.min.css?20140930" rel="stylesheet">
     <link href="/static/css/ladda-themeless-0.8.0.min.css" rel="stylesheet">
-    <link href="/static/css/pp.css?20141001-1" rel="stylesheet">
+    <link href="/static/css/pp.css?20141016" rel="stylesheet">
+    {%- endblock %}
     <!--[if IE 10]>
       <script src="/static/js/msie/ie10-viewport-bug-workaround.js"></script>
     <![endif]-->
