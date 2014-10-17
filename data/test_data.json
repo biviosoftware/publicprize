@@ -128,6 +128,13 @@
       "end_date": "12/31/2030",
       "Sponsor": [],
       "Contestant": []
+    },
+    {
+      "display_name": "Expired Contest",
+      "tag_line": "",
+      "end_date": "12/31/2013",
+      "Sponsor": [],
+      "Contestant": []
     }
   ]
 }
