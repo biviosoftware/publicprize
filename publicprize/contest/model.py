@@ -8,7 +8,6 @@
 import datetime
 import decimal
 import flask
-import locale
 import math
 from publicprize.controller import db
 from publicprize import common
@@ -82,8 +81,31 @@ class Contest(db.Model, common.ModelWithDates):
         total = decimal.Decimal(0)
         for row in rows:
             total += row.amount
-        # TODO(pjm): use UI widget to do formatting
-        return locale.format('%d', total, grouping=True)
+        return total
+
+    def get_admin_contestants(self):
+        """Returns a list of contestants with computed scores."""
+        rows = []
+        max_raised = decimal.Decimal(0)
+
+        for contestant in self.get_public_contestants():
+            judge_score = contestant.get_judge_score_and_count()
+            row = {
+                'display_name': contestant.display_name,
+                'amount_raised': contestant.get_amount_raised(),
+                'judge_score': judge_score[0],
+                'judge_count': judge_score[1],
+                'contestant': contestant
+            }
+            if row['amount_raised'] > max_raised:
+                max_raised = row['amount_raised']
+            rows.append(row)
+
+        for row in rows:
+            row['amount_score'] = (
+                40 * row['amount_raised'] / max_raised) if max_raised else 0
+            row['total_score'] = row['amount_score'] + row['judge_score']
+        return sorted(rows, key=lambda contestant: contestant['display_name'])
 
     def get_sponsors(self, randomize=False):
         """Return a list of Sponsor models for this Contest"""
@@ -122,6 +144,14 @@ class Contest(db.Model, common.ModelWithDates):
             return hours
         return 0
 
+    def is_admin(self):
+        """Shortcut to Admin.is_admin"""
+        return pam.Admin.is_admin()
+
+    def is_expired(self):
+        """Returns True if the contest has expired."""
+        return self._time_remaining().total_seconds() <= 0
+
     def is_judge(self):
         """Returns True if the current user is a judge for this Contest"""
         if not flask.session.get('user.is_logged_in'):
@@ -136,30 +166,10 @@ class Contest(db.Model, common.ModelWithDates):
         return False
 
     def user_submission_url(self):
-        """Returns the current user's submission url or None.
-        Iterates all the contest's contestant's founders, matching with
-        the current logged in user.
-        """
-        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
-        founders = Founder.query.select_from(
-            pam.BivAccess, access_alias
-        ).filter(
-            pam.BivAccess.source_biv_id == self.biv_id,
-            pam.BivAccess.target_biv_id == access_alias.source_biv_id,
-            access_alias.target_biv_id == Founder.biv_id
-        ).all()
-
-        for founder in founders:
-            if Founder.query.select_from(pam.BivAccess).filter(
-                    pam.BivAccess.source_biv_id == flask.session['user.biv_id'],
-                    pam.BivAccess.target_biv_id == founder.biv_id
-            ).first():
-                res = Contestant.query.select_from(pam.BivAccess).filter(
-                    pam.BivAccess.source_biv_id == Contestant.biv_id,
-                    pam.BivAccess.target_biv_id == founder.biv_id,
-                ).one()
-                if res.is_public:
-                    return res.format_uri('contestant')
+        """Returns the current user's submission url or None."""
+        for contestant in self.get_public_contestants():
+            if contestant.is_founder():
+                return contestant.format_uri('contestant')
         return None
 
     def _time_remaining(self):
@@ -204,6 +214,18 @@ class Contestant(db.Model, common.ModelWithDates):
     is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
 
+    def get_amount_raised(self):
+        """Returns the executed Donor amount for this Contestant"""
+        rows = Donor.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == Donor.biv_id,
+            Donor.donor_state == 'executed'
+        ).all()
+        total = decimal.Decimal(0)
+        for row in rows:
+            total += row.amount
+        return total
+
     def get_contest(self):
         """Returns the Contest model which owns this Contestant"""
         return Contest.query.select_from(pam.BivAccess).filter(
@@ -218,6 +240,47 @@ class Contestant(db.Model, common.ModelWithDates):
             pam.BivAccess.target_biv_id == Founder.biv_id
         ).all()
 
+    def get_completed_judge_scores(self):
+        """Returns an hash of (judge_id => [JudgeScore ...]) for fully
+        scored surveys."""
+        rows = JudgeScore.query.select_from(pam.BivAccess).filter(
+            JudgeScore.contestant_biv_id == self.biv_id,
+            JudgeScore.judge_biv_id == pam.BivAccess.source_biv_id,
+            pam.BivAccess.target_biv_id == Judge.biv_id,
+            JudgeScore.question_number > 0,
+            JudgeScore.judge_score > 0
+        ).all()
+        rows_by_judge = {}
+
+        for row in rows:
+            if not rows_by_judge.get(row.judge_biv_id):
+                rows_by_judge[row.judge_biv_id] = []
+            rows_by_judge[row.judge_biv_id].append(row)
+        res = {}
+        # only include completed surveys in results
+        for judge_id in rows_by_judge.keys():
+            if len(rows_by_judge[judge_id]) == JudgeScore.get_question_count():
+                res[judge_id] = sorted(
+                    rows_by_judge[judge_id],
+                    key=lambda score: score.question_number
+                )
+        return res
+
+    def get_judge_score_and_count(self):
+        """Returns the score from judges and number of judges who judged
+        this Contestant."""
+        rows_by_judge = self.get_completed_judge_scores()
+        grand_total = decimal.Decimal(0)
+        grand_count = 0
+
+        for judge_id in rows_by_judge.keys():
+            grand_total += self._score_rows(rows_by_judge[judge_id])
+            grand_count += 1
+        return [
+            (grand_total / grand_count) if grand_count else 0,
+            grand_count
+        ]
+
     def get_slideshow_code(self):
         """Returns the slideshare or youtube code for the pitch deck"""
         if self.is_youtube_slideshow():
@@ -227,11 +290,7 @@ class Contestant(db.Model, common.ModelWithDates):
 
     def get_score_for_judge_user(self):
         """Returns this contestant's score for the current logged in judge"""
-        total = 0.0
-        for score in self._get_score_info_for_judge_user():
-            total += JudgeScore.get_points_for_question(
-                score.question_number) * (int(score.judge_score) - 1) / 3
-        return total
+        return self._score_rows(self._get_score_info_for_judge_user())
 
     def get_summary(self):
         """Returns an excerpt for the Contestant.contestant_desc."""
@@ -251,13 +310,28 @@ class Contestant(db.Model, common.ModelWithDates):
             return 'http://{}'.format(self.website)
         return self.website
 
+    def is_founder(self):
+        """Returns True if the current user is a founder for this Contestant"""
+        if not flask.session.get('user.is_logged_in'):
+            return False
+        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
+        if Founder.query.select_from(pam.BivAccess, access_alias).filter(
+            Founder.biv_id == pam.BivAccess.target_biv_id,
+            pam.BivAccess.source_biv_id == flask.session['user.biv_id'],
+            Founder.biv_id == access_alias.target_biv_id,
+            access_alias.source_biv_id == self.biv_id
+        ).first():
+            return True
+        return False
+
     def is_judge(self):
         """Returns True if the current user is a judge for this Contest"""
         return self.get_contest().is_judge()
 
     def is_partial_scored_by_judge_user(self):
         # TODO(pjm): need meta data for question count
-        return len(self._get_score_info_for_judge_user()) != 6
+        return len(self._get_score_info_for_judge_user()) \
+            != JudgeScore.get_question_count()
 
     def is_scored_by_judge_user(self):
         return len(self._get_score_info_for_judge_user()) > 0
@@ -273,6 +347,12 @@ class Contestant(db.Model, common.ModelWithDates):
             JudgeScore.question_number > 0,
             JudgeScore.judge_score > 0
         ).all()
+
+    def _score_rows(self, rows):
+        total = decimal.Decimal(0)
+        for row in rows:
+            total += row.get_points()
+        return total
 
 
 class Donor(db.Model, common.ModelWithDates):
@@ -379,7 +459,18 @@ class JudgeScore(db.Model, common.ModelWithDates):
     judge_comment = db.Column(db.String)
 
     @classmethod
+    def get_question_count(cls):
+        """Number of questions"""
+        return 6
+
+    def get_points(self):
+        """Returns the points for the question."""
+        return JudgeScore.get_points_for_question(
+            self.question_number) * (self.judge_score - 1) / 3        
+
+    @classmethod
     def get_points_for_question(cls, number):
+        """Points for question"""
         return [
             10,
             10,
@@ -387,6 +478,17 @@ class JudgeScore(db.Model, common.ModelWithDates):
             5,
             10,
             15
+        ][int(number) - 1]
+
+    @classmethod
+    def get_text_for_question(cls, number):
+        return [
+            'Quality of Pitch Deck',
+            'Quality of Pitch Video',
+            'Concept/Vision',
+            'Quality of Business Summary',
+            'Assessment of Business Components',
+            'Connection to Boulder'
         ][int(number) - 1]
 
 
@@ -409,7 +511,7 @@ class Sponsor(db.Model, common.ModelWithDates):
     website = db.Column(db.String(100))
     sponsor_logo = db.Column(db.LargeBinary)
     logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
-        
+
 
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
 Contestant.BIV_MARKER = biv.register_marker(3, Contestant)
