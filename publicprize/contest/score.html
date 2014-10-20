@@ -1,0 +1,54 @@
+{% extends 'contest/contest.html' %}
+{%- block subtitle %}Score{% endblock %}
+{%- block sponsor_list %}{% endblock %}
+{%- block contest_content_class %}col-sm-12{% endblock %}
+
+{%- block contest_content %}
+  <h1>{{ contestant.display_name }}</h1>
+  <div class="row">
+    <div class="col-sm-6">
+  <table class="table">
+    <tr>
+      <th>Amount Raised:</th>
+      <td class="pp-amount-cell">${{ summary.amount_raised | pp_amount(2) }}</td>
+    </tr>
+    <tr>
+      <th>Crowdfunding Score:</th>
+      <td class="pp-amount-cell">{{ summary.amount_score | pp_amount(2) }} / 40</td>
+    </tr>
+    <tr>
+      <th>Judging Score:</th>
+      <td class="pp-amount-cell">{{ summary.judge_score | pp_amount(2) }} / 60</td>
+    </tr>
+    <tr>
+      <th class="pp-total-score">Total Score:</th>
+      <td class="pp-amount-cell pp-total-score">{{ summary.total_score | pp_amount(0) }} / 100</td>
+    </tr>
+  </table>
+    </div>
+  </div>
+
+  {%- for judge in judges %}
+    <div class="panel panel-default">
+      <div class="panel-heading"><h3>{{ judge['display_name'] }} <small class="pull-right">{{ judge['judge_total'] | pp_amount(2) }} / 60</small></h3></div>
+      <div class="panel-body pp-contestant-desc">{{ judge['general_comment'] }}</div>
+      <table class="table">
+	<tr>
+	  <th>Category</th>
+	  <th>Score</th>
+	  <th class="hidden-xs">Comment</th>
+	</tr>
+    	{%- for score in scores_by_judge[judge['biv_id']] %}
+	  <tr>
+	    <td class="pp-question-category">{{ score.question_number }}. {{ score.get_text_for_question(score.question_number) }}</td>
+	    <td class="pp-score-column">{{ score.get_points() | pp_amount(2) }} / {{ score.get_points_for_question(score.question_number) }}</td>
+	    <td class="pp-contestant-desc hidden-xs">{{ score.judge_comment }}</td>
+    	  </tr>
+	  <tr class="visible-xs">
+	    <td colspan="3" class="pp-contestant-desc pp-xs-comment">{{ score.judge_comment }}</td>
+	  </tr>
+    	{%- endfor %}
+      </table>
+    </div>
+  {%- endfor %}
+{%- endblock %}

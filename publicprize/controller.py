@@ -17,6 +17,7 @@ from flask_sqlalchemy import SQLAlchemy
 import flask.sessions
 import importlib
 import inspect
+import locale
 import os
 import re
 import sys
@@ -232,16 +233,22 @@ def _route_404(_):
     return _route(biv.URI_FOR_ERROR + '/' + 'not-found')
 
 
+@_app.route('/favicon.ico')
+def _route_favicon():
+    """Routes to favicon.ico file."""
+    return flask.send_from_directory(
+        os.path.join(_app.root_path, 'static/img'),
+        'favicon.ico', mimetype='image/vnd.microsoft.icon'
+    )
+
+
 @_app.route("/")
 def _route_root():
     """Routes to index."""
     return _route('')
 
 
-@_app.route('/favicon.ico')
-def _favicon():
-    """Routes to favicon.ico file."""
-    return flask.send_from_directory(
-        os.path.join(_app.root_path, 'static/img'),
-        'favicon.ico', mimetype='image/vnd.microsoft.icon'
-    )
+@_app.template_filter('pp_amount')
+def _template_filter_pp_amount(amount, precision):
+    """Jinja2 filter for amount format"""
+    return locale.format('%.{}f'.format(precision), amount, grouping=True)

@@ -12,17 +12,43 @@ import publicprize.contest.form as pcf
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
 import publicprize.auth.model as pam
+import sqlalchemy.orm
 import werkzeug.exceptions
 
 
-def user_is_judge(func):
-    """Require the current user is a judge or throw a forbidden error."""
+def user_is_admin(func):
+    """Require the current user is an administrator."""
     @wraps(func)
     def decorated_function(*args, **kwargs):
-        """Throw a forbidden exception if the user is not a judge."""
-        if not args[0].is_judge():
-            werkzeug.exceptions.abort(403)
-        return func(*args, **kwargs)
+        """Forbidden unless allowed."""
+        if pam.Admin.is_admin():
+            return func(*args, **kwargs)
+        werkzeug.exceptions.abort(403)
+    return decorated_function
+        
+
+def user_is_contestant_founder_or_admin(func):
+    """Require the current user is the contestant founder for an expired
+    contest or an administrator."""
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        """Forbidden unless allowed."""
+        contestant = args[0]
+        if pam.Admin.is_admin() or (contestant.is_founder() \
+            and contestant.get_contest().is_expired()):
+            return func(*args, **kwargs)
+        werkzeug.exceptions.abort(403)
+    return decorated_function
+        
+
+def user_is_judge(func):
+    """Require the current user is a contest judge."""
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        """Forbidden unless allowed."""
+        if args[0].is_judge():
+            return func(*args, **kwargs)
+        werkzeug.exceptions.abort(403)
     return decorated_function
 
 
@@ -31,6 +57,12 @@ class Contest(ppc.Task):
     def action_about(biv_obj):
         """About page"""
         return Contest._render_template(biv_obj, 'about')
+
+    @ppc.login_required
+    @user_is_admin
+    def action_admin(biv_obj):
+        """Contest administration"""
+        return Contest._render_template(biv_obj, 'admin')
 
     def action_contestants(biv_obj):
         """Public contestant list"""
@@ -131,6 +163,45 @@ class Contestant(ppc.Task):
     def action_judging(biv_obj):
         """Contestant judgement"""
         return pcf.Judgement().execute(biv_obj)
+
+    @ppc.login_required
+    @user_is_contestant_founder_or_admin
+    def action_score(biv_obj):
+        """Show the score report for the contestant."""
+        summary = {
+            'amount_score': 0,
+            'amount_raised': 0,
+            'judge_score': 0,
+            'total_score': 0
+        }
+        for row in biv_obj.get_contest().get_admin_contestants():
+            if row['contestant'].biv_id == biv_obj.biv_id:
+                summary = row
+                break
+        scores_by_judge = biv_obj.get_completed_judge_scores()
+        judges = []
+        for user_id in scores_by_judge.keys():
+            judges.append(
+                {
+                    'biv_id': user_id,
+                    'display_name': pam.User.query.filter_by(
+                        biv_id=user_id).one().display_name,
+                    'general_comment': pcm.JudgeScore.query.filter_by(
+                        judge_biv_id=user_id,
+                        question_number=0
+                     ).first().judge_comment,
+                    'judge_total': biv_obj._score_rows(scores_by_judge[user_id])
+                }
+            )
+        judges = sorted(judges, key=lambda judge: judge['display_name'])
+        return flask.render_template(
+            'contest/score.html',
+            contestant=biv_obj,
+            contest=biv_obj.get_contest(),
+            judges=judges,
+            scores_by_judge=scores_by_judge,
+            summary=summary
+        )
 
     def action_thank_you(biv_obj):
         """Show a Thank you page with social media links for contestant."""

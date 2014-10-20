@@ -53,6 +53,11 @@ a:hover {
   margin-left: 0;
 }
 
+/* Bootstrap-sortable overrides. */
+table.sortable div.mozilla span.sign {
+  right: -2px;
+}
+
 /* Common page elements */
 
 .pp-nav-logo {
@@ -504,4 +509,19 @@ input.pp-agree-checkbox {
 }
 .pp-website {
   margin-top: 2ex;
+}
+.pp-amount-cell {
+  text-align: right;
+}
+.pp-question-category {
+  color: #555;
+  width: 30%;
+}
+.pp-score-column {
+  white-space: nowrap;
+  text-align: right;
+  width: 10%;
+}
+.table tr td.pp-xs-comment {
+  padding-left: 2em;
 }

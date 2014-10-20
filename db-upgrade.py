@@ -8,12 +8,19 @@
 import flask_script as fes
 import manage
 from publicprize.controller import db
+import publicprize.auth.model as pam
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
 
 # Needs to be explicit
 ppc.init()
 _MANAGER = fes.Manager(ppc.app())
+
+
+@_MANAGER.command
+def admin_table():
+    """Creates database table for Admin model."""
+    pam.Admin.__table__.create(bind=db.get_engine(ppc.app()))
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')

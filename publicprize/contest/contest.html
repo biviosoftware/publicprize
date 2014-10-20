@@ -5,6 +5,9 @@
 {%- endblock %}
 
 {%- block logged_in_nav %}
+  {%- if contest.is_admin() %}
+    <li><a class="pp-nav-item pp-nav-important" href="{{ contest.format_uri('admin') }}">Admin</a>
+  {%- endif %}
   {%- if contest.is_judge() %}
     <li><a class="pp-nav-item pp-nav-important" href="{{ contest.format_uri('judging') }}">Judging</a>
   {%- endif %}

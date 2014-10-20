@@ -15,9 +15,9 @@
   </div>
 {%- endmacro %}
 
-{%- macro question(number, text, bullets) %}
+{%- macro question(number, bullets) %}
   <div class="pp-question">
-  <div class="pp-question-text">{{ '{}. {} ({} pts)'.format(number, text, form.get_points_for_question(number)) }}</div>
+  <div class="pp-question-text">{{ '{}. {} ({} pts)'.format(number, form.get_text_for_question(number), form.get_points_for_question(number)) }}</div>
     <ul>
       {%- for bullet in bullets %}
         <li>{{ bullet }}</li>
@@ -39,37 +39,37 @@ at the end of the judging period. You may return here to change a score or
 comment at any time up until the end of the judging period.
       </div>
       <form id="pp-judge-form" method="POST" action="{{ contestant.format_uri('judging') }}">
-        {{- question(1, 'Quality of Pitch Deck',
+        {{- question(1,
     	  [
     	    'Clear and engaging',
     	    'Brief and concise',
             'Not inordinately technical'
     	  ]) }}
-      	{{- question(2, 'Quality of Pitch Video',
+      	{{- question(2,
     	  [
     	    'Content is presented clearly, with an economy of expression',
     	    'Pitch Video is compelling',
     	    'Visuals are of high quality and are used efficiently'
     	  ]) }}
-       	{{- question(3, 'Concept/Vision',
+       	{{- question(3,
     	  [
     	    'The entrant\'s goal is expressed clearly',
             'The entrant details realistic steps to achieve their goal',
     	    'The entrant\'s product(s) and/or service(s) provide utility and appeal, potentially addressing a bona fide customer need'
     	  ]) }}
-       	{{- question(4, 'Quality of Business Summary',
+       	{{- question(4,
     	  [
     	    'Engaging',
     	    'Presents the business clearly'
     	  ]) }}
-      	{{- question(5, 'Assessment of Business Components',
+      	{{- question(5,
     	  [
     	    'Entrant demonstrates a competitive advantage',
     	    'Entrant demonstrates a plausible growth plan',
     	    'Entrant\'s market is clearly defined',
     	    'Entrant clearly expresses their management experience and ability to execute'
     	  ]) }}
-      	{{- question(6, 'Connection to Boulder',
+      	{{- question(6,
     	  [
     	    'Entrant and/or its products or services are environmentally friendly',
     	    'The business idea will have social benefits for society',

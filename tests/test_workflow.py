@@ -313,7 +313,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._visit_uri(self.current_uri + '/judging')
         self._verify_text('Forbidden', 'judges from another contest should not be able to visit the judging page')
 
-    def test_judging(self):
+    def test_judging_and_admin(self):
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')
         self._visit_uri(self.current_uri + '/new-test-judge')
@@ -340,6 +340,11 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text('60.00')
         self._follow_link('gazeMetrix')
         self._verify_text('new comments')
+        self._visit_uri('/pub/new-test-admin')
+        self._follow_link('Esprit Venture Challenge')
+        self._follow_link('Admin')
+        self._follow_link('gazeMetrix')
+        self._verify_text('15.00 / 15')
 
     def test_submit_entry(self):
         self._visit_uri('/')

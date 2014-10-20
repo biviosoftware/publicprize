@@ -1,0 +1,42 @@
+{% extends 'contest/contest.html' %}
+{%- block subtitle %}Admin{% endblock %}
+{%- block css %}
+  {{- super() }}
+  <link href="/static/css/bootstrap-sortable-1.9.0.css" rel="stylesheet">
+{%- endblock %}
+{%- block sponsor_list %}{% endblock %}
+{%- block contest_content_class %}col-sm-12{% endblock %}
+
+{%- block contest_content %}
+  <br />
+  <table class="table table-hover sortable">
+    <thead>
+    <tr>
+      <th data-defaultsort="asc">Contestant</th>
+      <th>Amount Raised</th>
+      <th>Amount Score (max 40)</th>
+      <th>Judge Count</th>
+      <th>Judge Score (max 60)</th>
+      <th>Total Score (max 100)</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%- for info in contest.get_admin_contestants() %}
+      <tr>
+	<td><a href="{{ info.contestant.format_uri('score') }}">{{ info.display_name }}</a></td>
+	<td class="pp-amount-cell">{{ info.amount_raised | pp_amount(2) }}</td>
+	<td class="pp-amount-cell">{{ info.amount_score | pp_amount(2) }}</td>
+	<td class="pp-amount-cell">{{ info.judge_count | pp_amount(0) }}</td>
+	<td class="pp-amount-cell">{{ info.judge_score | pp_amount(2) }}</td>
+	<td class="pp-amount-cell">{{ info.total_score | pp_amount(2) }}</td>
+      </tr>
+    {%- endfor %}
+    </tbody>
+  </table>
+{%- endblock %}
+
+{%- block scripts %}
+  {{- super() }}
+  <script src="/static/js/bootstrap-sortable/moment-2.3.1.min.js"></script>
+  <script src="/static/js/bootstrap-sortable/bootstrap-sortable-1.9.0.js"></script>
+{%- endblock %}
