@@ -48,7 +48,9 @@ class ParseData(object):
             },
 
             such that all members of in either the 'conf' or 'dev' subset of
-            'item', 'item2', ..., are eventually returned.
+            'item', 'item2', ..., are eventually returned. Does not guarantee
+            that every possible permutation is considered, but does guarantee
+            that each unique item in each 'conf' or 'dev' subset is considered.
 
             -- data_subtype: subtype for data, either 'conf' or 'dev'
         """
@@ -79,9 +81,9 @@ class ParseData(object):
     # TODO: this name is way too long
     def get_mostly_one_type_single_other_type_variations(self, main_subtype):
         """ Get sets that are almost entirely one subtype, with a single
-            element from the other subtype. Only one item from the main
-            subtype is given, while all items in the secondary subtype
-            are eventually returned in separate sets
+            element from the other subtype. Only one set of items from the main
+            subtype is returned, while all items in the secondary subtype
+            are eventually returned in separate sets.
 
             -- main_subtype: 'conf' or 'dev'. Whichever one you want your data
                to be mostly comprised of.
@@ -263,7 +265,7 @@ class PublicPrizeTestCase(unittest.TestCase):
                 3: decimal.Decimal(2) / decimal.Decimal(3),
                 4: decimal.Decimal(1)
             }
-            for i in range(1, 7):
+            for i in range(1, 7):  # [1, 6]
                 key = 'question{}'.format(i)
                 base_points = test_data.JUDGING_POINTS[key]
                 multiplier = multipliers[conf_data[key]]
