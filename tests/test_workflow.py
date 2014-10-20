@@ -196,7 +196,8 @@ class PublicPrizeTestCase(unittest.TestCase):
                     print("verifying string for {0} contents:\n"
                           "{1}\n...".format(data_item,
                                             data_variation[data_item]))
-                    self._verify_text(data_variation[data_item])
+                    self._verify_text(data_variation[data_item]),\
+                        "Error: string for {} contents:\n{}\n not verified".format(data_item, data_variation[data_item])
                     print("verified")
 
     def test_dev_submit_entries(self):
@@ -236,14 +237,13 @@ class PublicPrizeTestCase(unittest.TestCase):
                 'founder2_name': data_variation['founder2_name'],
                 'agree_to_terms': data_variation['agree_to_terms']
             })
-            print('deviating field: {}\n'
-                  "field_contents: '{}'\n"
-                  'verifying...'.format(deving_field,
-                                        data_variation[deving_field]))
             # It should not work, so we should still be on the
             # 'Submit Your Entry' page
-            self._verify_text('Submit Your Entry')
-            print('...verified')
+            self._verify_text('Submit Your Entry', ('Error: expected submission to fail\n'
+                                                    'deviating field: {}\n'
+                                                    "field_contents: '{}'\n"
+                                                    "".format(deving_field,
+                                                              data_variation[deving_field])))
 
     def test_judging_math(self):
         dataParser = ParseData(test_data.JUDGING_FIELDS)
@@ -292,12 +292,17 @@ class PublicPrizeTestCase(unittest.TestCase):
 
             expected_points_text = str(rounded_expected_points)
 
-            errorstring = ("question1: {}".format(conf_data['question1']),
-                           "question2: {}".format(conf_data['question2']),
-                           "question3: {}".format(conf_data['question3']),
-                           "question4: {}".format(conf_data['question4']),
-                           "question5: {}".format(conf_data['question5']),
-                           "question6: {}".format(conf_data['question6'])
+            errorstring = ("question1: {1}\n"
+                           "question2: {2}\n"
+                           "question3: {3}\n"
+                           "question4: {4}\n"
+                           "question5: {5}\n"
+                           "question6: {6}\n".format(conf_data['question1'],
+                                                     conf_data['question2'],
+                                                     conf_data['question3'],
+                                                     conf_data['question4'],
+                                                     conf_data['question5'],
+                                                     conf_data['question6'])
                           )
 
             self._verify_text(expected_points_text, errorstring)
