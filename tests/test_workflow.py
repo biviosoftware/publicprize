@@ -280,17 +280,7 @@ class PublicPrizeTestCase(unittest.TestCase):
                 'question6': conf_data['question6'],
             })
 
-            # perform any appropriate rounding, then convert to string
-            # avoid floating point errors while rounding
-            old_precision = decimal.getcontext().prec
-            if expected_points < 10:
-                decimal.getcontext().prec = 3
-            else:
-                decimal.getcontext().prec = 4
-            rounded_expected_points = expected_points * 1
-            decimal.getcontext().prec = old_precision
-
-            expected_points_text = str(rounded_expected_points)
+            expected_points_text = "{:.2}".format(expected_points)
 
             errorstring = ("question1: {1}\n"
                            "question2: {2}\n"
