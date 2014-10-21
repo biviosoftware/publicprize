@@ -11,8 +11,12 @@
   {%- if contest.is_judge() %}
     <li><a class="pp-nav-item pp-nav-important" href="{{ contest.format_uri('judging') }}">Judging</a>
   {%- endif %}
-  {%- if contest.user_submission_url() %}
-    <li><a class="pp-nav-item" href="{{ contest.user_submission_url() }}">My Entry</a></li>
+  {%- if contest.is_scoring_completed and contest.is_expired() and contest.user_submission_url() %}
+      <li><a class="pp-nav-item pp-nav-important" href="{{ contest.user_submission_url('score') }}">My Score</a></li>
+  {% else %}
+    {%- if contest.user_submission_url() %}
+      <li><a class="pp-nav-item" href="{{ contest.user_submission_url() }}">My Entry</a></li>
+    {%- endif %}
   {%- endif %}
 {%- endblock %}
 
