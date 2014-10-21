@@ -89,16 +89,20 @@ def add_judge(contest, user):
     _add_owner(contest_model.biv_id, judge_id)
 
 
-def add_sponsor(contest_id, display_name, website, logo_filename):
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-s', '--name', help='Sponsor name')
+@_MANAGER.option('-w', '--website', help='Sponsor website')
+@_MANAGER.option('-i', '--input_file', help='Image file name')
+def add_sponsor(contest, name, website, input_file):
     """Create a sponsor to the contest."""
-    logo = _read_image_from_file(logo_filename)
+    logo = _read_image_from_file(input_file)
     sponsor_id = _add_model(pcm.Sponsor(
-        display_name=display_name,
+        display_name=name,
         website=website,
         sponsor_logo=logo,
         logo_type=imghdr.what(None, logo)
         ))
-    _add_owner(contest_id, sponsor_id)
+    _add_owner(contest, sponsor_id)
 
 
 @_MANAGER.command
@@ -241,7 +245,8 @@ def _create_contest(contest):
         display_name=contest['display_name'],
         tag_line=contest['tag_line'],
         end_date=datetime.datetime.strptime(
-            contest['end_date'], '%m/%d/%Y').date()
+            contest['end_date'], '%m/%d/%Y').date(),
+        is_scoring_completed=False
     )
     if 'logo_filename' in contest:
         model.contest_logo = _read_image_from_file(contest['logo_filename'])

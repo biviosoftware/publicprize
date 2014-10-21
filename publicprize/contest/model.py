@@ -29,6 +29,7 @@ class Contest(db.Model, common.ModelWithDates):
         tag_line: sub-name of the contest
         contest_logo: image blob
         logo_type: image type (gif, png, jpeg)
+        is_scoring_completed: True if the contestant can view their scores
     """
     biv_id = db.Column(
         db.Numeric(18),
@@ -41,6 +42,7 @@ class Contest(db.Model, common.ModelWithDates):
     contest_logo = db.Column(db.LargeBinary)
     logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
     end_date = db.Column(db.Date, nullable=False)
+    is_scoring_completed = db.Column(db.Boolean, nullable=False)
 
     def contestant_count(self):
         """Returns the number of contestants for the current contest"""
@@ -156,6 +158,8 @@ class Contest(db.Model, common.ModelWithDates):
         """Returns True if the current user is a judge for this Contest"""
         if not flask.session.get('user.is_logged_in'):
             return False
+        if self.is_expired():
+            return False
         access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
         if Judge.query.select_from(pam.BivAccess, access_alias).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
@@ -165,11 +169,11 @@ class Contest(db.Model, common.ModelWithDates):
             return True
         return False
 
-    def user_submission_url(self):
+    def user_submission_url(self, task='contestant'):
         """Returns the current user's submission url or None."""
         for contestant in self.get_public_contestants():
             if contestant.is_founder():
-                return contestant.format_uri('contestant')
+                return contestant.format_uri(task)
         return None
 
     def _time_remaining(self):

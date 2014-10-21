@@ -12,6 +12,7 @@ import publicprize.contest.form as pcf
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
 import publicprize.auth.model as pam
+import random
 import sqlalchemy.orm
 import werkzeug.exceptions
 
@@ -25,7 +26,7 @@ def user_is_admin(func):
             return func(*args, **kwargs)
         werkzeug.exceptions.abort(403)
     return decorated_function
-        
+
 
 def user_is_contestant_founder_or_admin(func):
     """Require the current user is the contestant founder for an expired
@@ -136,6 +137,13 @@ class Contestant(ppc.Task):
     def action_contestant(biv_obj):
         """Project detail page, loads contest owner and project founders"""
         if biv_obj.is_public or biv_obj.is_under_review:
+            if biv_obj.get_contest().is_expired():
+                # don't show donate or social links if contest has ended
+                return flask.render_template(
+                    'contest/detail.html',
+                    contestant=biv_obj,
+                    contest=biv_obj.get_contest()
+                )
             return pcf.Donate().execute(biv_obj)
         werkzeug.exceptions.abort(404)
 
@@ -193,7 +201,7 @@ class Contestant(ppc.Task):
                     'judge_total': biv_obj._score_rows(scores_by_judge[user_id])
                 }
             )
-        judges = sorted(judges, key=lambda judge: judge['display_name'])
+        random.Random(biv_obj.display_name).shuffle(judges)
         return flask.render_template(
             'contest/score.html',
             contestant=biv_obj,
