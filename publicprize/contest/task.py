@@ -17,19 +17,6 @@ import sqlalchemy.orm
 import werkzeug.exceptions
 
 
-def contest_is_active(func):
-    """Require the current contest to be active."""
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        contest = args[0]
-        if contest.get_contest:
-            contest = contest.get_contest()
-        if ! contest.is_expired:
-            return func(*args, **kwargs)
-        werkzeug.exceptions.abort(403)
-    return decorated_function
-
-
 def user_is_admin(func):
     """Require the current user is an administrator."""
     @wraps(func)
