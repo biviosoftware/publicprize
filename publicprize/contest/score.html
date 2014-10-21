@@ -30,7 +30,7 @@
 
   {%- for judge in judges %}
     <div class="panel panel-default">
-      <div class="panel-heading"><h3>{{ judge['display_name'] }} <small class="pull-right">{{ judge['judge_total'] | pp_amount(2) }} / 60</small></h3></div>
+      <div class="panel-heading"><h4 class="text-muted">{{ judge['judge_total'] | pp_amount(2) }} / 60</h4></div>
       <div class="panel-body pp-contestant-desc">{{ judge['general_comment'] }}</div>
       <table class="table">
 	<tr>
