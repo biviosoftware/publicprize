@@ -258,7 +258,7 @@ class PublicPrizeTestCase(unittest.TestCase):
             conf_data = dataParser.get_random_variation('conf')
             self._follow_link('gazeMetrix')
 
-            expected_points = decimal.Decimal(0)
+            expected_points = decimal.Decimal('0.00')
             multipliers = {
                 1: decimal.Decimal(0),
                 2: decimal.Decimal(1) / decimal.Decimal(3),
@@ -280,19 +280,23 @@ class PublicPrizeTestCase(unittest.TestCase):
                 'question6': conf_data['question6'],
             })
 
-            expected_points_text = "{:.2}".format(expected_points)
+            # round to 2 decimal places
+            rounded_expected_points = expected_points.quantize(decimal.Decimal('0.01'))
+            expected_points_text = str(rounded_expected_points)
 
-            errorstring = ("question1: {}\n"
+            errorstring = ("\nquestion1: {}\n"
                            "question2: {}\n"
                            "question3: {}\n"
                            "question4: {}\n"
                            "question5: {}\n"
-                           "question6: {}\n".format(conf_data['question1'],
-                                                    conf_data['question2'],
-                                                    conf_data['question3'],
-                                                    conf_data['question4'],
-                                                    conf_data['question5'],
-                                                    conf_data['question6'])
+                           "question6: {}\n"
+                           "Expected result:{}".format(conf_data['question1'],
+                                                       conf_data['question2'],
+                                                       conf_data['question3'],
+                                                       conf_data['question4'],
+                                                       conf_data['question5'],
+                                                       conf_data['question6'],
+                                                       expected_points_text)
                            )
 
             self._verify_text(expected_points_text, errorstring)
