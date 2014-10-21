@@ -20,13 +20,19 @@
     <span class="pp-summary-name">Contributions</span>
   </div>
   <div class="{{ item_class }}">
-    {% if contest.days_remaining() > 0 %}
+    {%- if contest.days_remaining() > 0 %}
       <span class="pp-summary-number">{{ contest.days_remaining() }}</span>
       <span class="pp-summary-undertitle">days to go</span>
-    {% else %}
+    {%- elif contest.hours_remaining() > 0 %}
       <span class="pp-summary-number">{{ contest.hours_remaining() }}</span>
       <span class="pp-summary-undertitle">hours to go</span>
-    {% endif %}
+    {%- elif contest.minutes_remaining() > 0 %}
+      <span class="pp-summary-number">{{ contest.minutes_remaining() }}</span>
+      <span class="pp-summary-undertitle">minutes to go</span>
+    {%- else %}
+      <span class="pp-summary-number">{{ contest.end_date.strftime('%b %d, %Y') }}</span>
+      <span class="pp-summary-undertitle">Contest Completed</span>
+    {%- endif %}
   </div>
 {%- endmacro %}
       
@@ -65,13 +71,11 @@
       	{{- summary("pp-condensed-summary") }}
       </div>
     </div>
-    {%- if not contest.is_expired(): %}
     <div class="pp-contest-social">
       <a target="_blank" class="pp-social-icon" href="https://facebook.com/sharer.php?u={{ contest_url|urlencode }}&amp;title={{ contest.display_name|urlencode }}"><img src="/static/img/facebook30.png" alt="Facebook"></a>
       <a target="_blank" class="pp-social-icon" href="https://twitter.com/intent/tweet?text={{ contest_tweet|urlencode }}&amp;hashtags=EspritVentureChallenge&amp;url={{ contest_url|urlencode }}&amp;via=publicprize"><img src="/static/img/twitter30.png" alt="Twitter"></a>
       <a target="_blank" class="pp-social-icon" href="https://plus.google.com/share?url={{ contest_url|urlencode }}"><img src="/static/img/google30.png" alt="Google+"></a>
     </div>
-    {%- endif %}
   </div>
 {%- endblock %}
 
