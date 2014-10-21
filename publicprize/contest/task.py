@@ -12,8 +12,22 @@ import publicprize.contest.form as pcf
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
 import publicprize.auth.model as pam
+import random
 import sqlalchemy.orm
 import werkzeug.exceptions
+
+
+def contest_is_active(func):
+    """Require the current contest to be active."""
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        contest = args[0]
+        if contest.get_contest:
+            contest = contest.get_contest()
+        if ! contest.is_expired:
+            return func(*args, **kwargs)
+        werkzeug.exceptions.abort(403)
+    return decorated_function
 
 
 def user_is_admin(func):
@@ -25,7 +39,7 @@ def user_is_admin(func):
             return func(*args, **kwargs)
         werkzeug.exceptions.abort(403)
     return decorated_function
-        
+
 
 def user_is_contestant_founder_or_admin(func):
     """Require the current user is the contestant founder for an expired
@@ -193,7 +207,7 @@ class Contestant(ppc.Task):
                     'judge_total': biv_obj._score_rows(scores_by_judge[user_id])
                 }
             )
-        judges = sorted(judges, key=lambda judge: judge['display_name'])
+        random.Random(biv_obj.display_name).shuffle(judges)
         return flask.render_template(
             'contest/score.html',
             contestant=biv_obj,
