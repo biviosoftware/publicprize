@@ -169,6 +169,13 @@ class Contest(db.Model, common.ModelWithDates):
             return True
         return False
 
+    def minutes_remaining(self):
+        """Minutes remaining for this Contest."""
+        minutes = math.floor(self._time_remaining().total_seconds() / 60)
+        if minutes > 0:
+            return minutes
+        return 0
+
     def user_submission_url(self, task='contestant'):
         """Returns the current user's submission url or None."""
         for contestant in self.get_public_contestants():
