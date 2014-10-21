@@ -135,6 +135,128 @@
       "end_date": "12/31/2013",
       "Sponsor": [],
       "Contestant": []
+    },
+    {
+      "display_name": "Esprit Venture Challenge - Expired",
+      "tag_line": "Join us October 23, 2014",
+      "logo_filename": "data/esprit-logo.gif",
+      "end_date": "10/19/2014",
+      "Alias": {
+        "name": "esprit-venture-challenge-expired"
+      },
+
+      "Sponsor": [
+        {
+	  "display_name": "Boulder Chamber",
+	  "website": "http://boulderchamber.com/",
+	  "logo_filename": "data/logoBoulderChamber.png"
+	},
+        {
+	  "display_name": "Casanova Ventures",
+	  "website": "http://casanovaventures.com/",
+	  "logo_filename": "data/casanova-255x178.gif"
+	},
+        {
+	  "display_name": "Faegre Baker Daniels LLP",
+	  "website": "http://www.faegrebd.com",
+	  "logo_filename": "data/faegrebd-255x178.gif"
+	},
+        {
+	  "display_name": "Data Law Group",
+	  "website": "http://www.datalawgroup.com",
+	  "logo_filename": "data/datalawgroup-255x178.gif"
+	},
+        {
+	  "display_name": "Eli Bates",
+	  "website": "http://bateseli.virb.com/",
+	  "logo_filename": "data/elibates-255x178.gif"
+	},
+        {
+	  "display_name": "Impact Hub Boulder",
+	  "website": "http://www.impacthubboulder.com/",
+	  "logo_filename": "data/impacthub-255x178.gif"
+	},
+        {
+	  "display_name": "Fuse at The Riverside",
+	  "website": "http://boulderfuse.com/",
+	  "logo_filename": "data/fuse-255x178.png"
+	},
+        {
+	  "display_name": "Boulder Business Advisors CPA, PC",
+	  "website": "http://www.bbacpa.com/",
+	  "logo_filename": "data/bbacpa-255x178.gif"
+	},
+        {
+	  "display_name": "Galvanize",
+	  "website": "http://www.galvanize.it/",
+	  "logo_filename": "data/galvanize-255x178.gif"
+	},
+        {
+	  "display_name": "Bivio Software",
+	  "website": "http://www.bivio.biz",
+	  "logo_filename": "data/bivio-255x178.gif"
+	},
+        {
+	  "display_name": "Bryan Cave",
+	  "website": "http://www.bryancave.com",
+	  "logo_filename": "data/bryancave-255x178.gif"
+	}
+      ],
+
+      "Contestant": [
+	{
+	  "display_name": "Culture Kitchen",
+	  "youtube_code": "TvhOWfIoutU",
+	  "slideshow_code": "18074260",
+	  "contestant_desc": "Culture Kitchen brings real authentic ethnic cuisines and the story behind the food to food lovers through our online platform. At www.culturekitchensf.com we bring you the recipes, cooking knowledge and ingredients to actually cook at home. These are the coveted recipes that get passed down from generation to generation. We connect you with the grandmothers from around the world you wish you had and now the ingredients and knowledge to cook like them at home.",
+	  "website": "http://www.culturekitchen.com/",
+
+	  "Founder": [
+	    {
+	      "display_name": "Abby Sturges",
+	      "avatar_filename": "data/abby-sturges.jpg",
+	      "avatar_type": "jpeg",
+	      "founder_desc": "Product Manager ¾ @Tastemade. Founder/COO @Culture Kitchen, @500 Startups, @Designer Fund. MFA Design @Stanford University. BFA Industrial Design @CMU University."
+	    },
+	    {
+	      "display_name": "Jennifer Lopez",
+	      "avatar_filename": "data/jennifer-lopez.jpg",
+	      "avatar_type": "jpeg",
+	      "founder_desc": "Founder @Culture Kitchen. MFA Product Design @Stanford University. First DFund class at 500 Startups. @Dartmouth College 2008. Jewelry Designer and Metalsmith. "
+	    }
+	  ],
+	  "Donor": [
+	    {
+	      "amount": 10
+	    },
+	    {
+	      "amount": 1000
+	    },
+	    {
+	      "amount": "22.57"
+	    },
+	    {
+	      "amount": "1.01"
+	    }
+	  ]
+	},
+	{
+	  "display_name": "gazeMetrix",
+	  "youtube_code": "IltOrITTJBo",
+	  "slideshow_code": "18075112",
+	  "contestant_desc": "gazeMetrix empowers brands with insight into when and where their brand was photographed across social media in real-time. Using proprietary computer vision and machine learning algorithms, gazeMetrix accurately analyzes user-created photos on Instagram and identifies when a brand is featured. Brands discover their latest photos instantly. We automatically pick up the 'most popular pictures' and they can share them on their fan page/ Pinterest boards or twitter streams.",
+	  "website": null,
+	  "Founder": [],
+	  "Donor": [
+	    {
+	      "amount": 10
+	    },
+	    {
+	      "amount": 20
+	    }
+	  ]
+	}
+      ]
     }
   ]
 }
