@@ -156,6 +156,8 @@ class Contest(db.Model, common.ModelWithDates):
         """Returns True if the current user is a judge for this Contest"""
         if not flask.session.get('user.is_logged_in'):
             return False
+        if self.is_expired():
+            return False
         access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
         if Judge.query.select_from(pam.BivAccess, access_alias).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
