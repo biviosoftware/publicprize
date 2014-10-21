@@ -137,6 +137,13 @@ class Contestant(ppc.Task):
     def action_contestant(biv_obj):
         """Project detail page, loads contest owner and project founders"""
         if biv_obj.is_public or biv_obj.is_under_review:
+            if biv_obj.get_contest().is_expired():
+                # don't show donate or social links if contest has ended
+                return flask.render_template(
+                    'contest/detail.html',
+                    contestant=biv_obj,
+                    contest=biv_obj.get_contest()
+                )
             return pcf.Donate().execute(biv_obj)
         werkzeug.exceptions.abort(404)
 
