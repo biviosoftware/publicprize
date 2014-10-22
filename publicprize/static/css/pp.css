@@ -526,3 +526,6 @@ input.pp-agree-checkbox {
 .table tr td.pp-xs-comment {
   padding-left: 2em;
 }
+.pp-header-slider {
+  display: none;
+}
