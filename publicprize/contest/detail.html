@@ -78,13 +78,11 @@
       </div>
       <div class="pp-abstract">
         {%- block social_links %}
-	{%- if not contest.is_expired(): %}
 	<div class="pp-detail-social">
 	  <a target="_blank" class="pp-social-icon" href="https://facebook.com/sharer.php?u={{ contestant_url|urlencode }}&amp;title={{ contestant.display_name|urlencode }}"><img src="/static/img/facebook30.png" alt="Facebook"></a>
 	  <a target="_blank" class="pp-social-icon" href="https://twitter.com/intent/tweet?text={{ contestant_tweet|urlencode }}&amp;hashtags=EspritVentureChallenge&amp;url={{ contestant_url|urlencode }}&amp;via=publicprize"><img src="/static/img/twitter30.png" alt="Twitter"></a>
 	  <a target="_blank" class="pp-social-icon" href="https://plus.google.com/share?url={{ contestant_url|urlencode }}"><img src="/static/img/google30.png" alt="Google+"></a>
 	</div>
-	{%- endif %}
 	{%- endblock %}
     	<h3 class="pp-heading">Summary</h3>
     	<p class="pp-contestant-desc">{{ contestant.contestant_desc }}</p>

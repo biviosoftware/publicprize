@@ -2,9 +2,9 @@
   "Contest": [
     {
       "display_name": "Esprit Venture Challenge",
-      "tag_line": "Join us October 23, 2014",
+      "tag_line": "",
       "logo_filename": "data/esprit-logo.gif",
-      "end_date": "10/21/2014",
+      "end_date": "10/21/2015",
       "Alias": {
         "name": "esprit-venture-challenge"
       },
