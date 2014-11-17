@@ -28,14 +28,14 @@
   <span class="pp-nav-title-mobile visible-xs">{{ contest.display_name }}</span>
   {%- block contest_header %}{% endblock %}
   <div class="col-sm-12">
-    {%- macro menu_link(value, text, count=0) %}
-      <a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-menu-button {% if selected == value %}pp-selected-menu-button{% endif %}">{{ text }}
+    {%- macro menu_link(value, text, count=0, name=None) %}
+      <a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-menu-button {% if selected == value or selected == name %}pp-selected-menu-button{% endif %} pp-link-slider">{{ text }}
         {%- if count %} <span class="badge">{{ count }}</span>{% endif %}
       </a>
     {%- endmacro %}
     <div class="btn-group btn-group-justified pp-menu">
       {{- menu_link('about', 'About') }}
-      {{- menu_link(None, 'Contestants', contest.contestant_count()) }}
+      {{- menu_link(None, 'Contestants', contest.contestant_count(), name='contestants') }}
       {{- menu_link('judges', 'Judges') }}
     </div>
   </div>

@@ -36,7 +36,8 @@ def user_is_contestant_founder_or_admin(func):
         """Forbidden unless allowed."""
         contestant = args[0]
         if pam.Admin.is_admin() or (contestant.is_founder() \
-            and contestant.get_contest().is_expired()):
+            and contestant.get_contest().is_expired() \
+            and contestant.get_contest().is_scoring_completed):
             return func(*args, **kwargs)
         werkzeug.exceptions.abort(403)
     return decorated_function
@@ -138,11 +139,13 @@ class Contestant(ppc.Task):
         """Project detail page, loads contest owner and project founders"""
         if biv_obj.is_public or biv_obj.is_under_review:
             if biv_obj.get_contest().is_expired():
-                # don't show donate or social links if contest has ended
+                # TODO(pjm): share return value with Donate form
                 return flask.render_template(
                     'contest/detail.html',
                     contestant=biv_obj,
-                    contest=biv_obj.get_contest()
+                    contest=biv_obj.get_contest(),
+                    contestant_url=biv_obj.format_absolute_uri(),
+                    contestant_tweet=biv_obj.display_name
                 )
             return pcf.Donate().execute(biv_obj)
         werkzeug.exceptions.abort(404)
