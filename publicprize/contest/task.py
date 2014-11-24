@@ -74,6 +74,9 @@ class Contest(ppc.Task):
             contest_url=biv_obj.format_absolute_uri(),
         )
 
+    def action_contestants_new(biv_obj):
+        return Contest._render_template(biv_obj, 'contestants-new')
+
     def action_index(biv_obj):
         """Default to contestant list"""
         return Contest.action_contestants(biv_obj)
