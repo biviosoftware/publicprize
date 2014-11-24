@@ -41,7 +41,7 @@ def user_is_contestant_founder_or_admin(func):
             return func(*args, **kwargs)
         werkzeug.exceptions.abort(403)
     return decorated_function
-        
+
 
 def user_is_judge(func):
     """Require the current user is a contest judge."""
