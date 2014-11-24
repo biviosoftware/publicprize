@@ -1,0 +1,11 @@
+{% extends 'contest/contest.html' %}
+{%- import "layout/macros.html" as macros %}
+
+{%- block subtitle %}New Contestants Page{%- endblock %}
+{%- block sponsor_list %}{% endblock %} 
+{%- block contest_content %}
+  {%- for contestant in contest.get_public_contestants(randomize=True) %}
+    <h3 class="media-heading">{{ contestant.display_name }}</h3>
+  {%- endfor %}
+
+{%- endblock %}
