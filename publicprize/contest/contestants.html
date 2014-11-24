@@ -4,7 +4,7 @@
 {%- block subtitle %}Contestants{%- endblock %}
 
 {%- block social_meta %}
-  <meta property="og:image" content="https://www.publicprize.com/static/img/rosie200x200.jpg" /> 
+  <meta property="og:image" content="https://www.publicprize.com/static/img/rosie200x200.jpg" />
   <link rel="canonical" href="{{ contest.format_absolute_uri() }}">
   <meta property="og:url" content="{{ contest.format_absolute_uri() }}">
   <meta property="og:title" content="Contestants - {{ contest.display_name }}">
@@ -35,7 +35,7 @@
     {%- endif %}
   </div>
 {%- endmacro %}
-      
+
 {%- block contest_header %}
   <div class="pp-header-slider">
   <div class="col-sm-9">
@@ -86,7 +86,7 @@
     {%- for contestant in contest.get_public_contestants(randomize=True) %}
       <div class="row">
         <div class="pp-contestant-entry clearfix">
-          <div class="col-sm-7 pull-left">
+          <div class="col-sm-7 pull-right">
             {#- show video as still image, playback on detail page,
             this avoids a long lag time when loading a page with lots
             of videos #}
@@ -102,7 +102,7 @@
       	    <div class="pp-contestant-desc">{{ contestant.get_summary() }}</div>
     	    </div>
       	  </a>
-      	  <a class="pp-learn-more pull-right btn btn-primary btn-lg pp-link-slider" href="{{ contestant.format_uri() }}" >Learn More</a>
+      	  <a class="pp-learn-more text-center btn btn-primary btn-lg pp-link-slider" href="{{ contestant.format_uri() }}" >Learn More</a>
     	</div>
       </div>
       <hr>
