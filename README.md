@@ -12,6 +12,10 @@ pip install -e .
 This will create an "editable version" of this repository with pip so
 that pytest can find the files.
 
+To update `requirements.txt`, do:
+
+pip freeze | grep -v -- '^-e ' > requirements.txt
+
 ###### Create test db
 
 Run this to create a test db:
