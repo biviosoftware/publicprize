@@ -48,7 +48,9 @@ class ParseData(object):
             },
 
             such that all members of in either the 'conf' or 'dev' subset of
-            'item', 'item2', ..., are eventually returned.
+            'item', 'item2', ..., are eventually returned. Does not guarantee
+            that every possible permutation is considered, but does guarantee
+            that each unique item in each 'conf' or 'dev' subset is considered.
 
             -- data_subtype: subtype for data, either 'conf' or 'dev'
         """
@@ -79,9 +81,9 @@ class ParseData(object):
     # TODO: this name is way too long
     def get_mostly_one_type_single_other_type_variations(self, main_subtype):
         """ Get sets that are almost entirely one subtype, with a single
-            element from the other subtype. Only one item from the main
-            subtype is given, while all items in the secondary subtype
-            are eventually returned in separate sets
+            element from the other subtype. Only one set of items from the main
+            subtype is returned, while all items in the secondary subtype
+            are eventually returned in separate sets.
 
             -- main_subtype: 'conf' or 'dev'. Whichever one you want your data
                to be mostly comprised of.
@@ -194,7 +196,8 @@ class PublicPrizeTestCase(unittest.TestCase):
                     print("verifying string for {0} contents:\n"
                           "{1}\n...".format(data_item,
                                             data_variation[data_item]))
-                    self._verify_text(data_variation[data_item])
+                    self._verify_text(data_variation[data_item]),\
+                        "Error: string for {} contents:\n{}\n not verified".format(data_item, data_variation[data_item])
                     print("verified")
 
     def test_dev_submit_entries(self):
@@ -234,14 +237,13 @@ class PublicPrizeTestCase(unittest.TestCase):
                 'founder2_name': data_variation['founder2_name'],
                 'agree_to_terms': data_variation['agree_to_terms']
             })
-            print('deviating field: {}\n'
-                  "field_contents: '{}'\n"
-                  'verifying...'.format(deving_field,
-                                        data_variation[deving_field]))
             # It should not work, so we should still be on the
             # 'Submit Your Entry' page
-            self._verify_text('Submit Your Entry')
-            print('...verified')
+            self._verify_text('Submit Your Entry', ('Error: expected submission to fail\n'
+                                                    'deviating field: {}\n'
+                                                    "field_contents: '{}'\n"
+                                                    "".format(deving_field,
+                                                              data_variation[deving_field])))
 
     def test_judging_math(self):
         dataParser = ParseData(test_data.JUDGING_FIELDS)
@@ -256,14 +258,14 @@ class PublicPrizeTestCase(unittest.TestCase):
             conf_data = dataParser.get_random_variation('conf')
             self._follow_link('gazeMetrix')
 
-            expected_points = decimal.Decimal(0)
+            expected_points = decimal.Decimal('0.00')
             multipliers = {
                 1: decimal.Decimal(0),
                 2: decimal.Decimal(1) / decimal.Decimal(3),
                 3: decimal.Decimal(2) / decimal.Decimal(3),
                 4: decimal.Decimal(1)
             }
-            for i in range(1, 7):
+            for i in range(1, 7):  # [1, 6]
                 key = 'question{}'.format(i)
                 base_points = test_data.JUDGING_POINTS[key]
                 multiplier = multipliers[conf_data[key]]
@@ -278,25 +280,24 @@ class PublicPrizeTestCase(unittest.TestCase):
                 'question6': conf_data['question6'],
             })
 
-            # perform any appropriate rounding, then convert to string
-            # avoid floating point errors while rounding
-            old_precision = decimal.getcontext().prec
-            if expected_points < 10:
-                decimal.getcontext().prec = 3
-            else:
-                decimal.getcontext().prec = 4
-            rounded_expected_points = expected_points * 1
-            decimal.getcontext().prec = old_precision
-
+            # round to 2 decimal places
+            rounded_expected_points = expected_points.quantize(decimal.Decimal('0.01'))
             expected_points_text = str(rounded_expected_points)
 
-            errorstring = ("question1: {}".format(conf_data['question1']),
-                           "question2: {}".format(conf_data['question2']),
-                           "question3: {}".format(conf_data['question3']),
-                           "question4: {}".format(conf_data['question4']),
-                           "question5: {}".format(conf_data['question5']),
-                           "question6: {}".format(conf_data['question6'])
-                          )
+            errorstring = ("\nquestion1: {}\n"
+                           "question2: {}\n"
+                           "question3: {}\n"
+                           "question4: {}\n"
+                           "question5: {}\n"
+                           "question6: {}\n"
+                           "Expected result:{}".format(conf_data['question1'],
+                                                       conf_data['question2'],
+                                                       conf_data['question3'],
+                                                       conf_data['question4'],
+                                                       conf_data['question5'],
+                                                       conf_data['question6'],
+                                                       expected_points_text)
+                           )
 
             self._verify_text(expected_points_text, errorstring)
 
