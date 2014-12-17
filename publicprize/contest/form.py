@@ -566,6 +566,65 @@ class Judgement(flask_wtf.Form):
         ).first()
 
 
+class Website(flask_wtf.Form):
+    """Plain form that accepts a website.
+
+    Fields: Website
+    """
+
+    website = wtforms.StringField(
+        'Website url', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=200)])
+
+    def execute(self, url):
+        """Validates website url and adds it to the database"""
+        if self.is_submitted() and self.validate():
+            url = self.website.data
+            if url:
+                # TODO(mda): Need to add something to the database here
+                return flask.redirect(url)
+                flask.flash('Thank you for submitting your website.')
+                # TODO(mda): Build the thank you page
+                return flask.redirect(contest.format_uri('thank-you-page'))
+        return flask.render_template(
+            'contest/website.html',
+            form=self,
+            selected='website-url'
+        )
+
+    def validate(self):
+        """Performs url field validation"""
+        self._validate_website()
+        _log_errors(self)
+        return not self.errors
+
+    def _validate_website(self):
+        """Ensures the website exists"""
+        if self.website.errors:
+            return
+        if self.website.data:
+            if not self._get_url_content(self.website.data):
+                self.website.errors = ['Website invalid or unavailable.']
+
+    def _get_url_content(self, url):
+        """Performs a HTTP GET on the url.
+
+        Returns False if the url is invalid or not-found"""
+        res = None
+        if not re.search(r'^http', url):
+            url = 'http://' + url
+        try:
+            req = urllib.request.urlopen(url, None, 30)
+            res = req.read().decode(locale.getlocale()[1])
+            req.close()
+        except urllib.request.URLError:
+            return None
+        except ValueError:
+            return None
+        except socket.timeout:
+            return None
+        return res
+
 def _log_errors(form):
     """Put any form errors in logs as warning"""
     if form.errors:
