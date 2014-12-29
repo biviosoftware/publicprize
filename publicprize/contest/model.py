@@ -477,7 +477,7 @@ class JudgeScore(db.Model, common.ModelWithDates):
     def get_points(self):
         """Returns the points for the question."""
         return JudgeScore.get_points_for_question(
-            self.question_number) * (self.judge_score - 1) / 3        
+            self.question_number) * (self.judge_score - 1) / 3
 
     @classmethod
     def get_points_for_question(cls, number):
