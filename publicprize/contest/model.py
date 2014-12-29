@@ -524,6 +524,32 @@ class Sponsor(db.Model, common.ModelWithDates):
     logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
 
 
+class Website(db.Model, common.ModelWithDates):
+    """nominated website database model.
+
+    Fields:
+        biv_id: primary ID
+        display_name: nominated project name
+        website: nominated website
+        is_public: is the project to be shown on the public contestant list?
+        is_under_review: enables review of a non-public submission
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('contestant_s', start=1009, increment=1000),
+        primary_key=True
+    )
+    url = db.Column(db.String(100), nullable=False)
+    is_public = db.Column(db.Boolean, nullable=False)
+    is_under_review = db.Column(db.Boolean, nullable=False)
+
+    def get_url(self):
+        """Returns the contestant website, prepending http:// if necessary."""
+        if self.url and not re.search(r'^http', self.url):
+            return 'http://{}'.format(self.url)
+        return self.url
+
+
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
 Contestant.BIV_MARKER = biv.register_marker(3, Contestant)
 Donor.BIV_MARKER = biv.register_marker(7, Donor)
