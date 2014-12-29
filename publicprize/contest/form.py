@@ -590,7 +590,26 @@ class Website(flask_wtf.Form):
             'contest/website.html',
             form=self,
             selected='website-url'
+
+    def _update_models(self, contest):
+        """Creates the Contestant and Founder models
+        and adds BivAccess models to join the contest and Founder models"""
+        website = pcm.Website()
+        self.populate_obj(website)
+        website.url = self.website.data
+        website.is_public = \
+            ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
+        website.is_under_review = False
+        ppc.db.session.add(website)
+        ppc.db.session.flush()
+        ppc.db.session.add(
+            pam.BivAccess(
+                source_biv_id=contest.biv_id,
+                target_biv_id=website.biv_id
+            )
         )
+        return website
+
 
     def validate(self):
         """Performs url field validation"""
