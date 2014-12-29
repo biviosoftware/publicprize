@@ -577,12 +577,11 @@ class Website(flask_wtf.Form):
             wtfv.DataRequired(), wtfv.Length(max=200)])
 
     def execute(self, url):
+    def execute(self, contest):
         """Validates website url and adds it to the database"""
         if self.is_submitted() and self.validate():
-            url = self.website.data
+            url = self._update_models(contest).url
             if url:
-                # TODO(mda): Need to add something to the database here
-                return flask.redirect(url)
                 flask.flash('Thank you for submitting your website.')
                 # TODO(mda): Build the thank you page
                 return flask.redirect(contest.format_uri('thank-you-page'))
