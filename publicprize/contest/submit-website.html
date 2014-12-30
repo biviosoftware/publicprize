@@ -5,7 +5,7 @@
 
 {%- block contest_content %}
   <div class="pp-form">
-    <form method="POST" action="{{ contest.format_uri('submit-website') }}">
+    <form method="POST" action="{{ contest.format_uri('submitted-websites') }}">
       <h1>Submit Your Website</h1>
       {{- macros.form_field(form.website) }}
       {{- macros.submit_button('Submit Entry') }}
