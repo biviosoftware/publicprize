@@ -78,7 +78,7 @@ class Contest(ppc.Task):
         return Contest._render_template(biv_obj, 'contestants-new')
 
     def action_submit_website(biv_obj):
-        """Project detail page, loads contest owner and project founders"""
+        """Page where users can nominate websites to be submitted"""
         return pcf.Website().execute(biv_obj)
 
     def action_submitted_websites(biv_obj):
