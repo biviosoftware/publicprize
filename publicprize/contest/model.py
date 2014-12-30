@@ -547,7 +547,7 @@ class Website(db.Model, common.ModelWithDates):
     is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
 
-    def get_url(self):
+    def get_urls(self):
         """Returns the contestant website, prepending http:// if necessary."""
         if self.url and not re.search(r'^http', self.url):
             return 'http://{}'.format(self.url)
