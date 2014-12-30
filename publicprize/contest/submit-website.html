@@ -13,3 +13,23 @@
     </form>
   </div>
   {% endblock %}
+
+{%- block scripts %}
+  {{- super() }}
+  <script>
+
+$(window).load(function() {
+  $(".pp-link-slider").click(function() {
+    if ($(window).scrollTop() > 0)
+      return true;
+    var href = this.href;
+    $(".pp-header-slider").slideUp(function() {
+      window.location = href;
+    });
+    return false;
+  });
+  $(".pp-header-slider").slideDown();
+});
+
+  </script>
+{%- endblock %}
