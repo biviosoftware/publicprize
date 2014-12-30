@@ -139,6 +139,10 @@ class Contest(db.Model, common.ModelWithDates):
         # TODO(pjm): either store in config or per contest
         return pytz.timezone('US/Mountain')
 
+    def get_submitted_websites(self):
+        """Returns a list of all website database entries"""
+        return Website.query.all()
+
     def hours_remaining(self):
         """Hours remaining for this Contest."""
         hours = math.floor(self._time_remaining().total_seconds() / (60 * 60))
