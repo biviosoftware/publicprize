@@ -81,6 +81,10 @@ class Contest(ppc.Task):
         """Project detail page, loads contest owner and project founders"""
         return pcf.Website().execute(biv_obj)
 
+    def action_submitted_websites(biv_obj):
+        """Public list of nominated websites"""
+        return Contest._render_template(biv_obj, 'submitted-websites')
+
     def action_index(biv_obj):
         """Default to contestant list"""
         return Contest.action_contestants(biv_obj)
