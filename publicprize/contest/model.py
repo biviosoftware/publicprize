@@ -550,14 +550,6 @@ class Website(db.Model, common.ModelWithDates):
     datetime = db.Column(db.String(50))
     browser_string = db.Column(db.String(200))
 
-    def url_exists(self, url):
-        # TODO (mda): count() is not the fastest way to do this,
-        # there's probably a 'first()' or 'exists()' or similar
-        it_exists = Website.query.filter(Website.url == url).count() > 0
-        if it_exists:
-            return True
-        return False
-
 
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
 Contestant.BIV_MARKER = biv.register_marker(3, Contestant)
