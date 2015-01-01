@@ -611,19 +611,6 @@ class Website(flask_wtf.Form):
         )
         return website
 
-
-    def is_unique(self):
-        self._is_unique_url()
-        _log_errors(self)
-        return not self.errors
-
-    def _is_unique_url(self):
-        url = self.website.data
-        if self.website.errors:
-            return
-        if pcm.Website().url_exists(url):
-            self.website.errors = ['Website already submitted']
-
     def validate(self):
         """Performs url field validation"""
         self._validate_website()
