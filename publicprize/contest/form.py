@@ -612,6 +612,7 @@ class Website(flask_wtf.Form):
         # this shouldn't be a problem in our implementation, as in the worst
         # case, we'll just be recording a bogus value.
         website.client_ip = route[0][:pcm.Website.client_ip.type.length]
+        website.datetime = self._get_current_time_MST()
         ppc.db.session.add(website)
         ppc.db.session.flush()
         ppc.db.session.add(
