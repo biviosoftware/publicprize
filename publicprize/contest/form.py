@@ -5,6 +5,7 @@
     :license: Apache, see LICENSE for more details.
 """
 
+import datetime
 import decimal
 import flask
 import flask_mail
@@ -15,6 +16,7 @@ import paypalrestsdk.exceptions
 import publicprize.auth.model as pam
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
+import pytz
 import re
 import socket
 import sys
@@ -633,6 +635,11 @@ class Website(flask_wtf.Form):
         if self.website.data:
             if not self._get_url_content(self.website.data):
                 self.website.errors = ['Website invalid or unavailable.']
+
+    def _get_current_time_MST(self):
+        tz = pytz.timezone('US/Mountain')
+        current_time = datetime.datetime.now(tz)
+        return current_time
 
     def _get_url_content(self, url):
         """Performs a HTTP GET on the url.
