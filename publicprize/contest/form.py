@@ -601,6 +601,15 @@ class Website(flask_wtf.Form):
         website.is_public = \
             ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
         website.is_under_review = False
+        # TODO(mda): verify that the access route returns correct urls when
+        # accessed from remote location (this is hard to test from a local
+        # machine)
+        route = flask.request.access_route
+        # (mda) Trusting the first item in the client ip route is a potential
+        # security risk, as the client may spoof this to potentially inject code
+        # this shouldn't be a problem in our implementation, as in the worst
+        # case, we'll just be recording a bogus value.
+        website.client_ip = route[0][:pcm.Website.client_ip.type.length]
         ppc.db.session.add(website)
         ppc.db.session.flush()
         ppc.db.session.add(
