@@ -546,6 +546,9 @@ class Website(db.Model, common.ModelWithDates):
     url = db.Column(db.String(100), nullable=False)
     is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
+    client_ip = db.Column(db.String(45))
+    datetime = db.Column(db.String(50))
+    browser_string = db.Column(db.String(200))
 
 
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
