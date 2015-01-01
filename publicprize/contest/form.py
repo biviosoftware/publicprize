@@ -581,7 +581,7 @@ class Website(flask_wtf.Form):
         if self.is_submitted() and self.validate():
             url = self._update_models(contest).url
             if url:
-                flask.flash('Thank you for submitting your website.')
+                flask.flash('Thank you for submitting {} to {}.'.format(url, contest.display_name))
                 return flask.redirect(contest.format_uri('contestants'))
                 # TODO(mda): Build the thank you page
                 return flask.redirect(contest.format_uri('thank-you-page'))
