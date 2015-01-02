@@ -638,6 +638,7 @@ class Website(flask_wtf.Form):
                 self.website.errors = ['Website invalid or unavailable.']
 
     def _get_current_time_MST(self):
+        """Returns a datetime object with the current date in MST"""
         tz = pytz.timezone('US/Mountain')
         current_time = datetime.datetime.now(tz)
         return current_time
