@@ -547,7 +547,7 @@ class Website(db.Model, common.ModelWithDates):
     is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
     client_ip = db.Column(db.String(45))
-    datetime = db.Column(db.String(50))
+    datetime = db.Column(db.Date)
     browser_string = db.Column(db.String(200))
 
 
