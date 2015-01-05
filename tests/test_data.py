@@ -312,3 +312,19 @@ JUDGING_FIELDS = {
         'dev': None
     }
 }
+
+WEBSITE_TESTS = {
+    'websites': {
+        'conf': [
+            'www.zombo.com',
+            'zombo.com',
+            'http://www.zombo.com',
+            'https://www.google.com',
+        ],
+        'dev': [
+            'asldkfjasdklfjalskdjf',
+            'www.alaskdjfalksdj.com',
+            'http://www.asdlkfjasdlkfjasdlkfj.com',
+        ]
+    },
+}
