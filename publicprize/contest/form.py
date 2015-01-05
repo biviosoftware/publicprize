@@ -611,7 +611,11 @@ class Website(flask_wtf.Form):
         # security risk, as the client may spoof this to potentially inject code
         # this shouldn't be a problem in our implementation, as in the worst
         # case, we'll just be recording a bogus value.
-        website.client_ip = route[0][:pcm.Website.client_ip.type.length]
+        try:
+            website.client_ip = route[0][:pcm.Website.client_ip.type.length]
+        except IndexError:
+            # len(route) == 0
+            website.client_ip = 'ip unrecordable'
         website.submission_date = self._get_current_time_MST()
         ppc.db.session.add(website)
         ppc.db.session.flush()
