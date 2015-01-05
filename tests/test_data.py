@@ -313,7 +313,7 @@ JUDGING_FIELDS = {
     }
 }
 
-WEBSITE_TESTS = {
+WEBSITE_SUBMISSION_FIELDS = {
     'websites': {
         'conf': [
             'www.zombo.com',
@@ -325,6 +325,6 @@ WEBSITE_TESTS = {
             'asldkfjasdklfjalskdjf',
             'www.alaskdjfalksdj.com',
             'http://www.asdlkfjasdlkfjasdlkfj.com',
-        ]
+        ],
     },
 }
