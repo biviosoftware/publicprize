@@ -394,6 +394,19 @@ class PublicPrizeTestCase(unittest.TestCase):
             self._verify_text(conf_website_entry)
             #TODO(mda): check the database directly
 
+    def test_submit_website_dev_entries(self):
+        self._visit_uri('/')
+        self._follow_link('Esprit Venture Challenge')
+        self._visit_uri(self.current_uri + '/submit-website')
+        dev_websites_gen = ParseData(test_data.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
+        for data_variation in dev_websites_gen:
+            print(data_variation['websites'])
+            self._submit_form({
+                'website': data_variation['websites'],
+            })
+            self._verify_text('Website invalid or unavailable')
+            #TODO(mda): be certain that the website is not in the database
+
     def _follow_link(self, link_text):
         url = None
         # exact match
