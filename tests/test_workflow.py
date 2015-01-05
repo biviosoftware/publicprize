@@ -377,6 +377,23 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._follow_link('My Entry')
         self._verify_text(name)
 
+    def test_submit_website_conf_entries(self):
+        self._visit_uri('/')
+        self._follow_link('Esprit Venture Challenge')
+        conf_websites_gen = ParseData(test_data.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
+        for data_variation in conf_websites_gen:
+            self._visit_uri(self.current_uri + '/submit-website')
+            #TODO(mda): get current time
+            self._submit_form({
+                'website': data_variation['websites'],
+            })
+            self._verify_text(
+                'Thank you for submitting {} to {}'.format(data_variation['website'],
+                                                           'Esprit Public Prize'))
+            self._visit_uri('/submitted-websites')
+            self._verify_text(conf_website_entry)
+            #TODO(mda): check the database directly
+
     def _follow_link(self, link_text):
         url = None
         # exact match
