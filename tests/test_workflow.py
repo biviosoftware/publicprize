@@ -30,7 +30,6 @@ class ParseData(object):
         at least one item each """
         assert len(data) > 0
         for key, item in data.items():
-            item = data[key]
             assert item.__contains__('conf'), 'item: {0}'.format(item)
             if item['conf'] is not None:
                 assert len(item['conf']) > 0
