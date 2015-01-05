@@ -543,6 +543,7 @@ class Website(db.Model, common.ModelWithDates):
         db.Sequence('contestant_s', start=1009, increment=1000),
         primary_key=True
     )
+    #TODO(mda): determine if a display_name is necessary, then add it if so
     url = db.Column(db.String(100), nullable=False)
     is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
