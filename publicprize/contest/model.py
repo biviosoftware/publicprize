@@ -139,9 +139,9 @@ class Contest(db.Model, common.ModelWithDates):
         # TODO(pjm): either store in config or per contest
         return pytz.timezone('US/Mountain')
 
-    def get_submitted_websites(self):
-        """Returns a list of all website database entries"""
-        return Website.query.all()
+    def get_nominated_websites(self):
+        """Returns a list of all websites that haven been nominated"""
+        return Nominee.query.all()
 
     def hours_remaining(self):
         """Hours remaining for this Contest."""

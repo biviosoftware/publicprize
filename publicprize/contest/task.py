@@ -79,7 +79,7 @@ class Contest(ppc.Task):
 
     def action_nominate_website(biv_obj):
         """Page where users can nominate websites to be submitted"""
-        return pcf.Website().execute(biv_obj)
+        return pcf.Nomination().execute(biv_obj)
 
     def action_submitted_websites(biv_obj):
         """Public list of nominated websites"""
