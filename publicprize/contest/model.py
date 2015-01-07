@@ -547,7 +547,31 @@ class Nominee(db.Model, common.ModelWithDates):
     url = db.Column(db.String(100), nullable=False)
     is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
+
+class Nomination(db.Model, common.ModelWithDates):
+    """database model that carries the information of a website nomination
+
+    Fields:
+        biv_id: primary ID
+        nominee: Foreign key to a Nominee
+        client_ip: client ip of the user who performed the nomination
+        submission_datetime: date and time of the nomination
+        browser_string: user's browser string at time of submission
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('contestant_s', start=1010, increment=1000),
+        primary_key=True
+    )
+    nominee = db.Column(
+        db.Numeric(18),
+        db.ForeignKey('Website.biv_id'),
+        nullable=False
+    )
+    client_ip = db.Column(db.String(45))
+    submission_datetime = db.Column(db.DateTime)
     browser_string = db.Column(db.String(200))
+
 
 
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
