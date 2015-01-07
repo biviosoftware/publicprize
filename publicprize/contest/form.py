@@ -589,7 +589,8 @@ class Nomination(flask_wtf.Form):
             if url:
                 flask.flash('Thank you for submitting {} to {}.'.format(url, contest.display_name))
                 return flask.redirect(contest.format_uri('contestants'))
-                # TODO(mda): Build the thank you page
+                # TODO(mda): Build the thank you page (currently I'm only
+                # flashing a thank-you message on the contestants page
                 return flask.redirect(contest.format_uri('thank-you-page'))
         return flask.render_template(
             'contest/nominate-website.html',
