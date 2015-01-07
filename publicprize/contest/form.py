@@ -623,6 +623,7 @@ class Nomination(flask_wtf.Form):
             )
         else:
             nominee = self._get_matching_nominee(url)
+        assert nominee is not None
         nomination = pcm.Nomination()
         # TODO(mda): verify that the access route returns correct urls when
         # accessed from remote location (this is hard to test from a local
