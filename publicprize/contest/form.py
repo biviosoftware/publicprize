@@ -568,8 +568,11 @@ class Judgement(flask_wtf.Form):
         ).first()
 
 
-class Website(flask_wtf.Form):
-    """Plain form that accepts a website.
+class Nomination(flask_wtf.Form):
+    """Plain form that accepts a website nomination.
+
+    A 'Nominition' is created on form submission (see pcm.Nomination)
+    If the website is new, then a 'Nominee' is added for that website.
 
     Fields: Website
     """
@@ -581,7 +584,8 @@ class Website(flask_wtf.Form):
     def execute(self, contest):
         """Validates website url and adds it to the database"""
         if self.is_submitted() and self.validate():
-            url = self._update_models(contest).url
+            nominee, _ = self._update_models(contest).url
+            url = nominee.url
             if url:
                 flask.flash('Thank you for submitting {} to {}.'.format(url, contest.display_name))
                 return flask.redirect(contest.format_uri('contestants'))
@@ -597,12 +601,28 @@ class Website(flask_wtf.Form):
     def _update_models(self, contest):
         """Creates the Contestant and Founder models
         and adds BivAccess models to join the contest and Founder models"""
-        website = pcm.Website()
-        self.populate_obj(website)
-        website.url = self.website.data
-        website.is_public = \
-            ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
-        website.is_under_review = False
+        url = self.website.data
+        # (mda) get the time here to minimize server processing time
+        # interference (just in case of a hangup of some sort)
+        submission_datetime = self._get_current_time_MST()
+        if not self._is_already_nominated(url):
+            nominee = pcm.Nominee()
+            self.populate_obj(nominee)
+            nominee.url = url
+            nominee.is_public = \
+                ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
+            nominee.is_under_review = False
+            ppc.db.session.add(nominee)
+            ppc.db.session.flush()
+            ppc.db.session.add(
+                pam.BivAccess(
+                    source_biv_id=contest.biv_id,
+                    target_biv_id=nominee.biv_id
+                )
+            )
+        else:
+            nominee = self._get_matching_nominee(url)
+        nomination = pcm.Nomination()
         # TODO(mda): verify that the access route returns correct urls when
         # accessed from remote location (this is hard to test from a local
         # machine)
@@ -612,20 +632,26 @@ class Website(flask_wtf.Form):
         # this shouldn't be a problem in our implementation, as in the worst
         # case, we'll just be recording a bogus value.
         try:
-            website.client_ip = route[0][:pcm.Website.client_ip.type.length]
+            nomination.client_ip = route[0][:pcm.Website.client_ip.type.length]
         except IndexError:
             # len(route) == 0
-            website.client_ip = 'ip unrecordable'
-        website.submission_date = self._get_current_time_MST()
-        ppc.db.session.add(website)
+            nomination.client_ip = 'ip unrecordable'
+        nomination.submission_datetime = submission_datetime
+        ppc.db.session.add(nomination)
         ppc.db.session.flush()
         ppc.db.session.add(
             pam.BivAccess(
                 source_biv_id=contest.biv_id,
-                target_biv_id=website.biv_id
+                target_biv_id=nomination.biv_id
             )
         )
-        return website
+        return nominee, nomination
+
+    def _is_already_nominated(url):
+        return pcm.Nominee.query.filter(pcm.Nominee.url == url).count() > 0:
+
+    def _get_matching_nominee(url):
+        return pcm.Nominee.query.filter(pcm.Nominee.url == url).first()
 
     def validate(self):
         """Performs url field validation"""
