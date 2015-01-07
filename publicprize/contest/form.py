@@ -592,7 +592,7 @@ class Nomination(flask_wtf.Form):
                 # TODO(mda): Build the thank you page
                 return flask.redirect(contest.format_uri('thank-you-page'))
         return flask.render_template(
-            'contest/submit-website.html',
+            'contest/nominate-website.html',
             form=self,
             selected='website-url',
             contest=contest,

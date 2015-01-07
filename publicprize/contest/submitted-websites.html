@@ -5,7 +5,7 @@
 {%- block sponsor_list %}{% endblock %}
 {%- block contest_content %}
   <h1>Submitted Websites</h1>
-  {%- for website in contest.get_submitted_websites() %}
+  {%- for website in contest.get_nominated_websites() %}
   <div class="row">
     <div class="pp-contestant-entry clearfix">
       <span class="pp-title">{{ website.url }}</span>
