@@ -584,7 +584,7 @@ class Nomination(flask_wtf.Form):
     def execute(self, contest):
         """Validates website url and adds it to the database"""
         if self.is_submitted() and self.validate():
-            nominee, _ = self._update_models(contest).url
+            nominee, _ = self._update_models(contest)
             url = nominee.url
             if url:
                 flask.flash('Thank you for submitting {} to {}.'.format(url, contest.display_name))
@@ -632,11 +632,12 @@ class Nomination(flask_wtf.Form):
         # this shouldn't be a problem in our implementation, as in the worst
         # case, we'll just be recording a bogus value.
         try:
-            nomination.client_ip = route[0][:pcm.nomination.client_ip.type.length]
+            nomination.client_ip = route[0][:pcm.Nomination.client_ip.type.length]
         except IndexError:
             # len(route) == 0
             nomination.client_ip = 'ip unrecordable'
         nomination.submission_datetime = submission_datetime
+        nomination.nominee = nominee.biv_id
         ppc.db.session.add(nomination)
         ppc.db.session.flush()
         ppc.db.session.add(
@@ -647,10 +648,10 @@ class Nomination(flask_wtf.Form):
         )
         return nominee, nomination
 
-    def _is_already_nominated(url):
+    def _is_already_nominated(self, url):
         return pcm.Nominee.query.filter(pcm.Nominee.url == url).count() > 0
 
-    def _get_matching_nominee(url):
+    def _get_matching_nominee(self, url):
         return pcm.Nominee.query.filter(pcm.Nominee.url == url).first()
 
     def validate(self):
