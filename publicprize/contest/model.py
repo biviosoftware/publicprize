@@ -565,7 +565,7 @@ class Nomination(db.Model, common.ModelWithDates):
     )
     nominee = db.Column(
         db.Numeric(18),
-        db.ForeignKey('Website.biv_id'),
+        db.ForeignKey('nominee.biv_id'),
         nullable=False
     )
     client_ip = db.Column(db.String(45))

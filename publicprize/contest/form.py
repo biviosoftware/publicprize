@@ -632,7 +632,7 @@ class Nomination(flask_wtf.Form):
         # this shouldn't be a problem in our implementation, as in the worst
         # case, we'll just be recording a bogus value.
         try:
-            nomination.client_ip = route[0][:pcm.Website.client_ip.type.length]
+            nomination.client_ip = route[0][:pcm.nomination.client_ip.type.length]
         except IndexError:
             # len(route) == 0
             nomination.client_ip = 'ip unrecordable'
@@ -648,7 +648,7 @@ class Nomination(flask_wtf.Form):
         return nominee, nomination
 
     def _is_already_nominated(url):
-        return pcm.Nominee.query.filter(pcm.Nominee.url == url).count() > 0:
+        return pcm.Nominee.query.filter(pcm.Nominee.url == url).count() > 0
 
     def _get_matching_nominee(url):
         return pcm.Nominee.query.filter(pcm.Nominee.url == url).first()
