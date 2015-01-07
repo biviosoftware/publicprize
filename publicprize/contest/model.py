@@ -528,7 +528,7 @@ class Sponsor(db.Model, common.ModelWithDates):
     logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
 
 
-class Website(db.Model, common.ModelWithDates):
+class Nominee(db.Model, common.ModelWithDates):
     """nominated website database model.
 
     Fields:
@@ -547,8 +547,6 @@ class Website(db.Model, common.ModelWithDates):
     url = db.Column(db.String(100), nullable=False)
     is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
-    client_ip = db.Column(db.String(45))
-    submission_date = db.Column(db.DateTime)
     browser_string = db.Column(db.String(200))
 
 
