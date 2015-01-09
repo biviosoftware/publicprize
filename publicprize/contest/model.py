@@ -7,18 +7,19 @@
 
 import datetime
 import decimal
-import flask
 import math
-from publicprize.controller import db
-from publicprize import common
-from publicprize import controller
-from publicprize import biv
-import publicprize.auth.model as pam
 import pytz
 import random
 import re
+
+import flask
 import sqlalchemy.orm
 
+from .. import biv
+from .. import common
+from .. import controller
+from ..auth import model as pam
+from ..controller import db
 
 class Contest(db.Model, common.ModelWithDates):
     """contest database model.

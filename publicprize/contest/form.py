@@ -7,23 +7,24 @@
 
 import datetime
 import decimal
-import flask
-import flask_mail
-import flask_wtf
 import locale
-import paypalrestsdk
-import paypalrestsdk.exceptions
-import publicprize.auth.model as pam
-import publicprize.contest.model as pcm
-import publicprize.controller as ppc
 import pytz
 import re
 import socket
 import sys
 import urllib.request
+
+import flask
+import flask_mail
+import flask_wtf
+import paypalrestsdk
+import paypalrestsdk.exceptions
 import wtforms
 import wtforms.validators as wtfv
 
+from . import model as pcm
+from .. import controller as ppc
+from ..auth import model as pam
 
 class Contestant(flask_wtf.Form):
     """Project submission form.

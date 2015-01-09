@@ -5,21 +5,22 @@
     :license: Apache, see LICENSE for more details.
 """
 
-import flask
-from functools import wraps
 import io
-import publicprize.contest.form as pcf
-import publicprize.contest.model as pcm
-import publicprize.controller as ppc
-import publicprize.auth.model as pam
 import random
+
+import functools
+import flask
 import sqlalchemy.orm
 import werkzeug.exceptions
 
+from . import form as pcf
+from ..auth import model as pam
+from . import model as pcm
+from .. import controller as ppc
 
 def user_is_admin(func):
     """Require the current user is an administrator."""
-    @wraps(func)
+    @functools.wraps(func)
     def decorated_function(*args, **kwargs):
         """Forbidden unless allowed."""
         if pam.Admin.is_admin():
@@ -31,7 +32,7 @@ def user_is_admin(func):
 def user_is_contestant_founder_or_admin(func):
     """Require the current user is the contestant founder for an expired
     contest or an administrator."""
-    @wraps(func)
+    @functools.wraps(func)
     def decorated_function(*args, **kwargs):
         """Forbidden unless allowed."""
         contestant = args[0]
@@ -45,7 +46,7 @@ def user_is_contestant_founder_or_admin(func):
 
 def user_is_judge(func):
     """Require the current user is a contest judge."""
-    @wraps(func)
+    @functools.wraps(func)
     def decorated_function(*args, **kwargs):
         """Forbidden unless allowed."""
         if args[0].is_judge():

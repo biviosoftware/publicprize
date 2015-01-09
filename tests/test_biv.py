@@ -6,11 +6,12 @@
 """
 
 import pytest
+import werkzeug.exceptions
+
 from publicprize import biv
 # Needed to initialize known biv.ids
 import publicprize.general.task
 import publicprize.general.model
-import werkzeug.exceptions
 
 def test_marker():
     assert biv.Marker(1) == 1
