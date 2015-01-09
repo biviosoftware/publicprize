@@ -395,20 +395,23 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text(name)
 
     def test_submit_website_conf_entries(self):
+        CONTEST_NAME = 'Esprit Venture Challenge'
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')
         conf_websites_gen = ParseData(test_data.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
         for data_variation in conf_websites_gen:
             self._visit_uri(self.current_uri + '/submit-website')
             #TODO(mda): get current time
+            website_name = data_variation['websites']
             self._submit_form({
-                'website': data_variation['websites'],
+                'website': website_name
             })
             self._verify_text(
-                'Thank you for submitting {} to {}'.format(data_variation['website'],
-                                                           'Esprit Public Prize'))
+                'Thank you for submitting {} to {}'.format(website_name,
+                                                           CONTEST_NAME))
             self._visit_uri('/submitted-websites')
-            self._verify_text(conf_website_entry)
+            self._verify_text(website_name, "website '{}' not at {}".format(
+                website_name, self.current_uri))
             #TODO(mda): check the database directly
 
     def test_submit_website_dev_entries(self):
