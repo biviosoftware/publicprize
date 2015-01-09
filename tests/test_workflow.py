@@ -12,7 +12,8 @@ import unittest
 import publicprize.controller
 import itertools
 import decimal
-from tests import test_data
+
+import workflow_data as wd
 
 class ParseData(object):
     """ Takes in a data set of the form:
@@ -170,7 +171,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text('Page Not Found')
 
     def test_conf_submit_entries(self):
-        conf_entry_gen = ParseData(test_data.SUBMIT_ENTRY_FIELDS).get_data_variations('conf')
+        conf_entry_gen = ParseData(wd.SUBMIT_ENTRY_FIELDS).get_data_variations('conf')
         for data_variation in conf_entry_gen:
             num = int(random.random() * 10000)
             base_name = data_variation['display_name']
@@ -224,7 +225,7 @@ class PublicPrizeTestCase(unittest.TestCase):
             accepted because of the supposedly conforming data that it contains
         """
         main_subtype = 'conf'
-        dev_entry_gen = ParseData(test_data.SUBMIT_ENTRY_FIELDS).get_mostly_one_type_single_other_type_variations(main_subtype)
+        dev_entry_gen = ParseData(wd.SUBMIT_ENTRY_FIELDS).get_mostly_one_type_single_other_type_variations(main_subtype)
         for data_variation, deving_field in dev_entry_gen:
             self._visit_uri('/')
             self._visit_uri('/pub/new-test-user')
@@ -262,7 +263,7 @@ class PublicPrizeTestCase(unittest.TestCase):
                                                               data_variation[deving_field])))
 
     def test_judging_math(self):
-        dataParser = ParseData(test_data.JUDGING_FIELDS)
+        dataParser = ParseData(wd.JUDGING_FIELDS)
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')
         self._visit_uri(self.current_uri + '/new-test-judge')
@@ -283,7 +284,7 @@ class PublicPrizeTestCase(unittest.TestCase):
             }
             for i in range(1, 7):  # [1, 6]
                 key = 'question{}'.format(i)
-                base_points = test_data.JUDGING_POINTS[key]
+                base_points = wd.JUDGING_POINTS[key]
                 multiplier = multipliers[conf_data[key]]
                 expected_points += base_points * multiplier
 
@@ -398,7 +399,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         CONTEST_NAME = 'Esprit Venture Challenge'
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')
-        conf_websites_gen = ParseData(test_data.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
+        conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
         #TODO(mda): the current_uri tracking doesn't notice redirects
         nominate_website_uri = self.current_uri + '/nominate-website'
         submitted_websites_uri = self.current_uri + '/submitted-websites'
@@ -421,7 +422,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')
         self._visit_uri(self.current_uri + '/nominate-website')
-        dev_websites_gen = ParseData(test_data.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
+        dev_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
         for data_variation in dev_websites_gen:
             self._submit_form({
                 'website': data_variation['websites'],
