@@ -126,6 +126,7 @@ def create_db():
     subprocess.check_call(
         ['createdb', '--host=' + c['host'], '--encoding=' + enc,
          '--locale=' + loc, '--user=postgres',
+         '--template=template0',
          '--owner=' + c['user'], c['name']],
         env=e)
     db.create_all()
