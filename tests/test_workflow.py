@@ -403,7 +403,6 @@ class PublicPrizeTestCase(unittest.TestCase):
         nominate_website_uri = self.current_uri + '/nominate-website'
         submitted_websites_uri = self.current_uri + '/submitted-websites'
         for data_variation in conf_websites_gen:
-            #TODO(mda): get current time
             website_name = data_variation['websites']
             self._visit_uri(nominate_website_uri)
             self._submit_form({
@@ -415,6 +414,7 @@ class PublicPrizeTestCase(unittest.TestCase):
             self._visit_uri(submitted_websites_uri)
             self._verify_text(website_name, "website '{}' not at {}".format(
                 website_name, self.current_uri))
+            #TODO(mda): get current time
             #TODO(mda): check the database directly
 
     def test_submit_website_dev_entries(self):
