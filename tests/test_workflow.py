@@ -397,7 +397,7 @@ class PublicPrizeTestCase(unittest.TestCase):
     def test_submit_website_dev_entries(self):
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')
-        self._visit_uri(self.current_uri + '/submit-website')
+        self._visit_uri(self.current_uri + '/nominate-website')
         dev_websites_gen = ParseData(test_data.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
         for data_variation in dev_websites_gen:
             print(data_variation['websites'])
