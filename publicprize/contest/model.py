@@ -139,6 +139,10 @@ class Contest(db.Model, common.ModelWithDates):
         # TODO(pjm): either store in config or per contest
         return pytz.timezone('US/Mountain')
 
+    def get_nominated_websites(self):
+        """Returns a list of all websites that haven been nominated"""
+        return Nominee.query.all()
+
     def hours_remaining(self):
         """Hours remaining for this Contest."""
         hours = math.floor(self._time_remaining().total_seconds() / (60 * 60))
@@ -477,7 +481,7 @@ class JudgeScore(db.Model, common.ModelWithDates):
     def get_points(self):
         """Returns the points for the question."""
         return JudgeScore.get_points_for_question(
-            self.question_number) * (self.judge_score - 1) / 3        
+            self.question_number) * (self.judge_score - 1) / 3
 
     @classmethod
     def get_points_for_question(cls, number):
@@ -522,6 +526,52 @@ class Sponsor(db.Model, common.ModelWithDates):
     website = db.Column(db.String(100))
     sponsor_logo = db.Column(db.LargeBinary)
     logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
+
+
+class Nominee(db.Model, common.ModelWithDates):
+    """nominated website database model.
+
+    Fields:
+        biv_id: primary ID
+        display_name: nominated project name
+        website: nominated website
+        is_public: is the project to be shown on the public contestant list?
+        is_under_review: enables review of a non-public submission
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('contestant_s', start=1009, increment=1000),
+        primary_key=True
+    )
+    #TODO(mda): determine if a display_name is necessary, then add it if so
+    url = db.Column(db.String(100), nullable=False)
+    is_public = db.Column(db.Boolean, nullable=False)
+    is_under_review = db.Column(db.Boolean, nullable=False)
+
+class Nomination(db.Model, common.ModelWithDates):
+    """database model that carries the information of a website nomination
+
+    Fields:
+        biv_id: primary ID
+        nominee: Foreign key to a Nominee
+        client_ip: client ip of the user who performed the nomination
+        submission_datetime: date and time of the nomination
+        browser_string: user's browser string at time of submission
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('contestant_s', start=1010, increment=1000),
+        primary_key=True
+    )
+    nominee = db.Column(
+        db.Numeric(18),
+        db.ForeignKey('nominee.biv_id'),
+        nullable=False
+    )
+    client_ip = db.Column(db.String(45))
+    submission_datetime = db.Column(db.DateTime)
+    browser_string = db.Column(db.String(200))
+
 
 
 Contest.BIV_MARKER = biv.register_marker(2, Contest)

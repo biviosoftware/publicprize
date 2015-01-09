@@ -41,7 +41,7 @@ def user_is_contestant_founder_or_admin(func):
             return func(*args, **kwargs)
         werkzeug.exceptions.abort(403)
     return decorated_function
-        
+
 
 def user_is_judge(func):
     """Require the current user is a contest judge."""
@@ -73,6 +73,17 @@ class Contest(ppc.Task):
             'contestants',
             contest_url=biv_obj.format_absolute_uri(),
         )
+
+    def action_contestants_new(biv_obj):
+        return Contest._render_template(biv_obj, 'contestants-new')
+
+    def action_nominate_website(biv_obj):
+        """Page where users can nominate websites to be submitted"""
+        return pcf.Nomination().execute(biv_obj)
+
+    def action_submitted_websites(biv_obj):
+        """Public list of nominated websites"""
+        return Contest._render_template(biv_obj, 'submitted-websites')
 
     def action_index(biv_obj):
         """Default to contestant list"""

@@ -73,7 +73,7 @@ class General(controller.Task):
             target_biv_id=admin.biv_id
         ))
         return flask.redirect('/')
-        
+
     def action_new_test_user(biv_obj):
         """Creates a new test user model and log in."""
         if not controller.app().config['PUBLICPRIZE']['TEST_USER']:

@@ -90,7 +90,7 @@ def _avatar_url_from_info(oauth_type, info):
     elif oauth_type == 'google':
         return info.get('picture')
     return None
-    
+
 def _clear_session(clear_oauth_type=False):
     """Clear the login state from the session"""
     flask.session['user.is_logged_in'] = False
@@ -109,7 +109,7 @@ def _client_error(oauth_type, message=None):
     _clear_session(True)
     flask.flash(message \
         or '{} has denied access to this App.'.format(oauth_type))
-        
+
 
 def _get_facebook_oauth_token():
     """Callback for facebook auth"""
