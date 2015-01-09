@@ -113,10 +113,27 @@ class ParseData(object):
         return data
 
 
+class FlaskTestClientProxy(object):
+    """proxy class to set browser environment variables for testing.
+
+    Courtesy of stackoverflow answer at:
+    http://stackoverflow.com/questions/15278285/setting-mocking-request-headers-for-flask-app-unit-test
+    """
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        environ['REMOTE_ADDR'] = environ.get('REMOTE_ADDR', '127.0.0.1')
+        environ['HTTP_USER_AGENT'] = environ.get('HTTP_USER_AGENT', 'Chrome')
+        return self.app(environ, start_response)
+
+
 class PublicPrizeTestCase(unittest.TestCase):
     def setUp(self):
         publicprize.controller.init()
-        self.client = publicprize.controller.app().test_client()
+        app = publicprize.controller.app()
+        app.wsgi_app = FlaskTestClientProxy(app.wsgi_app)
+        self.client = app.test_client()
         self.current_page = None
 
     def tearDown(self):
@@ -378,29 +395,34 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text(name)
 
     def test_submit_website_conf_entries(self):
+        CONTEST_NAME = 'Esprit Venture Challenge'
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')
         conf_websites_gen = ParseData(test_data.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
+        #TODO(mda): the current_uri tracking doesn't notice redirects
+        nominate_website_uri = self.current_uri + '/nominate-website'
+        submitted_websites_uri = self.current_uri + '/submitted-websites'
         for data_variation in conf_websites_gen:
-            self._visit_uri(self.current_uri + '/submit-website')
-            #TODO(mda): get current time
+            website_name = data_variation['websites']
+            self._visit_uri(nominate_website_uri)
             self._submit_form({
-                'website': data_variation['websites'],
+                'website': website_name
             })
             self._verify_text(
-                'Thank you for submitting {} to {}'.format(data_variation['website'],
-                                                           'Esprit Public Prize'))
-            self._visit_uri('/submitted-websites')
-            self._verify_text(conf_website_entry)
+                'Thank you for submitting {} to {}'.format(website_name,
+                                                           CONTEST_NAME))
+            self._visit_uri(submitted_websites_uri)
+            self._verify_text(website_name, "website '{}' not at {}".format(
+                website_name, self.current_uri))
+            #TODO(mda): get current time
             #TODO(mda): check the database directly
 
     def test_submit_website_dev_entries(self):
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')
-        self._visit_uri(self.current_uri + '/submit-website')
+        self._visit_uri(self.current_uri + '/nominate-website')
         dev_websites_gen = ParseData(test_data.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
         for data_variation in dev_websites_gen:
-            print(data_variation['websites'])
             self._submit_form({
                 'website': data_variation['websites'],
             })
