@@ -636,7 +636,6 @@ class Nomination(flask_wtf.Form):
         try:
             nomination.client_ip = route[0][:pcm.Nomination.client_ip.type.length]
         except IndexError:
-            # len(route) == 0
             nomination.client_ip = 'ip unrecordable'
             print("Error, failed to record client ip. route: {}. ".format(route),
                   "Recording ip as '{}'".format(nomination.client_ip),
