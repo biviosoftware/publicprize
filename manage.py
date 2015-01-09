@@ -15,7 +15,7 @@ import json
 import locale
 import os
 import publicprize.auth.model as pam
-import publicprize.contest.model as pcm
+import publicprize.evc.model as pcm
 import publicprize.controller as ppc
 import re
 import subprocess

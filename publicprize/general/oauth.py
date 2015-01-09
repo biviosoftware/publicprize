@@ -19,10 +19,10 @@ oauth.<oauth_type>.token, user's oauth token, cleared during log out
 
 import flask
 import flask_oauthlib.client
-import publicprize.controller as ppc
-import publicprize.auth.model as ppam
 import werkzeug
 
+from .. import controller as ppc
+from ..auth import model as pam
 
 _OAUTH_PROVIDER_DATA_PATH = {
     'facebook': 'me',
@@ -167,7 +167,7 @@ def _user_from_info(oauth, oauth_type, info):
         _client_error(
             oauth_type, 'Your email must be provided to this App to login.')
         return
-    user = ppam.User.query.filter_by(
+    user = pam.User.query.filter_by(
         oauth_type=oauth_type,
         oauth_id=info['id']
     ).first()
@@ -176,7 +176,7 @@ def _user_from_info(oauth, oauth_type, info):
         user.user_email = info['email']
         user.avatar_url = _avatar_url_from_info(oauth_type, info)
     else:
-        user = ppam.User(
+        user = pam.User(
             display_name=info['name'],
             user_email=info['email'],
             oauth_type=oauth_type,

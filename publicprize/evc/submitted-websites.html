@@ -1,18 +1,19 @@
-{% extends 'contest/contest.html' %}
+{% extends base_template %}
 {%- import "layout/macros.html" as macros %}
 
-{%- block subtitle %}Nominate Website{% endblock %}
-
+{%- block subtitle %}Submitted Websites up for Review{%- endblock %}
+{%- block sponsor_list %}{% endblock %}
 {%- block contest_content %}
-  <div class="pp-form">
-    <form method="POST" action="{{ contest.format_uri('nominate-website') }}">
-      <h1>Nominate A Website</h1>
-      {{- macros.form_field(form.website) }}
-      {{- macros.submit_button('Submit Entry') }}
-      <a class="pp-cancel-link" href="{{ contest.format_uri('contestants') }}">Cancel</a>
-    </form>
+  <h1>Submitted Websites</h1>
+  {%- for website in contest.get_nominated_websites() %}
+  <div class="row">
+    <div class="pp-contestant-entry clearfix">
+      <span class="pp-title">{{ website.url }}</span>
+    </div>
   </div>
-  {% endblock %}
+  <hr>
+    {%- endfor %}
+{%- endblock %}
 
 {%- block scripts %}
   {{- super() }}
@@ -33,3 +34,4 @@ $(window).load(function() {
 
   </script>
 {%- endblock %}
+

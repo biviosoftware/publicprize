@@ -13,7 +13,6 @@ from publicprize.controller import db
 import sqlalchemy
 import werkzeug.exceptions
 
-
 class Admin(db.Model, common.ModelWithDates):
     """Administrative marker.
     Fields:

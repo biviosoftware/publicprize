@@ -6,11 +6,11 @@
 """
 
 import flask
-from publicprize import biv
-from publicprize import controller
+
+from .. import biv
+from .. import controller
 
 PUB_OBJ = None
-
 
 class General(controller.Model):
     """Singleton model for global tasks."""

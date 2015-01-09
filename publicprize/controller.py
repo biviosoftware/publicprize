@@ -38,7 +38,7 @@ def init():
     Must be done externally, because of circular import from
     components.
     """
-    for name in ['general', 'contest']:
+    for name in ['general', 'evc']:
         module_prefix = 'publicprize.' + name + '.'
         importlib.import_module(module_prefix + _MODEL_MODULE)
         importlib.import_module(module_prefix + _TASK_MODULE)

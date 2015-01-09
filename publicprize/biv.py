@@ -151,8 +151,8 @@ def register_marker(biv_marker, cls):
     """Registers a marker in a global table for a model, which can
     load_biv_obj"""
     biv_marker = Marker(biv_marker)
-    assert ppi.class_has_method(cls, 'load_biv_obj'), str(cls) \
-        + ': missing method'
+    assert ppi.class_has_classmethod(cls, 'load_biv_obj'), str(cls) \
+        + ': missing load_biv_obj method'
     assert biv_marker not in _marker_to_class, str(biv_marker) + ': exists'
     _marker_to_class[biv_marker] = cls
     return Marker(biv_marker)

@@ -5,13 +5,13 @@
     :license: Apache, see LICENSE for more details.
 """
 
-import flask
-from publicprize import controller
-import publicprize.auth.model as pam
-import publicprize.contest.model
-import publicprize.general.oauth as oauth
 import werkzeug
+import flask
 
+from . import oauth
+from .. import controller
+from ..auth import model as pam
+from ..evc import model as pcm
 
 class General(controller.Task):
     """Global tasks"""
@@ -19,7 +19,7 @@ class General(controller.Task):
         """Site index"""
         return flask.render_template(
             "general/index.html",
-            contests=publicprize.contest.model.Contest.query.all(),
+            contests=pcm.Contest.query.all(),
         )
 
     def action_facebook_login(biv_obj):

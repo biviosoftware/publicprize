@@ -83,9 +83,9 @@ class Contestant(flask_wtf.Form):
                     'Thank you for submitting your entry. You will be '
                     'contacted by email when your entry has been reviewed.')
                 return flask.redirect(contest.format_uri('contestants'))
-        return flask.render_template(
-            'contest/submit.html',
-            contest=contest,
+        return contest.task_class.render_template(
+            contest,
+            'submit',
             form=self,
             selected='submit-contestant'
         )
@@ -284,10 +284,11 @@ class Donate(flask_wtf.Form):
             url = self._paypal_payment(contestant)
             if url:
                 return flask.redirect(url)
-        return flask.render_template(
-            'contest/detail.html',
+        contest = contestant.get_contest()
+        return contest.task_class.render_template(
+            contest,
+            'detail',
             contestant=contestant,
-            contest=contestant.get_contest(),
             contestant_url=contestant.format_absolute_uri(),
             contestant_tweet="Help us win! " + contestant.display_name,
             form=self,
@@ -493,19 +494,21 @@ class Judgement(flask_wtf.Form):
 
     def execute(self, contestant):
         """Saves scores for questions."""
+        contest = contestant.get_contest()
         if self.is_submitted():
             if self.validate():
                 self._save_scores(contestant)
                 flask.flash('Thank you for scoring contestant {}.'.format(
                     contestant.display_name))
                 return flask.redirect(
-                    contestant.get_contest().format_uri('judging'))
+                    contest.format_uri('judging'))
         else:
             self._load_scores(contestant)
-        return flask.render_template(
-            'contest/judge-contestant.html',
+        return contest.task_class.render_template(
+            contest,
+            'judge-contestant',
+            sub_base_template=contest.task_class.base_template('detail'),
             contestant=contestant,
-            contest=contestant.get_contest(),
             form=self
         )
 
@@ -593,11 +596,11 @@ class Nomination(flask_wtf.Form):
                 # TODO(mda): Build the thank you page (currently I'm only
                 # flashing a thank-you message on the contestants page
                 return flask.redirect(contest.format_uri('thank-you-page'))
-        return flask.render_template(
-            'contest/nominate-website.html',
+        return contest.task_class.render_template(
+            contest,
+            'nominate-website',
             form=self,
-            selected='website-url',
-            contest=contest,
+            selected='website-url'
         )
 
     def _update_models(self, contest):
