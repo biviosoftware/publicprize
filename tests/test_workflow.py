@@ -113,10 +113,27 @@ class ParseData(object):
         return data
 
 
+class FlaskTestClientProxy(object):
+    """proxy class to set browser environment variables for testing.
+
+    Courtesy of stackoverflow answer at:
+    http://stackoverflow.com/questions/15278285/setting-mocking-request-headers-for-flask-app-unit-test
+    """
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        environ['REMOTE_ADDR'] = environ.get('REMOTE_ADDR', '127.0.0.1')
+        environ['HTTP_USER_AGENT'] = environ.get('HTTP_USER_AGENT', 'Chrome')
+        return self.app(environ, start_response)
+
+
 class PublicPrizeTestCase(unittest.TestCase):
     def setUp(self):
         publicprize.controller.init()
-        self.client = publicprize.controller.app().test_client()
+        app = publicprize.controller.app()
+        app.wsgi_app = FlaskTestClientProxy(app.wsgi_app)
+        self.client = app.test_client()
         self.current_page = None
 
     def tearDown(self):
