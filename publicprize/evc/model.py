@@ -541,7 +541,7 @@ class Nominee(db.Model, common.ModelWithDates):
     """
     biv_id = db.Column(
         db.Numeric(18),
-        db.Sequence('contestant_s', start=1009, increment=1000),
+        db.Sequence('nominee_s', start=1011, increment=1000),
         primary_key=True
     )
     #TODO(mda): determine if a display_name is necessary, then add it if so
@@ -561,7 +561,7 @@ class Nomination(db.Model, common.ModelWithDates):
     """
     biv_id = db.Column(
         db.Numeric(18),
-        db.Sequence('contestant_s', start=1010, increment=1000),
+        db.Sequence('nomination_s', start=1012, increment=1000),
         primary_key=True
     )
     nominee = db.Column(
@@ -574,10 +574,11 @@ class Nomination(db.Model, common.ModelWithDates):
     browser_string = db.Column(db.String(200))
 
 
-
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
 Contestant.BIV_MARKER = biv.register_marker(3, Contestant)
 Donor.BIV_MARKER = biv.register_marker(7, Donor)
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
 Sponsor.BIV_MARKER = biv.register_marker(8, Sponsor)
 Judge.BIV_MARKER = biv.register_marker(9, Sponsor)
+Nominee.BIV_MARKER = biv.register_marker(11, Nominee)
+Nomination.BIV_MARKER = biv.register_marker(12, Nomination)
