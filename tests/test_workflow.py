@@ -13,7 +13,12 @@ import publicprize.controller
 import itertools
 import decimal
 
+import publicprize.controller as ppc
+from publicprize.evc import model as pcm
+
 import workflow_data as wd
+
+
 
 class ParseData(object):
     """ Takes in a data set of the form:
@@ -127,6 +132,32 @@ class FlaskTestClientProxy(object):
         environ['REMOTE_ADDR'] = environ.get('REMOTE_ADDR', '127.0.0.1')
         environ['HTTP_USER_AGENT'] = environ.get('HTTP_USER_AGENT', 'Chrome')
         return self.app(environ, start_response)
+
+
+class DbCheck(object):
+    ''' Helper to construct questions for the database '''
+    # refactor warning: db_item used in eval's.
+    def exists(self, db_item, **filters):
+        filters_str = self._construct_filters_str(**filters)
+        query_object = self._filter(db_item, filters_str)
+        item_is_present = ppc.db.session.query(query_object.exists()).scalar()
+        return item_is_present
+
+    def count(self, db_item, **filters):
+        filters_str = self._construct_filters_str(**filters)
+        query_object = self._filter(db_item, filters_str)
+        return query_object.count()
+
+    def _construct_filters_str(self, **filters):
+        filters_str = ''
+        for test, val in filters.items():
+            if type(val) == str:  # keep strings, strings
+                val = "'{}'".format(val)
+            filters_str += 'db_item.{} == {}, '.format(test, val)
+        return filters_str
+
+    def _filter(self, db_item, filters_str):
+        return eval('db_item.query.filter({})'.format(filters_str))
 
 
 class PublicPrizeTestCase(unittest.TestCase):
