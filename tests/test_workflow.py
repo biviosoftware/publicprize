@@ -10,7 +10,6 @@ import random
 import re
 import unittest
 import publicprize.controller
-import itertools
 import decimal
 
 import publicprize.controller as ppc
