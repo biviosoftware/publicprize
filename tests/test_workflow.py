@@ -34,7 +34,7 @@ class ParseData(object):
         """ good_data and bad_data should be lists of lists of data, containing
         at least one item each """
         assert len(data) > 0
-        for key, item in data.items():
+        for _, item in data.items():
             assert item.__contains__('conf'), 'item: {0}'.format(item)
             if item['conf'] is not None:
                 assert len(item['conf']) > 0
@@ -71,7 +71,7 @@ class ParseData(object):
 
         # main loop
         done = False
-        while done is False:
+        while not done:
             done = True
             for key, item in self.data.items():
                 if item[data_subtype] is None:
