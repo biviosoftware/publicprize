@@ -6,14 +6,16 @@
 """
 
 import numconv
-import publicprize.inspect as ppi
 import werkzeug.exceptions
+
+from . import inspect as ppi
 
 URI_FOR_GENERAL_TASKS = 'pub'
 URI_FOR_NONE = 'index'
 URI_FOR_ERROR = 'error'
 URI_FOR_STATIC_FILES = 'static'
 
+MARKER_MODULUS = 1000
 
 class Id(int):
     """Represents a biv_id"""
@@ -24,16 +26,16 @@ class Id(int):
         if isinstance(biv_id_or_marker, Marker):
             assert isinstance(biv_index, Index), repr(biv_index) \
                 + ': not Index'
-            bi = biv_index * _MARKER_MODULUS + biv_id_or_marker
+            bi = biv_index * MARKER_MODULUS + biv_id_or_marker
             self = super().__new__(cls, bi)
             self.__marker = biv_id_or_marker
             self.__index = biv_index
         else:
             bi = int(biv_id_or_marker)
-            assert _MARKER_MODULUS < bi <= _MAX_ID, str(bi) + ': range'
+            assert MARKER_MODULUS < bi <= _MAX_ID, str(bi) + ': range'
             self = super().__new__(cls, bi)
-            self.__marker = Marker(bi % _MARKER_MODULUS)
-            self.__index = Index(bi // _MARKER_MODULUS)
+            self.__marker = Marker(bi % MARKER_MODULUS)
+            self.__index = Index(bi // MARKER_MODULUS)
         return self
 
     @property
@@ -79,7 +81,6 @@ class Marker(int):
     def to_biv_id(self, biv_index):
         "Convert an index value to a biv_id"
         return Id(self, Index(biv_index))
-
 
 class URI(str):
     """Parses and stores an encoded biv_uri or an alias"""
@@ -160,11 +161,10 @@ def register_marker(biv_marker, cls):
 _CONV = numconv.NumConv(radix=62, alphabet=numconv.BASE62)
 _ENC_PREFIX = '_'
 _IDEMPOTENT_URI = None
-_MARKER_MODULUS = 1000
 _MAX_ID = int(1e18) - 1
-_MAX_INDEX = _MAX_ID // _MARKER_MODULUS
+_MAX_INDEX = _MAX_ID // MARKER_MODULUS
 # We reserve 900 and above for versioning and growth
-_MAX_MARKER = _MARKER_MODULUS - 101
+_MAX_MARKER = MARKER_MODULUS - 101
 _MARKER_ENC_LEN = len(_CONV.int2str(_MAX_MARKER))
 _marker_to_class = {}
 _alias_to_id = {}

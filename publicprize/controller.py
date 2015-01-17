@@ -6,26 +6,28 @@ Also contains superclasses for Task and Model.
     :license: Apache, see LICENSE for more details.
 """
 
-from publicprize import biv
-import publicprize.config
-from beaker.middleware import SessionMiddleware
-import flask
-from functools import wraps
-import flask_mail
-import flask_mobility
-from flask_sqlalchemy import SQLAlchemy
-import flask.sessions
 import importlib
 import inspect
 import locale
 import os
 import re
 import sys
+
+from beaker.middleware import SessionMiddleware
+from flask_sqlalchemy import SQLAlchemy
+from functools import wraps
+import flask
+import flask.sessions
+import flask_mail
+import flask_mobility
 import urllib.parse
 import werkzeug.exceptions
 
-db = None
+from . import biv
+from . import config
+from . import debug
 
+db = None
 
 def app():
     """Singleton app instance"""
@@ -92,6 +94,10 @@ class Model(object):
         assert inspect.isclass(self.__default_task_class)
         return self.__default_task_class
 
+    def assert_action_uri(self, action_uri):
+        """Verify action_uri is a valid action on self"""
+        _action_uri_to_function(action_uri, self)
+
     def format_absolute_uri(self, action=None):
         """Create an absolute URI for a model action."""
         return flask.url_for(
@@ -103,17 +109,17 @@ class Model(object):
                 else 'https')
         )
 
-    def format_uri(self, action=None, path_info=None, query=None,
+    def format_uri(self, action_uri=None, path_info=None, query=None,
                    preserve_next=False, next=None):
         """Creates a URI for this biv_obj appending action and path_info"""
         biv_id = biv.Id(self.biv_id)
         uri = '/' + biv_id.to_biv_uri()
-        if action is not None:
-            _action_uri_to_function(action, self)
-            uri += '/' + action
+        if action_uri is not None:
+            self.assert_action_uri(action_uri)
+            uri += '/' + action_uri
         if path_info is not None:
-            assert action is not None, path_info \
-                + ': path_info requires an action'
+            assert action_uri is not None, path_info \
+                + ': path_info requires an action_uri'
             uri += '/' + path_info
         # TODO(pjm): 'next' handling needs to be refactored
         if preserve_next:
@@ -171,7 +177,8 @@ _TASK_MODULE = 'task'
 _MODEL_MODULE = 'model'
 _MODEL_MODULE_RE = r'(?<=\.)' + _MODEL_MODULE + r'$'
 _app = flask.Flask(__name__, template_folder='.')
-_app.config.from_object(publicprize.config.Config)
+_app.config.from_object(config.Config)
+debug.init(_app)
 BeakerSession(_app)
 _mail = flask_mail.Mail(_app)
 flask_mobility.Mobility(_app)

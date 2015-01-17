@@ -131,6 +131,23 @@ class Contest(ppc.Task):
     def get_template():
         return _template;
 
+    def render_template(biv_obj, name, **kwargs):
+        """Render the page, putting the selected menu and contest in env"""
+        if 'selected_menu_action' not in kwargs:
+            kwargs['selected_menu_action'] = name
+        if kwargs['selected_menu_action']:
+            biv_obj.assert_action_uri(kwargs['selected_menu_action'])
+        return flask.render_template(
+            _template_name(name),
+            contest=biv_obj,
+            base_template=Contest.base_template('contest'),
+            **kwargs
+        )
+
+    def base_template(name):
+        """Get base defaults to contest"""
+        return ppc.app().jinja_env.get_template(_template_dir + '/' + name + '.html')
+
 
 class Contestant(ppc.Task):
     """Contestant actions"""

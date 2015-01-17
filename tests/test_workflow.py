@@ -5,14 +5,15 @@
     :license: Apache, see LICENSE for more details.
 """
 
-from bs4 import BeautifulSoup
+import decimal
+import itertools
 import random
 import re
 import unittest
-import publicprize.controller
-import itertools
-import decimal
 
+from bs4 import BeautifulSoup
+
+import publicprize.controller
 import workflow_data as wd
 
 class ParseData(object):
@@ -31,10 +32,10 @@ class ParseData(object):
         at least one item each """
         assert len(data) > 0
         for key, item in data.items():
-            assert item.__contains__('conf'), 'item: {0}'.format(item)
+            assert 'conf' in item, 'item: {0}'.format(item)
             if item['conf'] is not None:
                 assert len(item['conf']) > 0
-            assert item.__contains__('dev'), 'item: {0}'.format(item)
+            assert 'dev' in item, 'item: {0}'.format(item)
             if item['dev'] is not None:
                 assert len(item['dev']) > 0
         self.data = data
@@ -199,22 +200,26 @@ class PublicPrizeTestCase(unittest.TestCase):
             self._verify_text('Thank you for submitting your entry')
             self._verify_text(display_name)
             self._follow_link(display_name)
-            dont_verify = {'youtube_url',
-                           'slideshow_url',
-                           'website',
-                           'tax_id',
-                           'business_phone',
-                           'business_address',
-                           'agree_to_terms'}
+            dont_verify = [
+                'youtube_url',
+                'slideshow_url',
+                'website',
+                'tax_id',
+                'business_phone',
+                'business_address',
+                'agree_to_terms']
             for data_item in data_variation:
-                if dont_verify.__contains__(data_item):
-                    pass
-                else:
-                    print("verifying string for {0} contents:\n"
-                          "{1}\n...".format(data_item,
-                                            data_variation[data_item]))
-                    self._verify_text(data_variation[data_item]),\
-                        "Error: string for {} contents:\n{}\n not verified".format(data_item, data_variation[data_item])
+                if not data_item in dont_verify:
+                    print(
+                        "verifying string for {0} contents:\n"
+                        + "{1}\n...".format(
+                            data_item,
+                            data_variation[data_item]))
+                    self._verify_text(
+                        data_variation[data_item],
+                        'item={} variation={}: data_item not found'.format(
+                            data_item,
+                            data_variation[data_item]))
                     print("verified")
 
     def test_dev_submit_entries(self):
@@ -449,6 +454,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._visit_uri(url)
 
     def _set_current_page(self, response):
+        self.current_response = response
         self.current_page = BeautifulSoup(response.data)
 
     def _submit_form(self, data):
@@ -462,8 +468,13 @@ class PublicPrizeTestCase(unittest.TestCase):
             follow_redirects=True))
         self.current_uri = url
 
-    def _verify_text(self, text, errorstring=""):
-        assert self.current_page.find(text=re.compile(re.escape(text))), errorstring
+    def _verify_text(self, text, msg=""):
+        if not self.current_page.find(text=re.compile(re.escape(text))):
+            if not msg:
+                msg = text + ': text not found in '
+            print(msg)
+            print(str(self.current_response))
+            raise AssertionError(msg)
 
     def _visit_uri(self, uri):
         assert uri
