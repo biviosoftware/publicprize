@@ -7,6 +7,7 @@
 
 import decimal
 import itertools
+import os.path
 import random
 import re
 import unittest

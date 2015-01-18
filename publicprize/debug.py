@@ -89,30 +89,30 @@ class RequestLogger(object):
 
 class _Response(object):
     def __init__(self, logger, response):
-        self.response = response
-        self.handle = None
-        self.logger = logger
+        self._response = response
+        self._handle = None
+        self._logger = logger
 
     def close(self):
-        if self.handle:
-            self.handle.close()
-        if hasattr(self.response, "close"):
-            self.response.close()
+        if self._handle:
+            self._handle.close()
+        if hasattr(self._response, "close"):
+            self._response.close()
 
     def __iter__(self):
-        self.response_iter = self.response.__iter__()
+        self._response_iter = self._response.__iter__()
         try:
-            self.handle = self.logger._open('response_data')
+            self._handle = self._logger._open('response_data')
         except:
-            self._app.logger.warn("unable to open response_data:" + logger._index)
+            self._logger._app.logger.warn("unable to open:" + self._logger.last_file_name())
         return self
 
     def __next__(self):
-        data = self.response_iter.__next__()
+        data = self._response_iter.__next__()
         if data:
             try:
-                if self.handle:
-                    self.handle.write(data)
+                if self._handle:
+                    self._handle.write(data)
             except:
-                self._app.logger.warn("unable to write response_data:" + logger._index)
+                self._logger._app.logger.warn("unable to write:" + self._logger.last_file_name())
         return data
