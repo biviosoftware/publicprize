@@ -141,6 +141,11 @@ class PublicPrizeTestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def setup_method(self, method):
+        publicprize.controller.request_logger.set_log_dir(
+            os.path.join('test_workflow', method.__name__)
+        )
+
     def test_contribution(self):
         self._visit_uri('/')
         self._follow_link('Esprit Venture Challenge')

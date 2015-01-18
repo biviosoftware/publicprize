@@ -28,6 +28,7 @@ from . import config
 from . import debug
 
 db = None
+request_logger = None
 
 def app():
     """Singleton app instance"""
@@ -72,71 +73,6 @@ class Task(object):
 
     def __init__(self):
         pass
-
-
-class Model(object):
-    """Provides biv support for Models"""
-
-    @classmethod
-    def load_biv_obj(cls, biv_id):
-        """Load a biv from the db"""
-        return cls.query.filter_by(biv_id=biv_id).first_or_404()
-
-    @property
-    def task_class(self):
-        """Corresponding Task class for this Model"""
-        if hasattr(self, '__default_task_class'):
-            return self.__default_task_class
-        module_name = self.__module__
-        module = sys.modules[
-            re.sub(_MODEL_MODULE_RE, _TASK_MODULE, module_name)]
-        self.__default_task_class = getattr(module, self.__class__.__name__)
-        assert inspect.isclass(self.__default_task_class)
-        return self.__default_task_class
-
-    def assert_action_uri(self, action_uri):
-        """Verify action_uri is a valid action on self"""
-        _action_uri_to_function(action_uri, self)
-
-    def format_absolute_uri(self, action=None):
-        """Create an absolute URI for a model action."""
-        return flask.url_for(
-            '_route',
-            path=self.format_uri(action),
-            _external=True,
-            _scheme=(
-                'http' if app().config['PUBLICPRIZE']['TEST_MODE']
-                else 'https')
-        )
-
-    def format_uri(self, action_uri=None, path_info=None, query=None,
-                   preserve_next=False, next=None):
-        """Creates a URI for this biv_obj appending action and path_info"""
-        biv_id = biv.Id(self.biv_id)
-        uri = '/' + biv_id.to_biv_uri()
-        if action_uri is not None:
-            self.assert_action_uri(action_uri)
-            uri += '/' + action_uri
-        if path_info is not None:
-            assert action_uri is not None, path_info \
-                + ': path_info requires an action_uri'
-            uri += '/' + path_info
-        # TODO(pjm): 'next' handling needs to be refactored
-        if preserve_next:
-            if not query:
-                query = {}
-            if 'next' in flask.request.args:
-                query['next'] = flask.request.args['next']
-            else:
-                query['next'] = '/'
-        elif next:
-            if not query:
-                query = {}
-            query['next'] = next
-        if query:
-            uri += '?' + urllib.parse.urlencode(query)
-        return uri
-
 
 class BeakerSession(flask.sessions.SessionInterface):
     """Session management replacement for standard flask session.
@@ -190,9 +126,10 @@ def _action_uri_to_function(name, biv_obj):
     name = re.sub(r'\W', '_', name)
     name = _ACTION_METHOD_PREFIX + name
     if not hasattr(biv_obj.task_class, name):
+        app().logger.warn(name + ': does not exist in ' + repr(biv_obj))
         werkzeug.exceptions.abort(404)
     func = getattr(biv_obj.task_class, name)
-    assert inspect.isfunction(func), name + ': no action for ' + biv_obj.biv_id
+    assert inspect.isfunction(func), name + ': action not a function in ' + biv_obj
     return func
 
 
@@ -225,6 +162,10 @@ def _route(path):
     """Routes the uri to the appropriate biv_obj"""
     biv_obj, action, path_info = _parse_path(path)
     _register_globals()
+    flask.request.pp_request = {
+        'biv_obj': biv_obj,
+        'action': action,
+        'path_info': path_info}
     return _dispatch_action(action, biv_obj)
 
 

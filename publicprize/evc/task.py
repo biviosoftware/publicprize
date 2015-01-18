@@ -134,7 +134,7 @@ class Contest(ppc.Task):
     def render_template(biv_obj, name, **kwargs):
         """Render the page, putting the selected menu and contest in env"""
         if 'selected_menu_action' not in kwargs:
-            kwargs['selected_menu_action'] = name
+            kwargs['selected_menu_action'] = flask.request.pp_request['action'] or ''
         if kwargs['selected_menu_action']:
             biv_obj.assert_action_uri(kwargs['selected_menu_action'])
         return flask.render_template(

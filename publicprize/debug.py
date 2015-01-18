@@ -8,16 +8,66 @@
 import os
 import os.path
 import shutil
-import sys
+
+_BASE_DIR = 'debug'
+_BASE_NAME = '{:08d}-{}'
 
 class RequestLogger(object):
-    """Log all requests and responses if in test mode"""
+    """Log all requests and responses to files (in test mode only)"""
     
     def __init__(self, _app):
         """If in test mode, create the log dir and then set _app.wsgi_app to self"""
         if not _app.config['PUBLICPRIZE']['TEST_MODE']:
             return
-        d = os.path.abspath('debug')
+        self._app = _app
+        self._wsgi_app = _app.wsgi_app
+        self._root_dir = os.getcwd()
+        self._root_dir = self.set_log_dir(_BASE_DIR)
+        if self._root_dir:
+            # Only register if was able to create directory
+            _app.wsgi_app = self
+
+    def __call__(self, environ, start_response):
+        """Catch request and pass it on"""
+        self.log(str(environ), 'environ')
+
+        def _start_response(status, response_headers, exc_info=None):
+            """Return _write"""
+            self.log(str(status), 'status')
+            self.log(str(response_headers), 'response_headers')
+            if exc_info is not None:
+                self.log(str(exc_info), 'exc_info')
+            start_response(status, response_headers, exc_info)
+
+        return _Response(
+            self,
+            self._wsgi_app(environ, _start_response))
+
+    def last_file_name(self):
+        """Last file name written by logger"""
+        return self._last_file_name
+
+    def log(self, data, suffix):
+        """Write data to a log file, ignoring any errors"""
+        try:
+            with self._open(suffix) as f:
+                f.write(data)
+        except:
+            self._app.logger.warn("unable log " + suffix + ":" + logger._index)
+
+    def set_log_dir(self, relpath):
+        """Set the log diretory to relpath (relative to root_dir), resets the index"""
+        d = self._mkdir(relpath)
+        if d:
+            self._curr_dir = d
+            self._index = 0
+        return d
+        
+        
+    def _mkdir(self, relpath):
+        rp = os.path.normpath(relpath)
+        assert not rp.startswith('.')
+        d = os.path.join(self._root_dir, rp)
         try:
             try:
                 shutil.rmtree(d, ignore_errors=True)
@@ -25,40 +75,17 @@ class RequestLogger(object):
                 pass
             os.makedirs(d)
         except:
-            sys.stderr.write(d + ': cannot create log directory\n')
-            return
-        self._wsgi_app = _app.wsgi_app
-        self._index = 0
-        self._file = os.path.join(d, '{:08d}-{}')
-        _app.wsgi_app = self
-
-    def __call__(self, environ, start_response):
-        """Catch request and pass it on"""
-        self._log(str(environ), 'environ')
-
-        def _start_response(status, response_headers, exc_info=None):
-            """Return _write"""
-            self._log(str(status), 'status')
-            self._log(str(response_headers), 'response_headers')
-            if exc_info is not None:
-                self._log(str(exc_info), 'exc_info')
-            start_response(status, response_headers, exc_info)
-
-        return _Response(
-            self,
-            self._wsgi_app(environ, _start_response))
+            self._app.logger.warn(d + ': cannot create log directory')
+            return None
+        return d
 
     def _open(self, suffix):
         self._index += 1;
-        return open(self._file.format(self._index, suffix), 'w')
-
-    def _log(self, data, suffix):
-        """Write data to a log file, ignoring any errors"""
-        try:
-            with self._open(suffix) as f:
-                f.write(data)
-        except:
-            sys.stderr.write("unable log " + suffix + ":" + logger._index)
+        fn = os.path.join(
+            self._curr_dir,
+            _BASE_NAME.format(self._index, suffix))
+        self._last_file_name = fn
+        return open(self._last_file_name, 'w')
 
 class _Response(object):
     def __init__(self, logger, response):
@@ -77,7 +104,7 @@ class _Response(object):
         try:
             self.handle = self.logger._open('response_data')
         except:
-            sys.stderr.write("unable to open response_data:" + logger._index)
+            self._app.logger.warn("unable to open response_data:" + logger._index)
         return self
 
     def __next__(self):
@@ -85,7 +112,7 @@ class _Response(object):
         if data:
             try:
                 if self.handle:
-                    self.handle.write(str(data))
+                    self.handle.write(data)
             except:
-                sys.stderr.write("unable to write response_data:" + logger._index)
+                self._app.logger.warn("unable to write response_data:" + logger._index)
         return data
