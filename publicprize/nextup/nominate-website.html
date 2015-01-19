@@ -1,0 +1,34 @@
+{% extends base_template %}
+{%- import "layout/macros.html" as macros %}
+
+{%- block subtitle %}Nominate Website{% endblock %}
+
+{%- block contest_content %}
+  <div class="pp-form">
+    <form method="POST" action="{{ contest.format_uri('nominate-website') }}">
+      <h1>Nominate A Website</h1>
+      {{- macros.form_field(form.website) }}
+      {{- macros.submit_button('Submit Entry') }}
+    </form>
+  </div>
+  {% endblock %}
+
+{%- block scripts %}
+  {{- super() }}
+  <script>
+
+$(window).load(function() {
+  $(".pp-link-slider").click(function() {
+    if ($(window).scrollTop() > 0)
+      return true;
+    var href = this.href;
+    $(".pp-header-slider").slideUp(function() {
+      window.location = href;
+    });
+    return false;
+  });
+  $(".pp-header-slider").slideDown();
+});
+
+  </script>
+{%- endblock %}
