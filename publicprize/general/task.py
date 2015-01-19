@@ -11,7 +11,8 @@ import flask
 from . import oauth
 from .. import controller
 from ..auth import model as pam
-from ..evc import model as pcm
+from ..evc import model as pem
+from ..nextup import model as pnm
 
 class General(controller.Task):
     """Global tasks"""
@@ -19,7 +20,8 @@ class General(controller.Task):
         """Site index"""
         return flask.render_template(
             "general/index.html",
-            contests=pcm.Contest.query.all(),
+            evc_contests=pem.Contest.query.all(),
+            nextup_contests=pnm.NUContest.query.all(),
         )
 
     def action_facebook_login(biv_obj):
