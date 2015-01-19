@@ -396,9 +396,9 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text(name)
 
     def test_submit_website_conf_entries(self):
-        CONTEST_NAME = 'Esprit Venture Challenge'
+        CONTEST_NAME = 'Next Up'
         self._visit_uri('/')
-        self._follow_link('Esprit Venture Challenge')
+        self._follow_link(CONTEST_NAME)
         conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
         #TODO(mda): the current_uri tracking doesn't notice redirects
         nominate_website_uri = self.current_uri + '/nominate-website'
@@ -420,7 +420,7 @@ class PublicPrizeTestCase(unittest.TestCase):
 
     def test_submit_website_dev_entries(self):
         self._visit_uri('/')
-        self._follow_link('Esprit Venture Challenge')
+        self._follow_link('Next Up')
         self._visit_uri(self.current_uri + '/nominate-website')
         dev_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
         for data_variation in dev_websites_gen:
