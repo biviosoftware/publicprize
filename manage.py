@@ -15,8 +15,9 @@ import json
 import locale
 import os
 import publicprize.auth.model as pam
-import publicprize.evc.model as pcm
+import publicprize.evc.model as pem
 import publicprize.controller as ppc
+import publicprize.nextup.model as pnm
 import re
 import subprocess
 import urllib.request
@@ -74,9 +75,9 @@ def add_admin(user):
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 def add_judge(contest, user):
     """Link the User model to a Judge model."""
-    contest_model = pcm.Contest().query.filter_by(biv_id=contest).one()
+    contest_model = pem.Contest().query.filter_by(biv_id=contest).one()
     user_model = _lookup_user(user)
-    judge = pcm.Judge.query.select_from(pam.BivAccess).filter(
+    judge = pem.Judge.query.select_from(pam.BivAccess).filter(
         pam.BivAccess.source_biv_id == user_model.biv_id,
     ).first()
     judge_id = None
@@ -84,7 +85,7 @@ def add_judge(contest, user):
     if judge:
         judge_id = judge.biv_id
     else:
-        judge_id = _add_model(pcm.Judge())
+        judge_id = _add_model(pem.Judge())
         _add_owner(user_model.biv_id, judge_id)
     _add_owner(contest_model.biv_id, judge_id)
 
@@ -96,7 +97,7 @@ def add_judge(contest, user):
 def add_sponsor(contest, name, website, input_file):
     """Create a sponsor to the contest."""
     logo = _read_image_from_file(input_file)
-    sponsor_id = _add_model(pcm.Sponsor(
+    sponsor_id = _add_model(pem.Sponsor(
         display_name=name,
         website=website,
         sponsor_logo=logo,
@@ -206,9 +207,9 @@ def replace_founder_avatar(user, input_file):
     elif re.search(r'^\d+$', user):
         if pam.User.query.filter_by(biv_id=user).first():
             users = [pam.User.query.filter_by(biv_id=user).one()]
-        elif pcm.Founder.query.filter_by(biv_id=user).first():
+        elif pem.Founder.query.filter_by(biv_id=user).first():
             _update_founder_avatar(
-                pcm.Founder.query.filter_by(biv_id=user).one(),
+                pem.Founder.query.filter_by(biv_id=user).one(),
                 image
             )
             return
@@ -242,7 +243,7 @@ def _add_owner(parent_id, child_id):
 
 def _create_contest(contest):
     """Creates a SQLAlchemy model Contest with optional logo file"""
-    model = pcm.Contest(
+    model = pem.Contest(
         display_name=contest['display_name'],
         tag_line=contest['tag_line'],
         end_date=datetime.datetime.strptime(
@@ -277,7 +278,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
             break
 
         for contestant in contest['Contestant']:
-            contestant_id = _add_model(pcm.Contestant(
+            contestant_id = _add_model(pem.Contestant(
                 # TODO(pjm): there must be a way to do this in a map()
                 display_name=contestant['display_name'],
                 youtube_code=contestant['youtube_code'],
@@ -294,19 +295,25 @@ def _create_database(is_production=False, is_prompt_forced=False):
                 _add_owner(contestant_id, founder_id)
 
             for donor in contestant['Donor']:
-                donor_id = _add_model(pcm.Donor(
+                donor_id = _add_model(pem.Donor(
                     amount=donor['amount'],
                     donor_state='executed'
                 ))
                 _add_owner(contestant_id, donor_id)
 
+    for nu_contest in data['NUContest']:
+        contest_id = _add_model(
+            pnm.NUContest(
+                display_name=nu_contest['display_name'])
+            )
+        
     db.session.commit()
 
 
 # TODO(pjm): normalize up binary fields, combine with _create_contest()
 def _create_founder(founder):
     """Creates a SQLAlchemy model Founder with optional avatar file"""
-    model = pcm.Founder(
+    model = pem.Founder(
         display_name=founder['display_name'],
         founder_desc=founder['founder_desc']
     )
@@ -319,14 +326,14 @@ def _create_founder(founder):
 
 def _founders_for_user(user, without_avatars=None):
     """Returns the Founder models associated with the User model."""
-    query = pcm.Founder.query.select_from(
+    query = pem.Founder.query.select_from(
         pam.BivAccess
     ).filter(
         pam.BivAccess.source_biv_id == user.biv_id,
-        pam.BivAccess.target_biv_id == pcm.Founder.biv_id,
+        pam.BivAccess.target_biv_id == pem.Founder.biv_id,
     )
     if without_avatars:
-        query = query.filter(pcm.Founder.founder_avatar == None)  # noqa
+        query = query.filter(pem.Founder.founder_avatar == None)  # noqa
     return query.all()
 
 
