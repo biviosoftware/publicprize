@@ -28,7 +28,6 @@ from . import config
 from . import debug
 
 db = None
-request_logger = None
 
 def app():
     """Singleton app instance"""

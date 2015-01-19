@@ -14,6 +14,8 @@ import unittest
 
 from bs4 import BeautifulSoup
 
+import publicprize.debug
+from publicprize.debug import pp_t
 import publicprize.controller
 import workflow_data as wd
 
@@ -143,7 +145,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         pass
 
     def setup_method(self, method):
-        publicprize.controller.request_logger.set_log_dir(
+        publicprize.debug.current_request_logger().set_log_dir(
             os.path.join('test_workflow', method.__name__)
         )
 
@@ -216,17 +218,16 @@ class PublicPrizeTestCase(unittest.TestCase):
                 'agree_to_terms']
             for data_item in data_variation:
                 if not data_item in dont_verify:
-                    print(
-                        "verifying string for {0} contents:\n"
-                        + "{1}\n...".format(
+                    pp_t(
+                        'verifying string for {0} contents:\n{1}\n...', [
                             data_item,
-                            data_variation[data_item]))
+                            data_variation[data_item]])
                     self._verify_text(
                         data_variation[data_item],
                         'item={} variation={}: data_item not found'.format(
                             data_item,
                             data_variation[data_item]))
-                    print("verified")
+                    pp_t('verified')
 
     def test_dev_submit_entries(self):
         """ Try a bunch of submissions with mostly good data, and a single
@@ -478,8 +479,8 @@ class PublicPrizeTestCase(unittest.TestCase):
         if not self.current_page.find(text=re.compile(re.escape(text))):
             if not msg:
                 msg = text + ': text not found in '
-            print(msg)
-            print(str(self.current_response))
+            pp_t(msg)
+            pp_t(str(self.current_page))
             raise AssertionError(msg)
 
     def _visit_uri(self, uri):

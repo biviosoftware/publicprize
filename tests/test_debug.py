@@ -5,12 +5,14 @@
     :license: Apache, see LICENSE for more details.
 """
 
+import inspect
 import os.path
 import pytest
 import re
 import shutil
 
 from publicprize import debug as ppd
+from publicprize.debug import pp_t
 
 _request_logger = None
 
@@ -78,3 +80,18 @@ def test_log():
     assert_file('00000003', 'response_headers')
     assert_file('new_dir/00000001', 'response_data')
     assert_file('new_dir/00000002', 'other')
+
+_last_msg = None
+class MockTrace(object):
+    def log(self, msg):
+        global _last_msg
+        _last_msg = msg
+
+def test_trace():
+    ppd._trace_printer = MockTrace()
+    def expect(msg):
+        return '{}:{} {}\n'.format(__file__, inspect.currentframe().f_back.f_lineno - 1, msg)
+    pp_t('hello')
+    assert expect('hello') == _last_msg 
+    pp_t('x{}x', ['y'])
+    assert expect('xyx') == _last_msg 

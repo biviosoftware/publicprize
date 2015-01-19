@@ -5,12 +5,47 @@
     :license: Apache, see LICENSE for more details.
 """
 
+import inspect
 import os
 import os.path
+import sys
 import shutil
 
 _BASE_DIR = 'debug'
 _BASE_NAME = '{:08d}-{}'
+
+_request_logger = None
+_trace_printer = None
+
+def current_request_logger():
+    """Last created request logger"""
+    return _current_request_logger
+
+def pp_t(fmt_or_msg, fmt_params=None):
+    """Print a message to trace log based on caller context"""
+    m = ''
+    cf = None
+    try:
+        cf = inspect.stack()[1]
+        m = '{}:{} '.format(cf[1], cf[2])
+    except:
+        pass
+    finally:
+        del cf
+    try:
+        msg = fmt_or_msg.format(*fmt_params) if fmt_params else fmt_or_msg
+        _trace_printer.log(m + msg + '\n')
+    except:
+        _trace_printer.log('format error: ' + m + fmt_or_msg + str(fmt_params))
+
+class TracePrinter(object):
+    """Prints message to sys.stderr. TODO: Use Logger interface"""
+    
+    def log(self, msg):
+        """Write a trace message. TODO: subject to change"""
+        sys.stderr.write(msg)
+
+_trace_printer = TracePrinter()
 
 class RequestLogger(object):
     """Log all requests and responses to files (in test mode only)"""
@@ -19,6 +54,8 @@ class RequestLogger(object):
         """If in test mode, create the log dir and then set _app.wsgi_app to self"""
         if not _app.config['PUBLICPRIZE']['TEST_MODE']:
             return
+        global _current_request_logger
+        _current_request_logger = None
         self._app = _app
         self._wsgi_app = _app.wsgi_app
         self._root_dir = os.getcwd()
@@ -26,6 +63,8 @@ class RequestLogger(object):
         if self._root_dir:
             # Only register if was able to create directory
             _app.wsgi_app = self
+            _current_request_logger = self
+            
 
     def __call__(self, environ, start_response):
         """Catch request and pass it on"""
@@ -74,8 +113,8 @@ class RequestLogger(object):
             except:
                 pass
             os.makedirs(d)
-        except:
-            self._app.logger.warn(d + ': cannot create log directory')
+        except IOError as e:
+            pp_d('{}: makedirs failed: {}', [d, e])
             return None
         return d
 
@@ -103,8 +142,8 @@ class _Response(object):
         self._response_iter = self._response.__iter__()
         try:
             self._handle = self._logger._open('response_data')
-        except:
-            self._logger._app.logger.warn("unable to open:" + self._logger.last_file_name())
+        except IOError as e:
+            pp_d('{}: open failed: {}', [self._logger.last_file_name(), e])
         return self
 
     def __next__(self):
@@ -112,7 +151,7 @@ class _Response(object):
         if data:
             try:
                 if self._handle:
-                    self._handle.write(data)
-            except:
-                self._logger._app.logger.warn("unable to write:" + self._logger.last_file_name())
+                    self._handle.write(str(data))
+            except IOError as e:
+                pp_d('{}: write failed: {}', self._logger.last_file_name(), e)
         return data
