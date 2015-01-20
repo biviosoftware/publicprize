@@ -146,6 +146,7 @@ class PublicPrizeTestCase(unittest.TestCase):
         pass
 
     def setup_method(self, method):
+        pp_t('here')
         publicprize.debug.get_request_logger().set_log_dir(
             os.path.join('test_workflow', method.__name__)
         )
@@ -467,9 +468,7 @@ class PublicPrizeTestCase(unittest.TestCase):
 
     def _submit_form(self, data):
         pp_t(self.current_page)
-        url = self.current_page.find('form')
-        # ['action']
-        pp_t(type(url))
+        url = self.current_page.find('form')['action']
         assert url
         # data['csrf_token'] = self.current_page.find(id='csrf_token')['value']
         # assert data['csrf_token']

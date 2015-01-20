@@ -46,6 +46,7 @@ class RequestLogger(object):
         assert _request_logger == None, 'RequestLogger already initialized'
         _request_logger = self
         if not _app.config['PUBLICPRIZE']['TEST_MODE']:
+            self._root_dir = None
             return
         self._wsgi_app = _app.wsgi_app
         self._root_dir = os.getcwd()
@@ -85,6 +86,8 @@ class RequestLogger(object):
 
     def set_log_dir(self, relpath):
         """Set the log diretory to relpath (relative to root_dir), resets the index"""
+        if not self._root_dir:
+            return None
         d = self._mkdir(relpath)
         if d:
             self._curr_dir = d
@@ -156,9 +159,7 @@ class TracePrinter(object):
         self._regex = None
         try:
             regex = _app.config['PUBLICPRIZE']['TRACE']
-            sys.stderr.write(str(regex) + '\n')
             self._regex = re.compile(regex, flags=re.IGNORECASE)
-            sys.stderr.write(str(self._regex) + '\n')
 
         except:
             pass
@@ -169,16 +170,13 @@ class TracePrinter(object):
         frame = None
         try:
             if not self._regex:
-                sys.stderr.write('no regex\n')
                 return
             frame = inspect.currentframe()
             if not frame:
                 #TODO: Could this test be static? only dependent on interpreter?
-                sys.stderr.write('no frame\n')
                 return
 
             frame = frame.f_back.f_back
-            sys.stderr.write(str(frame) +  '\n')
             filename = frame.f_code.co_filename.replace(_cwd, '.')
             line = frame.f_lineno
             name = frame.f_code.co_name
