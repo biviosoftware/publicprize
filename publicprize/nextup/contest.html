@@ -1,25 +1,48 @@
 {% extends 'layout/base.html' %}
 
+{%- block bootstrap_css %}
+  <link href="/static/css/bootstrap-nextup-3.3.2.min.css?20150120" rel="stylesheet">
+{%- endblock %}
+
 {%- block title %}
   {%- block subtitle %}{% endblock %} - {{ contest.display_name }}
+{%- endblock %}
+{%- block css %}
+  {{- super() }}
+  <link href="/static/css/nextup.css" rel="stylesheet">
 {%- endblock %}
 
 {%- block logged_in_nav %}
 {%- endblock %}
 
-{%- block navtitle %}
-  <span class="pp-nav-title hidden-xs">{{ contest.display_name }}</span>
-{%- endblock %}
-
-{%- block content %}
-  <span class="pp-nav-title-mobile visible-xs">{{ contest.display_name }}</span>
-  {%- block contest_header %}{% endblock %}
-  <div class="col-sm-12">
+{%- block jumbo_header %}
+  <div class="container">
+    <div class="row">
+      <div class="pp_nextup_logo">
+        <img src="/static/img/nextup-265x125.png" alt="Next Up">
+      </div>
+    </div>
   </div>
-  <div class="{% block contest_content_class %}col-sm-8{% endblock %}">
+{% endblock %}
+  
+{%- block content %}
+  {%- block contest_header %}{% endblock %}
+  <div class="{% block contest_content_class %}col-sm-offset-1 col-sm-6{% endblock %}">
     {%- block contest_content %}{% endblock %}
   </div>
   {%- block sponsor_list %}
-    sponsor list
+    <div class="col-sm-3 col-sm-offset-2 col-xs-12 pp-sidebar">
+      <h1>Sponsors</h1>
+      <div class="row">
+        {%- for sponsor in contest.get_sponsors(randomize=True) %}
+        <div class="col-sm-12 col-xs-6">
+          <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
+            <a href="{{ sponsor.website }}">
+              <img style="width: 100%" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
+          </div>
+        </div>
+        {%- endfor %}
+      </div>
+    </div>  
   {%- endblock %}
 {%- endblock %}

@@ -32,7 +32,7 @@ class Nomination(flask_wtf.Form):
     """
 
     website = wtforms.StringField(
-        'Website url', validators=[
+        'Website URL', validators=[
             wtfv.DataRequired(), wtfv.Length(max=200)])
 
     def execute(self, contest):

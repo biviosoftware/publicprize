@@ -316,9 +316,9 @@ JUDGING_FIELDS = {
 WEBSITE_SUBMISSION_FIELDS = {
     'websites': {
         'conf': [
-            'www.zombo.com',
-            'zombo.com',
-            'http://www.zombo.com',
+            'www.bivio.biz',
+            'bivio.biz',
+            'http://www.bivio.biz',
             'https://www.google.com',
         ],
         'dev': [

@@ -249,13 +249,3 @@ class Founder(ppc.Task):
             io.BytesIO(biv_obj.founder_avatar),
             'image/{}'.format(biv_obj.avatar_type)
         )
-
-
-class Sponsor(ppc.Task):
-    """Sponsor actions"""
-    def action_sponsor_logo(biv_obj):
-        """Sponsor logo image"""
-        return flask.send_file(
-            io.BytesIO(biv_obj.sponsor_logo),
-            'image/{}'.format(biv_obj.logo_type)
-        )
