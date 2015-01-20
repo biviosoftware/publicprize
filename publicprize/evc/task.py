@@ -15,11 +15,12 @@ import werkzeug.exceptions
 
 from . import form as pcf
 from . import model as pcm
+from .. import common
 from .. import controller as ppc
 from .. import inspect as ppi
 from ..auth import model as pam
 
-_template_dir = ppi.package_name_tail(__name__)
+_template = common.Template('evc');
 
 def user_is_admin(func):
     """Require the current user is an administrator."""
@@ -62,32 +63,21 @@ class Contest(ppc.Task):
     """Contest actions"""
     def action_about(biv_obj):
         """About page"""
-        return Contest.render_template(biv_obj, 'about')
+        return _template.render_template(biv_obj, 'about')
 
     @ppc.login_required
     @user_is_admin
     def action_admin(biv_obj):
         """Contest administration"""
-        return Contest.render_template(biv_obj, 'admin')
+        return _template.render_template(biv_obj, 'admin')
 
     def action_contestants(biv_obj):
         """Public contestant list"""
-        return Contest.render_template(
+        return _template.render_template(
             biv_obj,
             'contestants',
             contest_url=biv_obj.format_absolute_uri(),
         )
-
-    def action_contestants_new(biv_obj):
-        return Contest.render_template(biv_obj, 'contestants-new')
-
-    def action_nominate_website(biv_obj):
-        """Page where users can nominate websites to be submitted"""
-        return pcf.Nomination().execute(biv_obj)
-
-    def action_submitted_websites(biv_obj):
-        """Public list of nominated websites"""
-        return Contest.render_template(biv_obj, 'submitted-websites')
 
     def action_index(biv_obj):
         """Default to contestant list"""
@@ -95,13 +85,13 @@ class Contest(ppc.Task):
 
     def action_judges(biv_obj):
         """List of judges page"""
-        return Contest.render_template(biv_obj, 'judges')
+        return _template.render_template(biv_obj, 'judges')
 
     @ppc.login_required
     @user_is_judge
     def action_judging(biv_obj):
         """List of contestants for judgement"""
-        return Contest.render_template(
+        return _template.render_template(
             biv_obj,
             'judging',
         )
@@ -138,13 +128,18 @@ class Contest(ppc.Task):
         """Submit project page"""
         return pcf.Contestant().execute(biv_obj)
 
+    def get_template():
+        return _template;
+
     def render_template(biv_obj, name, **kwargs):
         """Render the page, putting the selected menu and contest in env"""
-        if 'selected' not in kwargs:
-            kwargs['selected'] = name
+        if 'selected_menu_action' not in kwargs:
+            kwargs['selected_menu_action'] = flask.request.pp_request['action'] or ''
+        if kwargs['selected_menu_action']:
+            biv_obj.assert_action_uri(kwargs['selected_menu_action'])
         return flask.render_template(
             _template_name(name),
-            contest=biv_obj,
+            contest=biv_obj.get_contest(),
             base_template=Contest.base_template('contest'),
             **kwargs
         )
@@ -161,8 +156,7 @@ class Contestant(ppc.Task):
         if biv_obj.is_public or biv_obj.is_under_review:
             if biv_obj.get_contest().is_expired():
                 # TODO(pjm): share return value with Donate form
-                return Contest.render_template(
-                    biv_obj.get_contest(),
+                return _template.render_template(
                     'detail',
                     contestant=biv_obj,
                     contestant_url=biv_obj.format_absolute_uri(),
@@ -226,7 +220,7 @@ class Contestant(ppc.Task):
                 }
             )
         random.Random(biv_obj.display_name).shuffle(judges)
-        return Contest.render_template(
+        return _template.render_template(
             biv_obj.get_contest(),
             'score',
             contestant=biv_obj,
@@ -237,10 +231,10 @@ class Contestant(ppc.Task):
 
     def action_thank_you(biv_obj):
         """Show a Thank you page with social media links for contestant."""
-        return Contest.render_template(
+        return _template.render_template(
             biv_obj.get_contest(),
             'thank-you',
-            sub_base_template=Contest.base_template('detail'),
+            sub_base_template=_template.base_template('detail'),
             contestant=biv_obj,
             contestant_url=biv_obj.format_absolute_uri(),
             contestant_tweet="I just backed " + biv_obj.display_name
@@ -265,8 +259,3 @@ class Sponsor(ppc.Task):
             io.BytesIO(biv_obj.sponsor_logo),
             'image/{}'.format(biv_obj.logo_type)
         )
-
-def _template_name(name):
-    """Render template name based on local package"""
-    return '{pkg}/{base}.html'.format(base=name, pkg=_template_dir)
-

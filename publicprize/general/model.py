@@ -8,11 +8,11 @@
 import flask
 
 from .. import biv
-from .. import controller
+from .. import common
 
 PUB_OBJ = None
 
-class General(controller.Model):
+class General(common.Model):
     """Singleton model for global tasks."""
 
     def __init__(self, biv_id):

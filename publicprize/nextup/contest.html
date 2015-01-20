@@ -1,0 +1,25 @@
+{% extends 'layout/base.html' %}
+
+{%- block title %}
+  {%- block subtitle %}{% endblock %} - {{ contest.display_name }}
+{%- endblock %}
+
+{%- block logged_in_nav %}
+{%- endblock %}
+
+{%- block navtitle %}
+  <span class="pp-nav-title hidden-xs">{{ contest.display_name }}</span>
+{%- endblock %}
+
+{%- block content %}
+  <span class="pp-nav-title-mobile visible-xs">{{ contest.display_name }}</span>
+  {%- block contest_header %}{% endblock %}
+  <div class="col-sm-12">
+  </div>
+  <div class="{% block contest_content_class %}col-sm-8{% endblock %}">
+    {%- block contest_content %}{% endblock %}
+  </div>
+  {%- block sponsor_list %}
+    sponsor list
+  {%- endblock %}
+{%- endblock %}

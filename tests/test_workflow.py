@@ -5,16 +5,20 @@
     :license: Apache, see LICENSE for more details.
 """
 
-from bs4 import BeautifulSoup
+import decimal
+import itertools
+import os.path
 import random
 import re
 import unittest
-import publicprize.controller
 import decimal
+
+from bs4 import BeautifulSoup
 
 import publicprize.controller as ppc
 from publicprize.evc import model as pcm
-
+import publicprize.debug
+from publicprize.debug import pp_t
 import workflow_data as wd
 
 
@@ -35,10 +39,10 @@ class ParseData(object):
         at least one item each """
         assert len(data) > 0
         for _, item in data.items():
-            assert item.__contains__('conf'), 'item: {0}'.format(item)
+            assert 'conf' in item, 'item: {0}'.format(item)
             if item['conf'] is not None:
                 assert len(item['conf']) > 0
-            assert item.__contains__('dev'), 'item: {0}'.format(item)
+            assert 'dev' in item, 'item: {0}'.format(item)
             if item['dev'] is not None:
                 assert len(item['dev']) > 0
         self.data = data
@@ -161,14 +165,21 @@ class DbCheck(object):
 
 class PublicPrizeTestCase(unittest.TestCase):
     def setUp(self):
-        publicprize.controller.init()
-        app = publicprize.controller.app()
+        ppc.init()
+        app = ppc.app()
         app.wsgi_app = FlaskTestClientProxy(app.wsgi_app)
         self.client = app.test_client()
         self.current_page = None
 
+
     def tearDown(self):
         pass
+
+    def setup_method(self, method):
+        pp_t('here')
+        publicprize.debug.get_request_logger().set_log_dir(
+            os.path.join('test_workflow', method.__name__)
+        )
 
     def test_contribution(self):
         self._visit_uri('/')
@@ -229,23 +240,26 @@ class PublicPrizeTestCase(unittest.TestCase):
             self._verify_text('Thank you for submitting your entry')
             self._verify_text(display_name)
             self._follow_link(display_name)
-            dont_verify = {'youtube_url',
-                           'slideshow_url',
-                           'website',
-                           'tax_id',
-                           'business_phone',
-                           'business_address',
-                           'agree_to_terms'}
+            dont_verify = [
+                'youtube_url',
+                'slideshow_url',
+                'website',
+                'tax_id',
+                'business_phone',
+                'business_address',
+                'agree_to_terms']
             for data_item in data_variation:
-                if dont_verify.__contains__(data_item):
-                    pass
-                else:
-                    print("verifying string for {0} contents:\n"
-                          "{1}\n...".format(data_item,
-                                            data_variation[data_item]))
-                    self._verify_text(data_variation[data_item]),\
-                        "Error: string for {} contents:\n{}\n not verified".format(data_item, data_variation[data_item])
-                    print("verified")
+                if not data_item in dont_verify:
+                    pp_t(
+                        'verifying string for {0} contents:\n{1}\n...', [
+                            data_item,
+                            data_variation[data_item]])
+                    self._verify_text(
+                        data_variation[data_item],
+                        'item={} variation={}: data_item not found'.format(
+                            data_item,
+                            data_variation[data_item]))
+                    pp_t('verified')
 
     def test_dev_submit_entries(self):
         """ Try a bunch of submissions with mostly good data, and a single
@@ -426,9 +440,9 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text(name)
 
     def test_submit_website_conf_entries(self):
-        CONTEST_NAME = 'Esprit Venture Challenge'
+        CONTEST_NAME = 'Next Up'
         self._visit_uri('/')
-        self._follow_link('Esprit Venture Challenge')
+        self._follow_link(CONTEST_NAME)
         conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
         #TODO(mda): the current_uri tracking doesn't notice redirects
         nominate_website_uri = self.current_uri + '/nominate-website'
@@ -450,7 +464,7 @@ class PublicPrizeTestCase(unittest.TestCase):
 
     def test_submit_website_dev_entries(self):
         self._visit_uri('/')
-        self._follow_link('Esprit Venture Challenge')
+        self._follow_link('Next Up')
         self._visit_uri(self.current_uri + '/nominate-website')
         dev_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
         for data_variation in dev_websites_gen:
@@ -479,9 +493,11 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._visit_uri(url)
 
     def _set_current_page(self, response):
+        self.current_response = response
         self.current_page = BeautifulSoup(response.data)
 
     def _submit_form(self, data):
+        pp_t(self.current_page)
         url = self.current_page.find('form')['action']
         assert url
         # data['csrf_token'] = self.current_page.find(id='csrf_token')['value']
@@ -492,8 +508,13 @@ class PublicPrizeTestCase(unittest.TestCase):
             follow_redirects=True))
         self.current_uri = url
 
-    def _verify_text(self, text, errorstring=""):
-        assert self.current_page.find(text=re.compile(re.escape(text))), errorstring
+    def _verify_text(self, text, msg=""):
+        if not self.current_page.find(text=re.compile(re.escape(text))):
+            if not msg:
+                msg = text + ': text not found in '
+            pp_t(msg)
+            pp_t(str(self.current_page))
+            raise AssertionError(msg)
 
     def _visit_uri(self, uri):
         assert uri

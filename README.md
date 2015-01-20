@@ -69,6 +69,18 @@ logged in.
 py.test
 ```
 
+Run a single test:
+
+```
+py.test tests/test_debug.py
+```
+
+Run a single test function:
+
+```
+py.test tests/test_workflow.py -k test_submit_website_dev_entries
+```
+
 ###### Travis
 
 https://travis-ci.org/biviosoftware/publicprize
