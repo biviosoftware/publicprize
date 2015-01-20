@@ -111,6 +111,10 @@ class Contest(db.Model, common.ModelWithDates):
             row['total_score'] = row['amount_score'] + row['judge_score']
         return sorted(rows, key=lambda contestant: contestant['display_name'])
 
+    def get_contest(self):
+        """Returns self"""
+        return self
+
     def get_sponsors(self, randomize=False):
         """Return a list of Sponsor models for this Contest"""
         return pcm.Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize);

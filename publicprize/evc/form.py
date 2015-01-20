@@ -87,7 +87,7 @@ class Contestant(flask_wtf.Form):
             contest,
             'submit',
             form=self,
-            selected='submit-contestant'
+            selected_menu_action='submit-contestant'
         )
 
     def validate(self):

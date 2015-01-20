@@ -6,10 +6,10 @@
 """
 
 import flask
-from publicprize import biv
-from publicprize import common
-from publicprize import controller
-from publicprize.controller import db
+from .. import biv
+from .. import common
+from .. import controller
+from ..controller import db
 import sqlalchemy
 import werkzeug.exceptions
 
@@ -36,7 +36,7 @@ class Admin(db.Model, common.ModelWithDates):
         return False
 
 
-class BivAccess(db.Model, controller.Model):
+class BivAccess(db.Model, common.Model):
     """BivAccess links ownership between models. For example, a Contest model
     owns the Contestants and a User also owns their own Contestant submission.
     Fields:
@@ -52,7 +52,7 @@ class BivAccess(db.Model, controller.Model):
         werkzeug.exceptions.abort(404)
 
 
-class BivAlias(db.Model, controller.Model):
+class BivAlias(db.Model, common.Model):
     """URI Alias for biv_obj.
     Fields:
         biv_id: primary ID

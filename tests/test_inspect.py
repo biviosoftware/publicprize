@@ -8,7 +8,7 @@
 import pytest
 import inspect
 
-from publicprize import inspect as pi
+from publicprize import inspect as ppi
 
 class Class1(object):
     var1 = 3
@@ -24,15 +24,15 @@ class Class1(object):
     lambda1 = lambda self: None
 
 def test_class_has_classmethod():
-    assert pi.class_has_classmethod(Class1, 'class_method1')
-    assert not pi.class_has_classmethod(Class1, 'method1')
-    assert not pi.class_has_classmethod(Class1, 'lambda1')
-    assert not pi.class_has_classmethod(Class1, 'var1')
-    assert not pi.class_has_classmethod(Class1, 'not_a_method')
+    assert ppi.class_has_classmethod(Class1, 'class_method1')
+    assert not ppi.class_has_classmethod(Class1, 'method1')
+    assert not ppi.class_has_classmethod(Class1, 'lambda1')
+    assert not ppi.class_has_classmethod(Class1, 'var1')
+    assert not ppi.class_has_classmethod(Class1, 'not_a_method')
 
 def test_package_name_tail():
     import publicprize
     import publicprize.inspect
-    assert pi.package_name_tail('publicprize.inspect') == 'publicprize'
-    assert pi.package_name_tail('publicprize') == ''
-    assert pi.package_name_tail('__main__') == ''
+    assert ppi.package_name_tail('publicprize.inspect') == 'publicprize'
+    assert ppi.package_name_tail('publicprize') == ''
+    assert ppi.package_name_tail('__main__') == ''

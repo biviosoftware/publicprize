@@ -29,7 +29,7 @@
   {%- block contest_header %}{% endblock %}
   <div class="col-sm-12">
     {%- macro menu_link(value, text, count=0, name=None) %}
-      <a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-menu-button {% if selected == value or selected == name %}pp-selected-menu-button{% endif %} pp-link-slider">{{ text }}
+      <a href="{{ contest.format_uri(value) }}" class="btn btn-default pp-menu-button {% if selected_menu_action == value or selected_menu_action == name %}pp-selected-menu-button{% endif %} pp-link-slider">{{ text }}
         {%- if count %} <span class="badge">{{ count }}</span>{% endif %}
       </a>
     {%- endmacro %}
