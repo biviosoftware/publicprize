@@ -18,6 +18,7 @@ import sqlalchemy.orm
 from .. import biv
 from .. import common
 from .. import controller
+from ..contest import model as pcm
 from ..auth import model as pam
 from ..controller import db
 
@@ -112,13 +113,7 @@ class Contest(db.Model, common.ModelWithDates):
 
     def get_sponsors(self, randomize=False):
         """Return a list of Sponsor models for this Contest"""
-        sponsors = Sponsor.query.select_from(pam.BivAccess).filter(
-            pam.BivAccess.source_biv_id == self.biv_id,
-            pam.BivAccess.target_biv_id == Sponsor.biv_id
-        ).all()
-        if randomize:
-            random.shuffle(sponsors)
-        return sponsors
+        return pcm.Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize);
 
     def get_public_contestants(self, randomize=False, userRandomize=False):
         """Return a list of contestants for this Contest. List will be
@@ -504,30 +499,8 @@ class JudgeScore(db.Model, common.ModelWithDates):
         ][int(number) - 1]
 
 
-class Sponsor(db.Model, common.ModelWithDates):
-    """sponsor database model.
-
-    Fields:
-        biv_id: primary ID
-        display_name: sponsor name
-        website: sponsor website
-        sponsor_logo: logo image blob
-        logo_type: image type (gif, png, jpeg)
-    """
-    biv_id = db.Column(
-        db.Numeric(18),
-        db.Sequence('sponsor_s', start=1008, increment=1000),
-        primary_key=True
-    )
-    display_name = db.Column(db.String(100), nullable=False)
-    website = db.Column(db.String(100))
-    sponsor_logo = db.Column(db.LargeBinary)
-    logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
-
-
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
 Contestant.BIV_MARKER = biv.register_marker(3, Contestant)
 Donor.BIV_MARKER = biv.register_marker(7, Donor)
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
-Sponsor.BIV_MARKER = biv.register_marker(8, Sponsor)
-Judge.BIV_MARKER = biv.register_marker(9, Sponsor)
+Judge.BIV_MARKER = biv.register_marker(9, Judge)
