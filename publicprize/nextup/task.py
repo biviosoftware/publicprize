@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" controller actions for Contest, Contestand and Founder
+""" controller actions for NUContest
 
     :copyright: Copyright (c) 2015 Bivio Software, Inc.  All Rights Reserved.
     :license: Apache, see LICENSE for more details.
@@ -23,7 +23,7 @@ class NUContest(ppc.Task):
         return _template.render_template(biv_obj, 'submitted-websites')
 
     def action_index(biv_obj):
-        """Default to contestant list"""
+        """Default to nominate-website"""
         print('index biv_obj: ', biv_obj);
         return NUContest.action_nominate_website(biv_obj)
 
