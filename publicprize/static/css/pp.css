@@ -32,18 +32,6 @@ a:hover {
     width: 970px;
   }
 }
-.btn-primary {
-  border-color: #ED0D78;
-  background-color: #ED0D78;
-}
-.btn-primary:hover {
-  border-color: #FC0E81;
-  background-color: #FC0E81;
-}
-.btn-primary:active, .btn-primary:focus {
-  border-color: #DB1471;
-  background-color: #DB1471;
-}
 .input-group-addon {
   background-color: #fafafa;
   vertical-align: top;
