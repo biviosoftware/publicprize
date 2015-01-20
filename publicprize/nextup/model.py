@@ -9,6 +9,7 @@ import flask
 
 from .. import biv
 from .. import common
+from ..contest import model as pcm
 from ..controller import db
 
 class NUContest(db.Model, common.ModelWithDates):
@@ -22,6 +23,11 @@ class NUContest(db.Model, common.ModelWithDates):
     def get_nominated_websites(self):
         """Returns a list of all websites that haven been nominated"""
         return Nominee.query.all()
+
+    def get_sponsors(self, randomize=False):
+        """Return a list of Sponsor models for this Contest"""
+        return pcm.Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize);
+
 
 class Nominee(db.Model, common.ModelWithDates):
     """nominated website database model.
