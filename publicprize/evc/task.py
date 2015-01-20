@@ -139,7 +139,7 @@ class Contest(ppc.Task):
             biv_obj.assert_action_uri(kwargs['selected_menu_action'])
         return flask.render_template(
             _template_name(name),
-            contest=biv_obj,
+            contest=biv_obj.get_contest(),
             base_template=Contest.base_template('contest'),
             **kwargs
         )
@@ -157,7 +157,6 @@ class Contestant(ppc.Task):
             if biv_obj.get_contest().is_expired():
                 # TODO(pjm): share return value with Donate form
                 return _template.render_template(
-                    biv_obj.get_contest(),
                     'detail',
                     contestant=biv_obj,
                     contestant_url=biv_obj.format_absolute_uri(),

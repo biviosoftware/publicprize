@@ -141,11 +141,12 @@ class PublicPrizeTestCase(unittest.TestCase):
         self.client = app.test_client()
         self.current_page = None
 
+
     def tearDown(self):
         pass
 
     def setup_method(self, method):
-        publicprize.debug.current_request_logger().set_log_dir(
+        publicprize.debug.get_request_logger().set_log_dir(
             os.path.join('test_workflow', method.__name__)
         )
 
@@ -465,7 +466,10 @@ class PublicPrizeTestCase(unittest.TestCase):
         self.current_page = BeautifulSoup(response.data)
 
     def _submit_form(self, data):
-        url = self.current_page.find('form')['action']
+        pp_t(self.current_page)
+        url = self.current_page.find('form')
+        # ['action']
+        pp_t(type(url))
         assert url
         # data['csrf_token'] = self.current_page.find(id='csrf_token')['value']
         # assert data['csrf_token']

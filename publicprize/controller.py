@@ -26,6 +26,7 @@ import werkzeug.exceptions
 from . import biv
 from . import config
 from . import debug
+from .debug import pp_t
 
 db = None
 
@@ -122,10 +123,11 @@ db = SQLAlchemy(_app)
 
 def _action_uri_to_function(name, biv_obj):
     """Returns the task function for the uri."""
+    pp_t('name={}, biv_obj={}', [name, biv_obj])
     name = re.sub(r'\W', '_', name)
     name = _ACTION_METHOD_PREFIX + name
     if not hasattr(biv_obj.task_class, name):
-        app().logger.warn(name + ': does not exist in ' + repr(biv_obj))
+        pp_t('{}: does not exist in {}', [name, biv_obj])
         werkzeug.exceptions.abort(404)
     func = getattr(biv_obj.task_class, name)
     assert inspect.isfunction(func), name + ': action not a function in ' + biv_obj
@@ -142,10 +144,12 @@ def _dispatch_action(name, biv_obj):
 
 def _parse_path(path):
     """Split the path into the (object, action, path_info) parts."""
+    pp_t('path={}', [path])
     parts = path.split('/', 2)
     biv_uri = parts[0] if len(parts) >= 1 else biv.URI_FOR_NONE
     action = parts[1] if len(parts) >= 2 else _DEFAULT_ACTION_NAME
     path_info = parts[2] if len(parts) >= 3 else None
+    pp_t('biv_uri={} action={} path_info={}', [biv_uri, action, path_info])
     return biv.load_obj(biv_uri), action, path_info
 
 

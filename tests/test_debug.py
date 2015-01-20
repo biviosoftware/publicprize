@@ -12,6 +12,7 @@ import re
 import shutil
 
 from publicprize import debug as ppd
+from publicprize import config
 from publicprize.debug import pp_t
 
 _request_logger = None
@@ -24,10 +25,21 @@ _expect = {
     'other': 'hello'
 }
 
+def _init_debug(test_mode, regex):
+    ppd._request_logger = None
+    ppd._trace_printer = None
+    ppd._app = None
+    mock = MockApp()
+    mock.config = {
+        'PUBLICPRIZE': {
+            'TRACE': regex,
+            'TEST_MODE': test_mode}}
+    ppd.init(mock)
+    return mock
+
 class MockApp(object):
     
-    def __init__(self, test_mode):
-        self.config = {'PUBLICPRIZE': {'TEST_MODE': test_mode}}
+    def __init__(self):
         self.wsgi_app = self
         self.called__call__ = 0
         
@@ -40,8 +52,7 @@ class MockApp(object):
 
 def test_nothing():
     global _request_logger
-    mock = MockApp(0)
-    _request_logger = ppd.RequestLogger(mock)
+    mock = _init_debug(0, None)
     assert mock.wsgi_app == mock
     
 def test_log():
@@ -51,8 +62,8 @@ def test_log():
         shutil.rmtree('debug')
     os.mkdir('debug')
     called_start_response = 0
-    mock = MockApp(1)
-    _request_logger = ppd.RequestLogger(mock)
+    mock = _init_debug(1, None)
+    _request_logger = ppd.get_request_logger()
     def start_response(status, response_headers, exc_info=None):
         nonlocal called_start_response
         called_start_response += 1
@@ -81,17 +92,34 @@ def test_log():
     assert_file('new_dir/00000001', 'response_data')
     assert_file('new_dir/00000002', 'other')
 
-_last_msg = None
-class MockTrace(object):
-    def log(self, msg):
-        global _last_msg
+def test_trace():
+    _last_msg = None
+    def _init(regex):
+        nonlocal _last_msg
+        _last_msg = None
+        _init_debug(0, regex)
+        ppd._trace_printer.write = _write
+
+    def _write(msg):
+        nonlocal _last_msg
         _last_msg = msg
 
-def test_trace():
-    ppd._trace_printer = MockTrace()
     def expect(msg):
-        return '{}:{} {}\n'.format(__file__, inspect.currentframe().f_back.f_lineno - 1, msg)
+        return './tests/test_debug.py:{}:test_trace {}\n'.format(inspect.currentframe().f_back.f_lineno - 1, msg)
+
+    _init(None)
+    pp_t('hello')
+    assert None == _last_msg
+
+    _init('.')
     pp_t('hello')
     assert expect('hello') == _last_msg 
     pp_t('x{}x', ['y'])
     assert expect('xyx') == _last_msg 
+
+    _init('goodbye')
+    pp_t('hello')
+    assert None == _last_msg 
+    pp_t('goodbye')
+    assert expect('goodbye') == _last_msg 
+    
