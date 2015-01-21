@@ -1,6 +1,7 @@
 {% extends 'layout/base.html' %}
 {% block title %}Contests{% endblock %}
 {%- block content %}
+<div class="col-sm-12">
   <h1>Esprit Venture</h1>
   <ul>
     {%- for contest in evc_contests %}
@@ -13,4 +14,5 @@
       <li><h3><a href="{{ contest.format_uri() }}">{{ contest.display_name }}</a></h3></li>
     {%- endfor %}
   </ul>
+</div>
 {%- endblock %}
