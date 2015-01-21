@@ -31,8 +31,14 @@ class Nomination(flask_wtf.Form):
     Fields: Website
     """
 
+    company_name = wtforms.StringField(
+        'Company Name', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=200)])
     website = wtforms.StringField(
-        'Website URL', validators=[
+        'Company URL', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=200)])
+    submitter_name = wtforms.StringField(
+        'Your Name', validators=[
             wtfv.DataRequired(), wtfv.Length(max=200)])
 
     def execute(self, contest):
@@ -114,6 +120,7 @@ class Nomination(flask_wtf.Form):
 
     def validate(self):
         """Performs url field validation"""
+        super(Nomination, self).validate()
         self._validate_website()
         _log_errors(self)
         return not self.errors
