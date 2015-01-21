@@ -50,6 +50,13 @@ class General(controller.Task):
         """Google login response"""
         return oauth.authorize_complete('google')
 
+    def action_home(biv_obj):
+        return flask.render_template(
+            "general/home.html",
+            evc_contest=pem.Contest.query.first(),
+            nextup_contest=pnm.NUContest.query.first(),
+        )
+
     def action_login(biv_obj):
         """Show login options."""
         return flask.render_template(
