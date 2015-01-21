@@ -516,3 +516,13 @@ input.pp-agree-checkbox {
 .pp-header-slider {
   display: none;
 }
+
+@media (max-width: 767px) {
+  .pp-nav-logo img {
+    width: 230px;
+  }
+  .pp-sidebar-module {
+    margin-left: 0;
+  }
+}
+
