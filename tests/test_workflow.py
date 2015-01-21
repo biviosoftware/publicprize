@@ -421,7 +421,9 @@ class PublicPrizeTestCase(unittest.TestCase):
             website_name = data_variation['websites']
             self._visit_uri(nominate_website_uri)
             self._submit_form({
-                'website': website_name
+                'website': website_name,
+                'company_name':'x',
+                'submitter_name':'x'
             })
             self._verify_text(
                 'Thank you for submitting {} to {}'.format(website_name,
@@ -440,6 +442,8 @@ class PublicPrizeTestCase(unittest.TestCase):
         for data_variation in dev_websites_gen:
             self._submit_form({
                 'website': data_variation['websites'],
+                'company_name':'x',
+                'submitter_name':'x'
             })
             self._verify_text('Website invalid or unavailable')
             #TODO(mda): be certain that the website is not in the database
