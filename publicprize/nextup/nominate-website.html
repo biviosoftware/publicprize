@@ -51,7 +51,7 @@
 {%- endblock %}
 {%- block contest_content %}
   <div class="pp-form">
-    <form method="POST" action="{{ contest.format_uri('index') }}">
+    <form method="POST" action="{{ contest.format_uri() }}">
       <h1>Nominate a Company</h1>
       {{- macros.form_field(form.company_name, with_placeholder=True) }}
       {{- macros.form_field(form.website, with_placeholder=True) }}
