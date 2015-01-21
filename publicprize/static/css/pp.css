@@ -1,5 +1,6 @@
 
-<!-- https://kuler.adobe.com/AlternativeGarden-color-theme-4155685/edit/?copy=true&base=2&rule=Custom&selected=3&name=Copy%20of%20AlternativeGarden&mode=rgb&rgbvalues=0.10196078431372549,0.30980392156862746,0.38823529411764707,0.023529411764705882,0.5215686274509804,0.5294117647058824,0.43529411764705883,0.6901960784313725,0.4980392156862745,0.9882352941176471,0.6901960784313725,0.23529411764705882,0.9882352941176471,0.3568627450980392,0.24705882352941178&swatchOrder=0,1,2,3,4
+/*
+https://kuler.adobe.com/AlternativeGarden-color-theme-4155685/edit/?copy=true&base=2&rule=Custom&selected=3&name=Copy%20of%20AlternativeGarden&mode=rgb&rgbvalues=0.10196078431372549,0.30980392156862746,0.38823529411764707,0.023529411764705882,0.5215686274509804,0.5294117647058824,0.43529411764705883,0.6901960784313725,0.4980392156862745,0.9882352941176471,0.6901960784313725,0.23529411764705882,0.9882352941176471,0.3568627450980392,0.24705882352941178&swatchOrder=0,1,2,3,4
 
 #1A4F63 dark blue     (success)
 #068587 turquoise     (primary)
@@ -8,14 +9,19 @@
 #FC5B3F orange        (danger)
 
 http://www.colourlovers.com/op/copaso/open/947527
-  -->
+*/
 
 /*
  * Globals
  */
 
+html {
+  position: relative;
+  min-height: 100%;
+}
 body {
   color: #555;
+  margin-bottom: 50px;
 }
 a {
   color: #068587;
@@ -79,10 +85,6 @@ table.sortable div.mozilla span.sign {
   background-color: #FCE00C;
 }
 
-.pp-content {
-  min-height: 370px;
-}
-
 .pp-modal-header {
   border-top-left-radius: 6px;
   border-top-right-radius: 6px;
@@ -103,6 +105,11 @@ table.sortable div.mozilla span.sign {
   border-top: 1px solid #e5e5e5;
   margin-top: 3ex;
   line-height: 40px;
+
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 50px;
 }
 .pp-footer p:last-child {
   margin-bottom: 0;
@@ -110,7 +117,6 @@ table.sortable div.mozilla span.sign {
 .pp-footer-item {
   padding: 10px;
 }
-
 
 /* Contest styles */
 
