@@ -10,14 +10,6 @@ body {
   color: #555;
   margin-bottom: 50px;
 }
-a {
-  color: #068587;
-}
-a:hover {
-  color: #FCB03C;
-  text-decoration: none;
-}
-
 
 /* Bootstrap overrides. */
 @media (min-width: 1200px) {
