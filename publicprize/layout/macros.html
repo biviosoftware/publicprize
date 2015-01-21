@@ -6,24 +6,30 @@
 {%- macro errors(field) %}
   {%- if field.errors %}
     <span class="pp-form-error text-danger"><strong>{{ field.errors[0] }}</strong></span>
+    <div class="clearfix"></div>
   {%- endif %}
 {%- endmacro %}
 
-{%- macro form_field(field, help_text=None, hint=None, label=None) %}
+{%- macro form_field(field, help_text=None, hint=None, label=None, with_placeholder=False) %}
   <div class="form-group {{ error_class(field) }}">
-    {%- if hint %}
-      {{- label_with_hint(field, hint, label=label) }}
+    {%- set placeholder= '' %}
+    {%- if with_placeholder %}
+      {% set placeholder = label or field.label %}
     {%- else %}
-      {{- label or field.label }}
+      {%- if hint %}
+        {{- label_with_hint(field, hint, label=label) }}
+      {%- else %}
+        {{- label or field.label }}
+      {%- endif %}
     {%- endif %}
     {{- errors(field) }}
     {%- if help_text %}
       <div class="input-group">
-        {{- field(class="form-control") }}
+        {{- field(class="form-control", placeholder=placeholder.text) }}
         <span class="input-group-addon"><span class= "pp-tooltip" data-toggle="tooltip" title="{{ help_text }}"><span class="glyphicon glyphicon-info-sign text-primary"></span></span></span>
       </div>
     {%- else %}
-      {{- field(class="form-control") }}
+      {{- field(class="form-control", placeholder=placeholder.text) }}
     {%- endif %}
   </div>
 {%- endmacro %}
