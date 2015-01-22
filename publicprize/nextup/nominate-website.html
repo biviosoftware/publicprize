@@ -1,7 +1,7 @@
 {% extends base_template %}
 {%- import "layout/macros.html" as macros %}
 
-{%- block subtitle %}Nominate a Website{% endblock %}
+{%- block subtitle %}Nominate a Company{% endblock %}
 
 {%- block jumbo_header %}
   <div class="pp_jumbo_bg"></div>
@@ -51,10 +51,15 @@
 {%- endblock %}
 {%- block contest_content %}
   <div class="pp-form">
-    <form method="POST" action="{{ contest.format_uri('nominate-website') }}">
-      <h1>Nominate a Website</h1>
-      {{- macros.form_field(form.website) }}
-      {{- macros.submit_button('Submit Entry') }}
+    <form method="POST" action="{{ contest.format_uri() }}">
+      <h1>Nominate a Company</h1>
+      {{- macros.form_field(form.company_name, with_placeholder=True) }}
+      {{- macros.form_field(form.website, with_placeholder=True) }}
+      {{- macros.form_field(form.submitter_name, with_placeholder=True) }}
+      <div class="pull-right">
+        {{- macros.submit_button('Submit Entry') }}
+      </div>
+      <div class="clearfix"></div>
     </form>
   </div>
   <div class="pp-form">

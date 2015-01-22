@@ -18,7 +18,7 @@
     {%- endblock %}
     {%- block css %}
     <link href="/static/css/ladda-themeless-0.8.0.min.css" rel="stylesheet">
-    <link href="/static/css/pp.css?20150120" rel="stylesheet">
+    <link href="/static/css/pp.css?20150121" rel="stylesheet">
     {%- endblock %}
     <!--[if IE 10]>
       <script src="/static/js/msie/ie10-viewport-bug-workaround.js"></script>
@@ -39,7 +39,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-      	  <a class="pp-nav-logo" href="/"><img src="/static/img/logo.gif" alt="PUBLIC PRIZE"></a>
+      	  <a class="pp-nav-logo" href="/pub/home"><img src="/static/img/logo.gif" alt="PUBLIC PRIZE"></a>
 	  {%- block navtitle %}{% endblock %}
         </div>
 	<div class="navbar-collapse collapse">
@@ -57,7 +57,7 @@
 	</div>
       </div>
     </div>
-    {%- block jumbo_header %}{% endblock %}
+    {%- block jumbo_header %}{% endblock -%}
     <div class="container pp-content"><div class="row">
       {%- with messages = get_flashed_messages() %}
         {%- if messages %}
@@ -79,9 +79,6 @@
             <span class="pp-footer-item"><a href="{{ g.pub_obj.format_uri('privacy') }}">Privacy Policy</a></span>
             <span class="pp-footer-item">{{ macros.support_mailto('Support') }}</span>
           </div>
-	  <div class="pull-right">
-	    <span class="pp-footer-item">&copy; 2015 Public Prize, Inc.</span>
-   	  </div>
         </div>
       </div>
       {%- endblock %}

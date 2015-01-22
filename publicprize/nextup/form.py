@@ -7,7 +7,6 @@
 
 import datetime
 import locale
-import pytz
 import re
 import socket
 import sys
@@ -25,14 +24,20 @@ from ..auth import model as pam
 class Nomination(flask_wtf.Form):
     """Plain form that accepts a website nomination.
 
-    A 'Nominition' is created on form submission (see pnm.Nomination)
+    A 'Nominator' is created on form submission (see pnm.Nominator)
     If the website is new, then a 'Nominee' is added for that website.
 
     Fields: Website
     """
 
+    company_name = wtforms.StringField(
+        'Company Name', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=200)])
     website = wtforms.StringField(
-        'Website URL', validators=[
+        'Company Website', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=200)])
+    submitter_name = wtforms.StringField(
+        'Your Name', validators=[
             wtfv.DataRequired(), wtfv.Length(max=200)])
 
     def execute(self, contest):
@@ -41,11 +46,7 @@ class Nomination(flask_wtf.Form):
             nominee, _ = self._update_models(contest)
             url = nominee.url
             if url:
-                flask.flash('Thank you for submitting {} to {}.'.format(url, contest.display_name))
-                return flask.redirect(contest.format_uri('nominate-website'))
-                # TODO(mda): Build the thank you page (currently I'm only
-                # flashing a thank-you message on the contestants page
-                return flask.redirect(contest.format_uri('thank-you-page'))
+                return flask.redirect(nominee.format_uri('nominate-thank-you'))
         return contest.task_class.get_template().render_template(
             contest,
             'nominate-website',
@@ -59,11 +60,11 @@ class Nomination(flask_wtf.Form):
         url = self.website.data
         # (mda) get the time here to minimize server processing time
         # interference (just in case of a hangup of some sort)
-        submission_datetime = self._get_current_time_MST()
         if not self._is_already_nominated(url):
             nominee = pnm.Nominee()
             self.populate_obj(nominee)
             nominee.url = url
+            nominee.display_name = self.company_name.data
             nominee.is_public = \
                 ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
             nominee.is_under_review = False
@@ -78,7 +79,9 @@ class Nomination(flask_wtf.Form):
         else:
             nominee = self._get_matching_nominee(url)
         assert nominee is not None
-        nomination = pnm.Nomination()
+        nominator = pnm.Nominator()
+        nominator.display_name = self.submitter_name.data
+        nominator.browser_string = flask.request.headers.get('User-Agent')
         # TODO(mda): verify that the access route returns correct urls when
         # accessed from remote location (this is hard to test from a local
         # machine)
@@ -88,23 +91,22 @@ class Nomination(flask_wtf.Form):
         # this shouldn't be a problem in our implementation, as in the worst
         # case, we'll just be recording a bogus value.
         try:
-            nomination.client_ip = route[0][:pnm.Nomination.client_ip.type.length]
+            nominator.client_ip = route[0][:pnm.Nominator.client_ip.type.length]
         except IndexError:
-            nomination.client_ip = 'ip unrecordable'
+            nominator.client_ip = 'ip unrecordable'
             print("Error, failed to record client ip. route: {}. ".format(route),
-                  "Recording ip as '{}'".format(nomination.client_ip),
+                  "Recording ip as '{}'".format(nominator.client_ip),
                   file=sys.stderr)
-        nomination.submission_datetime = submission_datetime
-        nomination.nominee = nominee.biv_id
-        ppc.db.session.add(nomination)
+        nominator.nominee = nominee.biv_id
+        ppc.db.session.add(nominator)
         ppc.db.session.flush()
         ppc.db.session.add(
             pam.BivAccess(
                 source_biv_id=contest.biv_id,
-                target_biv_id=nomination.biv_id
+                target_biv_id=nominator.biv_id
             )
         )
-        return nominee, nomination
+        return nominee, nominator
 
     def _is_already_nominated(self, url):
         return pnm.Nominee.query.filter(pnm.Nominee.url == url).count() > 0
@@ -114,6 +116,7 @@ class Nomination(flask_wtf.Form):
 
     def validate(self):
         """Performs url field validation"""
+        super(Nomination, self).validate()
         self._validate_website()
         _log_errors(self)
         return not self.errors
@@ -125,12 +128,6 @@ class Nomination(flask_wtf.Form):
         if self.website.data:
             if not self._get_url_content(self.website.data):
                 self.website.errors = ['Website invalid or unavailable.']
-
-    def _get_current_time_MST(self):
-        """Returns a datetime object with the current date in MST"""
-        tz = pytz.timezone('US/Mountain')
-        current_time = datetime.datetime.now(tz)
-        return current_time
 
     def _get_url_content(self, url):
         """Performs a HTTP GET on the url.

@@ -445,17 +445,17 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._follow_link(CONTEST_NAME)
         conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
         #TODO(mda): the current_uri tracking doesn't notice redirects
-        nominate_website_uri = self.current_uri + '/nominate-website'
+        nominate_website_uri = self.current_uri
         submitted_websites_uri = self.current_uri + '/submitted-websites'
         for data_variation in conf_websites_gen:
             website_name = data_variation['websites']
             self._visit_uri(nominate_website_uri)
             self._submit_form({
-                'website': website_name
+                'website': website_name,
+                'company_name':'x',
+                'submitter_name':'x'
             })
-            self._verify_text(
-                'Thank you for submitting {} to {}'.format(website_name,
-                                                           CONTEST_NAME))
+            self._verify_text('Thanks for Nominating')
             self._visit_uri(submitted_websites_uri)
             self._verify_text(website_name, "website '{}' not at {}".format(
                 website_name, self.current_uri))
@@ -465,11 +465,12 @@ class PublicPrizeTestCase(unittest.TestCase):
     def test_submit_website_dev_entries(self):
         self._visit_uri('/')
         self._follow_link('Next Up')
-        self._visit_uri(self.current_uri + '/nominate-website')
         dev_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
         for data_variation in dev_websites_gen:
             self._submit_form({
                 'website': data_variation['websites'],
+                'company_name':'x',
+                'submitter_name':'x'
             })
             self._verify_text('Website invalid or unavailable')
             #TODO(mda): be certain that the website is not in the database
