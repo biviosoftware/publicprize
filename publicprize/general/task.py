@@ -18,6 +18,9 @@ class General(controller.Task):
     """Global tasks"""
     def action_index(biv_obj):
         """Site index"""
+        redirect = controller.app().config['PUBLICPRIZE']['INDEX_URI']
+        if redirect:
+            return flask.redirect(redirect)
         return flask.render_template(
             "general/index.html",
             evc_contests=pem.Contest.query.all(),

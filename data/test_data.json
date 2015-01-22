@@ -2,6 +2,9 @@
   "NUContest": [
     {
       "display_name": "Next Up",
+      "Alias": {
+        "name": "next-up"
+      },
       "Sponsor": [
         {
 	  "display_name": "Boulder & Denber Software Clubs",
