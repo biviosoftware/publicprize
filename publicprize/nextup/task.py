@@ -18,9 +18,9 @@ class NUContest(ppc.Task):
         """Contest home and nomination page"""
         return pnf.Nomination().execute(biv_obj)
 
-    def action_submitted_websites(biv_obj):
+    def action_nominees(biv_obj):
         """Public list of nominated websites"""
-        return _template.render_template(biv_obj, 'submitted-websites')
+        return _template.render_template(biv_obj, 'nominees')
 
     def get_template():
         return _template
@@ -32,5 +32,7 @@ class Nominee(ppc.Task):
         return _template.render_template(
             biv_obj.get_contest(),
             'nominate-thank-you',
-            nominee=biv_obj
+            nominee=biv_obj,
+            nominees_url=biv_obj.get_contest().format_absolute_uri('nominees'),
+            nominee_tweet="I just nominated " + biv_obj.display_name
         );
