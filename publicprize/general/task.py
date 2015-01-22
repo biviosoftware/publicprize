@@ -57,6 +57,17 @@ class General(controller.Task):
             nextup_contest=pnm.NUContest.query.first(),
         )
 
+    def action_linkedin_authorized(biv_obj):
+        """LinkedIn login response"""
+        return oauth.authorize_complete('linkedin')
+
+    def action_linkedin_login(biv_obj):
+        """Login with google."""
+        return oauth.authorize(
+            'linkedin',
+            biv_obj.format_absolute_uri('linkedin-authorized')
+        )
+
     def action_login(biv_obj):
         """Show login options."""
         return flask.render_template(
