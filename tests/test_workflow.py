@@ -416,19 +416,19 @@ class PublicPrizeTestCase(unittest.TestCase):
         conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
         #TODO(mda): the current_uri tracking doesn't notice redirects
         nominate_website_uri = self.current_uri
-        submitted_websites_uri = self.current_uri + '/submitted-websites'
+        submitted_websites_uri = self.current_uri + '/nominees'
         for data_variation in conf_websites_gen:
-            website_name = data_variation['websites']
+            url_and_name = data_variation['websites'].split('-')
             self._visit_uri(nominate_website_uri)
             self._submit_form({
-                'website': website_name,
-                'company_name':'x',
+                'website': url_and_name[0],
+                'company_name': url_and_name[1],
                 'submitter_name':'x'
             })
             self._verify_text('Thanks for Nominating')
             self._visit_uri(submitted_websites_uri)
-            self._verify_text(website_name, "website '{}' not at {}".format(
-                website_name, self.current_uri))
+            self._verify_text(url_and_name[1], "website '{}' not at {}".format(
+                url_and_name[1], self.current_uri))
             #TODO(mda): get current time
             #TODO(mda): check the database directly
 
