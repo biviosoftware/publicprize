@@ -129,8 +129,8 @@ class Template(object):
 
     def render_template(self, biv_obj, name, **kwargs):
         """Render the page, putting the selected menu and contest in env"""
-        if 'selected' not in kwargs:
-            kwargs['selected'] = name
+        if 'selected_menu_action' not in kwargs:
+            kwargs['selected_menu_action'] = name
         print('template name: ', self._template_name(name))
         return flask.render_template(
             self._template_name(name),
