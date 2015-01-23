@@ -5,7 +5,7 @@ Public Prize
 
 First [install Python3 with pyenv](//github.com/biviosoftware/utilities/blob/master/Environment.md), then:
 
-```
+```bash
 pip install -e .
 ```
 
@@ -20,7 +20,7 @@ pip freeze | grep -v -- '^-e ' > requirements.txt
 
 Run this to create a test db:
 
-```
+```bash
 python manage.py create_test_db
 ```
 
@@ -29,6 +29,12 @@ Subsequent runs of this command will produce
 
 Postgresql should already be running.
 
+You may need to run as root:
+
+```bash
+echo "ALTER USER postgres PASSWORD 'postpass';COMMIT" | su - postgres -c 'psql template1'
+```
+
 ###### Environment Variables
 
 Application secret values are controlled by the environment. Add the
@@ -36,7 +42,7 @@ items below to enable Facebook, Google and PayPal features. Test
 applications for each service can be created on the respective
 developer websites.
 
-```
+```bash
 export FACEBOOK_APP_ID=...
 export FACEBOOK_APP_SECRET=...
 export GOOGLE_APP_ID=...
@@ -50,7 +56,7 @@ export PAYPAL_CLIENT_SECRET=...
 
 Starts the server from this directory:
 
-```
+```bash
 python manage.py runserver -h 0.0.0.0 -p 8000
 ```
 
@@ -65,19 +71,19 @@ logged in.
 
 ###### Running pytests
 
-```
+```bash
 py.test
 ```
 
 Run a single test:
 
-```
+```bash
 py.test tests/test_debug.py
 ```
 
 Run a single test function:
 
-```
+```bash
 py.test tests/test_workflow.py -k test_submit_website_dev_entries
 ```
 
