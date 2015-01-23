@@ -316,15 +316,15 @@ JUDGING_FIELDS = {
 WEBSITE_SUBMISSION_FIELDS = {
     'websites': {
         'conf': [
-            'www.bivio.biz',
-            'bivio.biz',
-            'http://www.bivio.biz',
-            'https://www.google.com',
+            'www.bivio.biz-Bivio software',
+            'bivio.biz-Bivio software 2',
+            'http://www.bivio.biz-Bivio software',
+            'https://www.google.com-Google',
         ],
         'dev': [
-            'asldkfjasdklfjalskdjf',
-            'www.alaskdjfalksdj.com',
-            'http://www.asdlkfjasdlkfjasdlkfj.com',
+            'asldkfjasdklfjalskdjf-x',
+            'www.alaskdjfalksdj.com-x',
+            'http://www.asdlkfjasdlkfjasdlkfj.com-x',
         ],
     },
 }

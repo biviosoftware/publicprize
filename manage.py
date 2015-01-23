@@ -302,12 +302,18 @@ def _create_database(is_production=False, is_prompt_forced=False):
                 ))
                 _add_owner(contestant_id, donor_id)
 
-    for nu_contest in data['NUContest']:
+    for contest in data['NUContest']:
         contest_id = _add_model(
             pnm.NUContest(
-                display_name=nu_contest['display_name'])
+                display_name=contest['display_name'])
             )
-        for sponsor in nu_contest['Sponsor']:
+        if 'Alias' in contest:
+            _add_model(pam.BivAlias(
+                biv_id=contest_id,
+                alias_name=contest['Alias']['name']
+            ))
+
+        for sponsor in contest['Sponsor']:
             add_sponsor(contest_id, sponsor['display_name'],
                         sponsor['website'], sponsor['logo_filename'])
         

@@ -6,6 +6,7 @@
 """
 
 import flask
+import random
 
 from .. import biv
 from .. import common
@@ -21,13 +22,20 @@ class NUContest(db.Model, common.ModelWithDates):
     )
     display_name = db.Column(db.String(100), nullable=False)
 
-    def get_nominated_websites(self):
-        """Returns a list of all websites that haven been nominated"""
-        return Nominee.query.all()
+    def get_nominees(self, randomize=False):
+        """Returns a list of all websites that haven been nominated
+        for this contest"""
+        nominees = Nominee.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == Nominee.biv_id
+        ).filter(Nominee.is_public == True).all()  # noqa
+        if randomize:
+            random.shuffle(nominees)
+        return nominees
 
     def get_sponsors(self, randomize=False):
         """Return a list of Sponsor models for this Contest"""
-        return pcm.Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize);
+        return pcm.Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize)
 
 
 class Nominee(db.Model, common.ModelWithDates):

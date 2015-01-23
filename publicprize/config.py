@@ -20,7 +20,7 @@ class Config(object):
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     PUBLICPRIZE = _read_json(os.environ.get('PUBLICPRIZE_JSON', 'config.json'))
 
-    for k in ['TRACE']:
+    for k in ['TRACE', 'INDEX_URI']:
         v = os.environ.get('PUBLICPRIZE_' + k, None)
         if v or not k in PUBLICPRIZE:
             PUBLICPRIZE[k] = v

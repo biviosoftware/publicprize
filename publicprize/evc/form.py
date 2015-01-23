@@ -5,14 +5,9 @@
     :license: Apache, see LICENSE for more details.
 """
 
-import datetime
 import decimal
-import locale
-import pytz
 import re
-import socket
 import sys
-import urllib.request
 
 import flask
 import flask_mail
@@ -23,6 +18,7 @@ import wtforms
 import wtforms.validators as wtfv
 
 from . import model as pcm
+from .. import common
 from .. import controller as ppc
 from ..auth import model as pam
 
@@ -97,7 +93,7 @@ class Contestant(flask_wtf.Form):
         self._validate_youtube()
         self._validate_slideshare()
         self._validate_website()
-        _log_errors(self)
+        common.log_form_errors(self)
         return not self.errors
 
     def _add_founder(self, contestant, founder):
@@ -134,25 +130,6 @@ class Contestant(flask_wtf.Form):
                 founder_desc=str(self.founder3_desc.data),
             ))
 
-    def _get_url_content(self, url):
-        """Performs a HTTP GET on the url.
-
-        Returns False if the url is invalid or not-found"""
-        res = None
-        if not re.search(r'^http', url):
-            url = 'http://' + url
-        try:
-            req = urllib.request.urlopen(url, None, 30)
-            res = req.read().decode(locale.getlocale()[1])
-            req.close()
-        except urllib.request.URLError:
-            return None
-        except ValueError:
-            return None
-        except socket.timeout:
-            return None
-        return res
-
     def _send_mail_to_support(self, contestant):
         """Send a notification to support for a new entry"""
         ppc.mail().send(flask_mail.Message(
@@ -181,7 +158,7 @@ class Contestant(flask_wtf.Form):
         ex. www.slideshare.net/Micahseff/game-xplain-pitch-deck-81610
         Adds field errors if the code can not be determined.
         """
-        html = self._get_url_content(self.slideshow_url.data)
+        html = common.get_url_content(self.slideshow_url.data)
         if not html:
             self.slideshow_url.errors = [
                 'SlideShare URL invalid or unavailable.']
@@ -235,7 +212,7 @@ class Contestant(flask_wtf.Form):
             return
         code = self._slideshare_code()
         if code:
-            if not self._get_url_content(
+            if not common.get_url_content(
                     'http://www.slideshare.net/slideshow/embed_code/' + code):
                 self.slideshow_url.errors = [
                     'Unknown SlideShare ID: ' + code + '.']
@@ -245,7 +222,7 @@ class Contestant(flask_wtf.Form):
         if self.website.errors:
             return
         if self.website.data:
-            if not self._get_url_content(self.website.data):
+            if not common.get_url_content(self.website.data):
                 self.website.errors = ['Website invalid or unavailable.']
 
     def _validate_youtube(self):
@@ -254,7 +231,7 @@ class Contestant(flask_wtf.Form):
             return
         code = self._youtube_code()
         if code:
-            html = self._get_url_content('http://youtu.be/' + code)
+            html = common.get_url_content('http://youtu.be/' + code)
             # TODO(pjm): need better detection for not-found page
             if not html or re.search(r'<title>YouTube</title>', html):
                 self.youtube_url.errors = [
@@ -344,7 +321,7 @@ class Donate(flask_wtf.Form):
             self.amount.raw_data = None
         if amount:
             self.amount.data = decimal.Decimal(amount)
-        _log_errors(self)
+        common.log_form_errors(self)
         return not self.errors
 
     def _create_donor(self, contestant):
@@ -525,7 +502,7 @@ class Judgement(flask_wtf.Form):
         super(Judgement, self).validate()
         for num in range(1, 7):
             self['question{}'.format(num)].errors = None
-        _log_errors(self)
+        common.log_form_errors(self)
         return not self.errors
 
     def _load_scores(self, contestant):
@@ -570,12 +547,3 @@ class Judgement(flask_wtf.Form):
             contestant_biv_id=contestant.biv_id,
             question_number=int(num)
         ).first()
-
-
-def _log_errors(form):
-    """Put any form errors in logs as warning"""
-    if form.errors:
-        ppc.app().logger.warn({
-            'data': flask.request.form,
-            'errors': form.errors
-        })
