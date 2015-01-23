@@ -15,8 +15,9 @@ import json
 import locale
 import os
 import publicprize.auth.model as pam
-import publicprize.evc.model as pem
+import publicprize.contest.model as pcm
 import publicprize.controller as ppc
+import publicprize.evc.model as pem
 import publicprize.nextup.model as pnm
 import re
 import subprocess
@@ -97,7 +98,7 @@ def add_judge(contest, user):
 def add_sponsor(contest, name, website, input_file):
     """Create a sponsor to the contest."""
     logo = _read_image_from_file(input_file)
-    sponsor_id = _add_model(pem.Sponsor(
+    sponsor_id = _add_model(pcm.Sponsor(
         display_name=name,
         website=website,
         sponsor_logo=logo,
@@ -301,11 +302,20 @@ def _create_database(is_production=False, is_prompt_forced=False):
                 ))
                 _add_owner(contestant_id, donor_id)
 
-    for nu_contest in data['NUContest']:
+    for contest in data['NUContest']:
         contest_id = _add_model(
             pnm.NUContest(
-                display_name=nu_contest['display_name'])
+                display_name=contest['display_name'])
             )
+        if 'Alias' in contest:
+            _add_model(pam.BivAlias(
+                biv_id=contest_id,
+                alias_name=contest['Alias']['name']
+            ))
+
+        for sponsor in contest['Sponsor']:
+            add_sponsor(contest_id, sponsor['display_name'],
+                        sponsor['website'], sponsor['logo_filename'])
         
     db.session.commit()
 

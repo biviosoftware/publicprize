@@ -18,6 +18,9 @@ class General(controller.Task):
     """Global tasks"""
     def action_index(biv_obj):
         """Site index"""
+        redirect = controller.app().config['PUBLICPRIZE']['INDEX_URI']
+        if redirect:
+            return flask.redirect(redirect)
         return flask.render_template(
             "general/index.html",
             evc_contests=pem.Contest.query.all(),
@@ -49,6 +52,24 @@ class General(controller.Task):
     def action_google_authorized(biv_obj):
         """Google login response"""
         return oauth.authorize_complete('google')
+
+    def action_home(biv_obj):
+        return flask.render_template(
+            "general/home.html",
+            evc_contest=pem.Contest.query.first(),
+            nextup_contest=pnm.NUContest.query.first(),
+        )
+
+    def action_linkedin_authorized(biv_obj):
+        """LinkedIn login response"""
+        return oauth.authorize_complete('linkedin')
+
+    def action_linkedin_login(biv_obj):
+        """Login with google."""
+        return oauth.authorize(
+            'linkedin',
+            biv_obj.format_absolute_uri('linkedin-authorized')
+        )
 
     def action_login(biv_obj):
         """Show login options."""

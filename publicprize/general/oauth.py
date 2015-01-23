@@ -27,6 +27,7 @@ from ..auth import model as pam
 _OAUTH_PROVIDER_DATA_PATH = {
     'facebook': 'me',
     'google': 'userinfo',
+    'linkedin': 'people/~:(id,first-name,last-name,email-address)'
 }
 
 
@@ -91,6 +92,17 @@ def _avatar_url_from_info(oauth_type, info):
         return info.get('picture')
     return None
 
+def _change_linkedin_query(uri, headers, body):
+    auth = headers.pop('Authorization')
+    headers['x-li-format'] = 'json'
+    if auth:
+        auth = auth.replace('Bearer', '').strip()
+        if '?' in uri:
+            uri += '&oauth2_access_token=' + auth
+        else:
+            uri += '?oauth2_access_token=' + auth
+    return uri, headers, body
+        
 def _clear_session(clear_oauth_type=False):
     """Clear the login state from the session"""
     flask.session['user.is_logged_in'] = False
@@ -121,6 +133,11 @@ def _get_google_access_token():
     return flask.session.get('oauth.google.token')
 
 
+def _get_linkedin_access_token():
+    """Callback for linkedin auth"""
+    return flask.session.get('oauth.linkedin.token')
+
+
 def _oauth_provider(name):
     """Creates a OAuth client for the named provider."""
     attributes = None
@@ -143,6 +160,17 @@ def _oauth_provider(name):
             'authorize_url': 'https://accounts.google.com/o/oauth2/auth'
         }
         tokengetter = _get_google_access_token
+    elif name == 'linkedin':
+        attributes = {
+            'request_token_params': {
+                'scope': 'r_emailaddress'
+                },
+            'base_url': 'https://api.linkedin.com/v1/',
+            'access_token_method': 'POST',
+            'access_token_url': 'https://www.linkedin.com/uas/oauth2/accessToken',
+            'authorize_url': 'https://www.linkedin.com/uas/oauth2/authorization',
+        }
+        tokengetter = _get_linkedin_access_token
     else:
         raise Exception('Unknown oauth provider name: {}'.format(name))
     c = ppc.app().config['PUBLICPRIZE'][name.upper()]
@@ -154,6 +182,8 @@ def _oauth_provider(name):
         **attributes
     )
     oauth.tokengetter(tokengetter)
+    if name == 'linkedin':
+        oauth.pre_request = _change_linkedin_query
     return oauth
 
 
@@ -161,8 +191,11 @@ def _user_from_info(oauth, oauth_type, info):
     """Saves oauth provider user info to user model.
     info arg contains email, id, name."""
     ppc.app().logger.info(info)
+    if oauth_type == 'linkedin':
+        info['name'] = info['firstName'] + ' ' + info['lastName']
+        info['email'] = info['emailAddress']
     if not info.get('email'):
-        if oauth_type =='facebook':
+        if oauth_type == 'facebook':
             oauth.delete('{}/permissions'.format(info['id']), format=None)
         _client_error(
             oauth_type, 'Your email must be provided to this App to login.')

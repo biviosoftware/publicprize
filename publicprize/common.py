@@ -1,15 +1,17 @@
 # -*- coding: utf-8 -*-
-""" Common model classes.
+""" Common model classes and methods.
 
     :copyright: Copyright (c) 2014 Bivio Software, Inc.  All Rights Reserved.
     :license: Apache, see LICENSE for more details.
 """
 
 import inspect
+import locale
 import re
+import socket
 import sys
 import urllib.parse
-
+import urllib.request
 import flask
 import sqlalchemy
 
@@ -129,8 +131,8 @@ class Template(object):
 
     def render_template(self, biv_obj, name, **kwargs):
         """Render the page, putting the selected menu and contest in env"""
-        if 'selected' not in kwargs:
-            kwargs['selected'] = name
+        if 'selected_menu_action' not in kwargs:
+            kwargs['selected_menu_action'] = name
         print('template name: ', self._template_name(name))
         return flask.render_template(
             self._template_name(name),
@@ -143,3 +145,31 @@ class Template(object):
         """Render template name based on local package"""
         return '{pkg}/{base}.html'.format(base=name, pkg=self.template_dir)
 
+
+def get_url_content(url):
+    """Performs a HTTP GET on the url.
+
+    Returns False if the url is invalid or not-found"""
+    res = None
+    if not re.search(r'^http', url):
+        url = 'http://' + url
+    try:
+        req = urllib.request.urlopen(url, None, 30)
+        res = req.read().decode(locale.getlocale()[1])
+        req.close()
+    except urllib.request.URLError:
+        return None
+    except ValueError:
+        return None
+    except socket.timeout:
+        return None
+    return res
+
+
+def log_form_errors(form):
+    """Put any form errors in logs as warning"""
+    if form.errors:
+        ppc.app().logger.warn({
+            'data': flask.request.form,
+            'errors': form.errors
+        })

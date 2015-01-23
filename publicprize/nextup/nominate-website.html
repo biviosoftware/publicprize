@@ -1,34 +1,77 @@
 {% extends base_template %}
 {%- import "layout/macros.html" as macros %}
 
-{%- block subtitle %}Nominate Website{% endblock %}
+{%- block subtitle %}Nominate a Company{% endblock %}
 
+{%- block jumbo_header %}
+  <div class="pp_jumbo_bg"></div>
+  <div class="container">
+    <div class="row">
+      <div class="pp_nextup_logo">
+        <img src="/static/img/nextup-265x125.png" alt="Next Up">
+      </div>
+      <div class="jumbotron">
+        <h1>Who Will Be The Next Tech Startup Success Story?</h1>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{%- block contest_header %}
+  <div class="pp-lead">
+    <div class="col-sm-1 hidden-xs">
+      <img style="width:100%" src="/static/img/nextuparrow-87x80.png"
+      alt="Arrow">
+    </div>
+    <div class="col-sm-7">
+      <div class="lead">
+      Next Up is an awards platform recognizing startups most likely to be
+      the next great success story of the Denver/Boulder technology
+      scene.
+      </div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-1">
+      <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
+        <button type="button" class="btn btn-lg btn-warning pp-lock-button">
+        Vote Now
+        </button>
+        <span class="glyphicon glyphicon-lock pp-lock-icon"></span>
+        <div>
+          <strong>Stay Tuned:</strong>
+        </div>
+        <div>
+          Polls will be open 3/1 - 3/31
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-7 col-sm-offset-1 hidden-xs"><div class="pp-bottom-border"></div></div>
+    <div class="col-sm-3 col-sm-offset-1
+    hidden-xs"><div class="pp-bottom-border-sidebar"></div></div>
+  </div>
+{%- endblock %}
 {%- block contest_content %}
   <div class="pp-form">
-    <form method="POST" action="{{ contest.format_uri('nominate-website') }}">
-      <h1>Nominate A Website</h1>
-      {{- macros.form_field(form.website) }}
-      {{- macros.submit_button('Submit Entry') }}
+    <form method="POST" action="{{ contest.format_uri() }}">
+      <h1>Nominate a Company</h1>
+      {{- macros.form_field(form.company_name, with_placeholder=True) }}
+      {{- macros.form_field(form.website, with_placeholder=True) }}
+      {{- macros.form_field(form.submitter_name, with_placeholder=True) }}
+      <div class="pull-right">
+        {{- macros.submit_button('Submit Entry') }}
+      </div>
+      <div class="clearfix"></div>
     </form>
   </div>
-  {% endblock %}
-
-{%- block scripts %}
-  {{- super() }}
-  <script>
-
-$(window).load(function() {
-  $(".pp-link-slider").click(function() {
-    if ($(window).scrollTop() > 0)
-      return true;
-    var href = this.href;
-    $(".pp-header-slider").slideUp(function() {
-      window.location = href;
-    });
-    return false;
-  });
-  $(".pp-header-slider").slideDown();
-});
-
-  </script>
+  <div class="pp-form">
+    <button type="button" class="btn btn-lg btn-warning pp-lock-button">
+      Meet The Nominees
+    </button>
+    <span class="glyphicon glyphicon-lock pp-lock-icon"></span>
+    <div>
+      <strong>Stay Tuned:</strong>
+    </div>
+    <div>
+      Polls will be open 3/1 - 3/31
+    </div>
+  </div>
 {%- endblock %}

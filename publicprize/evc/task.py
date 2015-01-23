@@ -131,23 +131,6 @@ class Contest(ppc.Task):
     def get_template():
         return _template;
 
-    def render_template(biv_obj, name, **kwargs):
-        """Render the page, putting the selected menu and contest in env"""
-        if 'selected_menu_action' not in kwargs:
-            kwargs['selected_menu_action'] = flask.request.pp_request['action'] or ''
-        if kwargs['selected_menu_action']:
-            biv_obj.assert_action_uri(kwargs['selected_menu_action'])
-        return flask.render_template(
-            _template_name(name),
-            contest=biv_obj.get_contest(),
-            base_template=Contest.base_template('contest'),
-            **kwargs
-        )
-
-    def base_template(name):
-        """Get base defaults to contest"""
-        return ppc.app().jinja_env.get_template(_template_dir + '/' + name + '.html')
-
 
 class Contestant(ppc.Task):
     """Contestant actions"""
@@ -157,6 +140,7 @@ class Contestant(ppc.Task):
             if biv_obj.get_contest().is_expired():
                 # TODO(pjm): share return value with Donate form
                 return _template.render_template(
+                    biv_obj.get_contest(),
                     'detail',
                     contestant=biv_obj,
                     contestant_url=biv_obj.format_absolute_uri(),
@@ -248,14 +232,4 @@ class Founder(ppc.Task):
         return flask.send_file(
             io.BytesIO(biv_obj.founder_avatar),
             'image/{}'.format(biv_obj.avatar_type)
-        )
-
-
-class Sponsor(ppc.Task):
-    """Sponsor actions"""
-    def action_sponsor_logo(biv_obj):
-        """Sponsor logo image"""
-        return flask.send_file(
-            io.BytesIO(biv_obj.sponsor_logo),
-            'image/{}'.format(biv_obj.logo_type)
         )
