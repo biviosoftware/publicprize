@@ -58,92 +58,6 @@ GENERIC_FIELDS = {
              'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
              'blaa blaa blaa blaa blaa blaa blaa blaa blaa'
             ),
-            # test a very long description
-            ('1000 blaas: blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa blaa '
-             'blaa blaa blaa blaa blaa blaa'
-            )
         ]
     }
 }
@@ -202,16 +116,11 @@ SUBMIT_ENTRY_FIELDS = {
     },
     'business_phone': {
         'conf': [
-            '303-123-4567',
             '303 123 4567',
             '1-303-123-4567',
-            '1 303 123 4567',
-            '303-123-4567-3576',
             '303 123 4567-3576',
-            '303 123 4567 3576',
             '1-303-123-4567-3576',
             '1 303 123 4567-3576',
-            '1 303 123 4567 3576'
         ],
         'dev': ['']
     },
@@ -316,15 +225,15 @@ JUDGING_FIELDS = {
 WEBSITE_SUBMISSION_FIELDS = {
     'websites': {
         'conf': [
-            'www.zombo.com',
-            'zombo.com',
-            'http://www.zombo.com',
-            'https://www.google.com',
+            'www.bivio.biz-Bivio software',
+            'bivio.biz-Bivio software 2',
+            'http://www.bivio.biz-Bivio software',
+            'https://www.google.com-Google',
         ],
         'dev': [
-            'asldkfjasdklfjalskdjf',
-            'www.alaskdjfalksdj.com',
-            'http://www.asdlkfjasdlkfjasdlkfj.com',
+            'asldkfjasdklfjalskdjf-x',
+            'www.alaskdjfalksdj.com-x',
+            'http://www.asdlkfjasdlkfjasdlkfj.com-x',
         ],
     },
 }

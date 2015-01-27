@@ -1,4 +1,33 @@
 {
+  "NUContest": [
+    {
+      "display_name": "Next Up",
+      "Alias": {
+        "name": "next-up"
+      },
+      "Sponsor": [
+        {
+	  "display_name": "Boulder & Denber Software Clubs",
+	  "website": "http://www.bdswclub.org",
+	  "logo_filename": "data/boulderdenversoftwareclub-255x178.gif"
+	},
+        {
+	  "display_name": "Market Creation Group",
+	  "website": "http://marketcreationgroup.com",
+	  "logo_filename": "data/marketcreationgroup-255x178.gif"
+	},
+        {
+	  "display_name": "Bivio Software",
+	  "website": "http://www.bivio.biz",
+	  "logo_filename": "data/bivio-255x178.gif"
+	}
+      ]
+    },
+    {
+      "display_name": "Empty Next Up Contest",
+      "Sponsor": []
+    }
+  ],
   "Contest": [
     {
       "display_name": "Esprit Venture Challenge",

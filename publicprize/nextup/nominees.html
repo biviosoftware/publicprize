@@ -1,0 +1,20 @@
+{% extends base_template %}
+{%- import "layout/macros.html" as macros %}
+
+<!-- TODO: add block social_meta -->
+
+{%- block subtitle %}Meet The Nominees{%- endblock %}
+{%- block sponsor_list %}{% endblock %}
+{% block contest_content_class %}col-sm-offset-1 col-sm-8{% endblock %}
+{%- block contest_content %}
+  <h1>Meet The Nominees</h1>
+  Browse the future technology industry titans below. Polls will open
+  on March 1st for voting.
+  <div class="pp-form">
+  {%- for nominee in contest.get_nominees(randomize=True) %}
+    <div class="lead">
+      <a href="{{ nominee.url }}">{{ nominee.display_name }}</a>
+    </div>
+  {%- endfor %}
+  </div>
+{%- endblock %}

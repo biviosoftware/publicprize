@@ -5,14 +5,9 @@
     :license: Apache, see LICENSE for more details.
 """
 
-import datetime
 import decimal
-import locale
-import pytz
 import re
-import socket
 import sys
-import urllib.request
 
 import flask
 import flask_mail
@@ -23,6 +18,7 @@ import wtforms
 import wtforms.validators as wtfv
 
 from . import model as pcm
+from .. import common
 from .. import controller as ppc
 from ..auth import model as pam
 
@@ -83,11 +79,11 @@ class Contestant(flask_wtf.Form):
                     'Thank you for submitting your entry. You will be '
                     'contacted by email when your entry has been reviewed.')
                 return flask.redirect(contest.format_uri('contestants'))
-        return contest.task_class.render_template(
+        return contest.task_class.get_template().render_template(
             contest,
             'submit',
             form=self,
-            selected='submit-contestant'
+            selected_menu_action='submit-contestant'
         )
 
     def validate(self):
@@ -97,7 +93,7 @@ class Contestant(flask_wtf.Form):
         self._validate_youtube()
         self._validate_slideshare()
         self._validate_website()
-        _log_errors(self)
+        common.log_form_errors(self)
         return not self.errors
 
     def _add_founder(self, contestant, founder):
@@ -134,25 +130,6 @@ class Contestant(flask_wtf.Form):
                 founder_desc=str(self.founder3_desc.data),
             ))
 
-    def _get_url_content(self, url):
-        """Performs a HTTP GET on the url.
-
-        Returns False if the url is invalid or not-found"""
-        res = None
-        if not re.search(r'^http', url):
-            url = 'http://' + url
-        try:
-            req = urllib.request.urlopen(url, None, 30)
-            res = req.read().decode(locale.getlocale()[1])
-            req.close()
-        except urllib.request.URLError:
-            return None
-        except ValueError:
-            return None
-        except socket.timeout:
-            return None
-        return res
-
     def _send_mail_to_support(self, contestant):
         """Send a notification to support for a new entry"""
         ppc.mail().send(flask_mail.Message(
@@ -181,7 +158,7 @@ class Contestant(flask_wtf.Form):
         ex. www.slideshare.net/Micahseff/game-xplain-pitch-deck-81610
         Adds field errors if the code can not be determined.
         """
-        html = self._get_url_content(self.slideshow_url.data)
+        html = common.get_url_content(self.slideshow_url.data)
         if not html:
             self.slideshow_url.errors = [
                 'SlideShare URL invalid or unavailable.']
@@ -235,7 +212,7 @@ class Contestant(flask_wtf.Form):
             return
         code = self._slideshare_code()
         if code:
-            if not self._get_url_content(
+            if not common.get_url_content(
                     'http://www.slideshare.net/slideshow/embed_code/' + code):
                 self.slideshow_url.errors = [
                     'Unknown SlideShare ID: ' + code + '.']
@@ -245,7 +222,7 @@ class Contestant(flask_wtf.Form):
         if self.website.errors:
             return
         if self.website.data:
-            if not self._get_url_content(self.website.data):
+            if not common.get_url_content(self.website.data):
                 self.website.errors = ['Website invalid or unavailable.']
 
     def _validate_youtube(self):
@@ -254,7 +231,7 @@ class Contestant(flask_wtf.Form):
             return
         code = self._youtube_code()
         if code:
-            html = self._get_url_content('http://youtu.be/' + code)
+            html = common.get_url_content('http://youtu.be/' + code)
             # TODO(pjm): need better detection for not-found page
             if not html or re.search(r'<title>YouTube</title>', html):
                 self.youtube_url.errors = [
@@ -285,7 +262,7 @@ class Donate(flask_wtf.Form):
             if url:
                 return flask.redirect(url)
         contest = contestant.get_contest()
-        return contest.task_class.render_template(
+        return contest.task_class.get_template().render_template(
             contest,
             'detail',
             contestant=contestant,
@@ -344,7 +321,7 @@ class Donate(flask_wtf.Form):
             self.amount.raw_data = None
         if amount:
             self.amount.data = decimal.Decimal(amount)
-        _log_errors(self)
+        common.log_form_errors(self)
         return not self.errors
 
     def _create_donor(self, contestant):
@@ -504,10 +481,10 @@ class Judgement(flask_wtf.Form):
                     contest.format_uri('judging'))
         else:
             self._load_scores(contestant)
-        return contest.task_class.render_template(
+        return contest.task_class.get_template().render_template(
             contest,
             'judge-contestant',
-            sub_base_template=contest.task_class.base_template('detail'),
+            sub_base_template=contest.task_class.get_template().base_template('detail'),
             contestant=contestant,
             form=self
         )
@@ -525,7 +502,7 @@ class Judgement(flask_wtf.Form):
         super(Judgement, self).validate()
         for num in range(1, 7):
             self['question{}'.format(num)].errors = None
-        _log_errors(self)
+        common.log_form_errors(self)
         return not self.errors
 
     def _load_scores(self, contestant):
@@ -570,141 +547,3 @@ class Judgement(flask_wtf.Form):
             contestant_biv_id=contestant.biv_id,
             question_number=int(num)
         ).first()
-
-
-class Nomination(flask_wtf.Form):
-    """Plain form that accepts a website nomination.
-
-    A 'Nominition' is created on form submission (see pcm.Nomination)
-    If the website is new, then a 'Nominee' is added for that website.
-
-    Fields: Website
-    """
-
-    website = wtforms.StringField(
-        'Website url', validators=[
-            wtfv.DataRequired(), wtfv.Length(max=200)])
-
-    def execute(self, contest):
-        """Validates website url and adds it to the database"""
-        if self.is_submitted() and self.validate():
-            nominee, _ = self._update_models(contest)
-            url = nominee.url
-            if url:
-                flask.flash('Thank you for submitting {} to {}.'.format(url, contest.display_name))
-                return flask.redirect(contest.format_uri('contestants'))
-                # TODO(mda): Build the thank you page (currently I'm only
-                # flashing a thank-you message on the contestants page
-                return flask.redirect(contest.format_uri('thank-you-page'))
-        return contest.task_class.render_template(
-            contest,
-            'nominate-website',
-            form=self,
-            selected='website-url'
-        )
-
-    def _update_models(self, contest):
-        """Creates the Contestant and Founder models
-        and adds BivAccess models to join the contest and Founder models"""
-        url = self.website.data
-        # (mda) get the time here to minimize server processing time
-        # interference (just in case of a hangup of some sort)
-        submission_datetime = self._get_current_time_MST()
-        if not self._is_already_nominated(url):
-            nominee = pcm.Nominee()
-            self.populate_obj(nominee)
-            nominee.url = url
-            nominee.is_public = \
-                ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
-            nominee.is_under_review = False
-            ppc.db.session.add(nominee)
-            ppc.db.session.flush()
-            ppc.db.session.add(
-                pam.BivAccess(
-                    source_biv_id=contest.biv_id,
-                    target_biv_id=nominee.biv_id
-                )
-            )
-        else:
-            nominee = self._get_matching_nominee(url)
-        assert nominee is not None
-        nomination = pcm.Nomination()
-        # TODO(mda): verify that the access route returns correct urls when
-        # accessed from remote location (this is hard to test from a local
-        # machine)
-        route = flask.request.access_route
-        # (mda) Trusting the first item in the client ip route is a potential
-        # security risk, as the client may spoof this to potentially inject code
-        # this shouldn't be a problem in our implementation, as in the worst
-        # case, we'll just be recording a bogus value.
-        try:
-            nomination.client_ip = route[0][:pcm.Nomination.client_ip.type.length]
-        except IndexError:
-            nomination.client_ip = 'ip unrecordable'
-            print("Error, failed to record client ip. route: {}. ".format(route),
-                  "Recording ip as '{}'".format(nomination.client_ip),
-                  file=sys.stderr)
-        nomination.submission_datetime = submission_datetime
-        nomination.nominee = nominee.biv_id
-        ppc.db.session.add(nomination)
-        ppc.db.session.flush()
-        ppc.db.session.add(
-            pam.BivAccess(
-                source_biv_id=contest.biv_id,
-                target_biv_id=nomination.biv_id
-            )
-        )
-        return nominee, nomination
-
-    def _is_already_nominated(self, url):
-        return pcm.Nominee.query.filter(pcm.Nominee.url == url).count() > 0
-
-    def _get_matching_nominee(self, url):
-        return pcm.Nominee.query.filter(pcm.Nominee.url == url).first()
-
-    def validate(self):
-        """Performs url field validation"""
-        self._validate_website()
-        _log_errors(self)
-        return not self.errors
-
-    def _validate_website(self):
-        """Ensures the website exists"""
-        if self.website.errors:
-            return
-        if self.website.data:
-            if not self._get_url_content(self.website.data):
-                self.website.errors = ['Website invalid or unavailable.']
-
-    def _get_current_time_MST(self):
-        """Returns a datetime object with the current date in MST"""
-        tz = pytz.timezone('US/Mountain')
-        current_time = datetime.datetime.now(tz)
-        return current_time
-
-    def _get_url_content(self, url):
-        """Performs a HTTP GET on the url.
-
-        Returns False if the url is invalid or not-found"""
-        res = None
-        if not re.search(r'^http', url):
-            url = 'http://' + url
-        try:
-            req = urllib.request.urlopen(url, None, 30)
-            res = req.read().decode(locale.getlocale()[1])
-            req.close()
-        except urllib.request.URLError:
-            return None
-        except ValueError:
-            return None
-        except socket.timeout:
-            return None
-        return res
-
-def _log_errors(form):
-    """Put any form errors in logs as warning"""
-    if form.errors:
-        ppc.app().logger.warn({
-            'data': flask.request.form,
-            'errors': form.errors
-        })

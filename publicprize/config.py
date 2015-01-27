@@ -19,9 +19,15 @@ class Config(object):
     locale.setlocale(locale.LC_ALL, '')
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     PUBLICPRIZE = _read_json(os.environ.get('PUBLICPRIZE_JSON', 'config.json'))
-    for x in ('DEBUG', 'ALL_PUBLIC_CONTESTANTS', 'TEST_USER', 'MAIL_DEBUG'):
-        if not x in PUBLICPRIZE:
-            PUBLICPRIZE[x] = PUBLICPRIZE['TEST_MODE']
+
+    for k in ['TRACE', 'INDEX_URI']:
+        v = os.environ.get('PUBLICPRIZE_' + k, None)
+        if v or not k in PUBLICPRIZE:
+            PUBLICPRIZE[k] = v
+
+    for k in ['DEBUG', 'ALL_PUBLIC_CONTESTANTS', 'TEST_USER', 'MAIL_DEBUG']:
+        if not k in PUBLICPRIZE:
+            PUBLICPRIZE[k] = PUBLICPRIZE['TEST_MODE']
 
     import paypalrestsdk
     paypalrestsdk.configure(PUBLICPRIZE['PAYPAL'])

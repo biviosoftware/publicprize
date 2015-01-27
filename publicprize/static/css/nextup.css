@@ -1,0 +1,84 @@
+
+/**
+ * Next Up style
+ **/
+
+body {
+  color: #222;
+  background-color: #eeeeee;
+}
+.navbar {
+  margin-bottom: 0;
+}
+.navbar-default {
+  border: 0;
+}
+
+.pp_jumbo_bg {
+  background: url("/static/img/denver-2572x375.jpg") no-repeat scroll center center rgba(0, 0, 0, 0);
+  height: 380px;
+  z-index: -1;
+  margin-bottom: -380px;
+  background-size: cover;
+}
+.container .jumbotron {
+  background: none repeat scroll 0 0 transparent;
+  color: #fbb153;
+  text-shadow: 0 2px 2px #444;
+  height: 230px;
+  padding-top: 15px;
+  padding-left: 15px;
+  margin-bottom: 15px;
+}
+
+.pp_nextup_logo {
+  margin-left: 15px;
+  width: 275px;
+  border-left: 5px solid #d5d5d5;
+  border-right: 5px solid #d5d5d5;
+  border-bottom: 5px solid #d5d5d5;
+}
+
+.pp-sidebar-module-inset {
+  padding: 0;
+  border: 8px solid white;
+  background-color: white;
+}
+
+.pp-form {
+  background-color: white;
+  margin-left: 0;
+}
+
+.pp-lead {
+    margin-top: 20px;
+}
+
+.pp-arrow {
+  float: left;
+}
+
+.pp-lock-button {
+  padding-right: 45px;
+  cursor: not-allowed;
+  width: 90%;
+  margin-bottom: 5px;
+}
+.pp-lock-button, .pp-lock-button:hover, .pp-lock-button:active, .pp-lock-button:focus {
+  color: black;
+}
+
+.pp-lock-icon {
+  margin-left: -40px;
+  vertical-align: bottom;
+  font-size: 60px;
+  width: 1%;
+}
+
+.pp-bottom-border {
+  border-bottom: 1px solid #ddd;
+}
+.pp-bottom-border-sidebar {
+  border-bottom: 1px solid #ddd;
+  margin-left: -15px;
+}

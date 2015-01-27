@@ -18,6 +18,7 @@ import sqlalchemy.orm
 from .. import biv
 from .. import common
 from .. import controller
+from ..contest import model as pcm
 from ..auth import model as pam
 from ..controller import db
 
@@ -110,15 +111,13 @@ class Contest(db.Model, common.ModelWithDates):
             row['total_score'] = row['amount_score'] + row['judge_score']
         return sorted(rows, key=lambda contestant: contestant['display_name'])
 
+    def get_contest(self):
+        """Returns self"""
+        return self
+
     def get_sponsors(self, randomize=False):
         """Return a list of Sponsor models for this Contest"""
-        sponsors = Sponsor.query.select_from(pam.BivAccess).filter(
-            pam.BivAccess.source_biv_id == self.biv_id,
-            pam.BivAccess.target_biv_id == Sponsor.biv_id
-        ).all()
-        if randomize:
-            random.shuffle(sponsors)
-        return sponsors
+        return pcm.Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize);
 
     def get_public_contestants(self, randomize=False, userRandomize=False):
         """Return a list of contestants for this Contest. List will be
@@ -139,10 +138,6 @@ class Contest(db.Model, common.ModelWithDates):
         """Returns the timezone used by this contest."""
         # TODO(pjm): either store in config or per contest
         return pytz.timezone('US/Mountain')
-
-    def get_nominated_websites(self):
-        """Returns a list of all websites that haven been nominated"""
-        return Nominee.query.all()
 
     def hours_remaining(self):
         """Hours remaining for this Contest."""
@@ -508,77 +503,8 @@ class JudgeScore(db.Model, common.ModelWithDates):
         ][int(number) - 1]
 
 
-class Sponsor(db.Model, common.ModelWithDates):
-    """sponsor database model.
-
-    Fields:
-        biv_id: primary ID
-        display_name: sponsor name
-        website: sponsor website
-        sponsor_logo: logo image blob
-        logo_type: image type (gif, png, jpeg)
-    """
-    biv_id = db.Column(
-        db.Numeric(18),
-        db.Sequence('sponsor_s', start=1008, increment=1000),
-        primary_key=True
-    )
-    display_name = db.Column(db.String(100), nullable=False)
-    website = db.Column(db.String(100))
-    sponsor_logo = db.Column(db.LargeBinary)
-    logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
-
-
-class Nominee(db.Model, common.ModelWithDates):
-    """nominated website database model.
-
-    Fields:
-        biv_id: primary ID
-        display_name: nominated project name
-        website: nominated website
-        is_public: is the project to be shown on the public contestant list?
-        is_under_review: enables review of a non-public submission
-    """
-    biv_id = db.Column(
-        db.Numeric(18),
-        db.Sequence('nominee_s', start=1011, increment=1000),
-        primary_key=True
-    )
-    #TODO(mda): determine if a display_name is necessary, then add it if so
-    url = db.Column(db.String(100), nullable=False)
-    is_public = db.Column(db.Boolean, nullable=False)
-    is_under_review = db.Column(db.Boolean, nullable=False)
-
-class Nomination(db.Model, common.ModelWithDates):
-    """database model that carries the information of a website nomination
-
-    Fields:
-        biv_id: primary ID
-        nominee: Foreign key to a Nominee
-        client_ip: client ip of the user who performed the nomination
-        submission_datetime: date and time of the nomination
-        browser_string: user's browser string at time of submission
-    """
-    biv_id = db.Column(
-        db.Numeric(18),
-        db.Sequence('nomination_s', start=1012, increment=1000),
-        primary_key=True
-    )
-    nominee = db.Column(
-        db.Numeric(18),
-        db.ForeignKey('nominee.biv_id'),
-        nullable=False
-    )
-    client_ip = db.Column(db.String(45))
-    submission_datetime = db.Column(db.DateTime)
-    browser_string = db.Column(db.String(200))
-
-
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
 Contestant.BIV_MARKER = biv.register_marker(3, Contestant)
 Donor.BIV_MARKER = biv.register_marker(7, Donor)
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
-Sponsor.BIV_MARKER = biv.register_marker(8, Sponsor)
-Judge.BIV_MARKER = biv.register_marker(9, Sponsor)
-Nominee.BIV_MARKER = biv.register_marker(11, Nominee)
-Nomination.BIV_MARKER = biv.register_marker(12, Nomination)
+Judge.BIV_MARKER = biv.register_marker(9, Judge)
