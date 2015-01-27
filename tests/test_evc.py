@@ -6,7 +6,6 @@
 """
 
 import decimal
-import itertools
 import os.path
 import random
 import re
@@ -14,129 +13,17 @@ import unittest
 
 from bs4 import BeautifulSoup
 
+import publicprize.controller as ppc
 import publicprize.debug
 from publicprize.debug import pp_t
-import publicprize.controller
 import workflow_data as wd
-
-class ParseData(object):
-    """ Takes in a data set of the form:
-        SET = {
-            'item': {
-                'conf': []
-                'dev': []
-            }, ...
-        }
-
-       Then returns various dev and conf options
-    """
-    def __init__(self, data):
-        """ good_data and bad_data should be lists of lists of data, containing
-        at least one item each """
-        assert len(data) > 0
-        for key, item in data.items():
-            assert 'conf' in item, 'item: {0}'.format(item)
-            if item['conf'] is not None:
-                assert len(item['conf']) > 0
-            assert 'dev' in item, 'item: {0}'.format(item)
-            if item['dev'] is not None:
-                assert len(item['dev']) > 0
-        self.data = data
-
-    def get_data_variations(self, data_subtype):
-        """ Efficiently returns sets of the form:
-            SET = {
-                'item': some_value,
-                'item2': some_value,
-                ...
-            },
-
-            such that all members of in either the 'conf' or 'dev' subset of
-            'item', 'item2', ..., are eventually returned. Does not guarantee
-            that every possible permutation is considered, but does guarantee
-            that each unique item in each 'conf' or 'dev' subset is considered.
-
-            -- data_subtype: subtype for data, either 'conf' or 'dev'
-        """
-        positions = {}
-        data = {}
-
-        # initialization
-        for key, item in self.data.items():
-            if item[data_subtype] is None:
-                continue  # ignore null fields
-            positions[key] = 0
-            data[key] = item[data_subtype][positions[key]]
-        yield data
-
-        # main loop
-        done = False
-        while done is False:
-            done = True
-            for key, item in self.data.items():
-                if item[data_subtype] is None:
-                    continue  # ignore null fields
-                if len(item[data_subtype]) > positions[key] + 1:
-                    positions[key] += 1
-                    data[key] = item[data_subtype][positions[key]]
-                    done = False
-            yield data
-
-    # TODO: this name is way too long
-    def get_mostly_one_type_single_other_type_variations(self, main_subtype):
-        """ Get sets that are almost entirely one subtype, with a single
-            element from the other subtype. Only one set of items from the main
-            subtype is returned, while all items in the secondary subtype
-            are eventually returned in separate sets.
-
-            -- main_subtype: 'conf' or 'dev'. Whichever one you want your data
-               to be mostly comprised of.
-        """
-        assert main_subtype == 'conf' or main_subtype == 'dev'
-        secondary_subtype = 'dev' if main_subtype == 'conf' else 'conf'
-        ret_data = next(self.get_data_variations(main_subtype))
-        full_data = self.data
-
-        for field in ret_data:
-            if full_data[field][secondary_subtype] is None:
-                continue  # skip empty fields
-            for item in full_data[field][secondary_subtype]:
-                ret_data[field] = item
-                yield ret_data, field
-            ret_data[field] = full_data[field][main_subtype]
-
-    def get_random_variation(self, data_subtype):
-        """ Gets a single random variation of self.data['data_subtype']
-            fields with None values are skipped
-        """
-        assert data_subtype == 'conf' or data_subtype == 'dev'
-        data = {}
-        for key, item in self.data.items():
-            if item is None:
-                continue  # ignore empty fields
-            data[key] = random.sample(item[data_subtype], 1)[0]  # random.sample returns a list
-        return data
-
-
-class FlaskTestClientProxy(object):
-    """proxy class to set browser environment variables for testing.
-
-    Courtesy of stackoverflow answer at:
-    http://stackoverflow.com/questions/15278285/setting-mocking-request-headers-for-flask-app-unit-test
-    """
-    def __init__(self, app):
-        self.app = app
-
-    def __call__(self, environ, start_response):
-        environ['REMOTE_ADDR'] = environ.get('REMOTE_ADDR', '127.0.0.1')
-        environ['HTTP_USER_AGENT'] = environ.get('HTTP_USER_AGENT', 'Chrome')
-        return self.app(environ, start_response)
+from contest_common import ParseData, FlaskTestClientProxy, DbCheck
 
 
 class PublicPrizeTestCase(unittest.TestCase):
     def setUp(self):
-        publicprize.controller.init()
-        app = publicprize.controller.app()
+        ppc.init()
+        app = ppc.app()
         app.wsgi_app = FlaskTestClientProxy(app.wsgi_app)
         self.client = app.test_client()
         self.current_page = None
@@ -408,42 +295,6 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text(name)
         self._follow_link('My Entry')
         self._verify_text(name)
-
-    def test_submit_website_conf_entries(self):
-        CONTEST_NAME = 'Next Up'
-        self._visit_uri('/')
-        self._follow_link(CONTEST_NAME)
-        conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
-        #TODO(mda): the current_uri tracking doesn't notice redirects
-        nominate_website_uri = self.current_uri
-        submitted_websites_uri = self.current_uri + '/nominees'
-        for data_variation in conf_websites_gen:
-            url_and_name = data_variation['websites'].split('-')
-            self._visit_uri(nominate_website_uri)
-            self._submit_form({
-                'website': url_and_name[0],
-                'company_name': url_and_name[1],
-                'submitter_name':'x'
-            })
-            self._verify_text('Thanks for Nominating')
-            self._visit_uri(submitted_websites_uri)
-            self._verify_text(url_and_name[1], "website '{}' not at {}".format(
-                url_and_name[1], self.current_uri))
-            #TODO(mda): get current time
-            #TODO(mda): check the database directly
-
-    def test_submit_website_dev_entries(self):
-        self._visit_uri('/')
-        self._follow_link('Next Up')
-        dev_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
-        for data_variation in dev_websites_gen:
-            self._submit_form({
-                'website': data_variation['websites'],
-                'company_name':'x',
-                'submitter_name':'x'
-            })
-            self._verify_text('Website invalid or unavailable')
-            #TODO(mda): be certain that the website is not in the database
 
     def _follow_link(self, link_text):
         url = None
