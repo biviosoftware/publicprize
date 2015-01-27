@@ -6,17 +6,14 @@
 """
 
 import decimal
-import itertools
 import os.path
 import random
 import re
 import unittest
-import decimal
 
 from bs4 import BeautifulSoup
 
 import publicprize.controller as ppc
-from publicprize.evc import model as pcm
 import publicprize.debug
 from publicprize.debug import pp_t
 import workflow_data as wd
@@ -298,42 +295,6 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text(name)
         self._follow_link('My Entry')
         self._verify_text(name)
-
-    def test_submit_website_conf_entries(self):
-        CONTEST_NAME = 'Next Up'
-        self._visit_uri('/')
-        self._follow_link(CONTEST_NAME)
-        conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
-        #TODO(mda): the current_uri tracking doesn't notice redirects
-        nominate_website_uri = self.current_uri
-        submitted_websites_uri = self.current_uri + '/nominees'
-        for data_variation in conf_websites_gen:
-            url_and_name = data_variation['websites'].split('-')
-            self._visit_uri(nominate_website_uri)
-            self._submit_form({
-                'website': url_and_name[0],
-                'company_name': url_and_name[1],
-                'submitter_name':'x'
-            })
-            self._verify_text('Thanks for Nominating')
-            self._visit_uri(submitted_websites_uri)
-            self._verify_text(url_and_name[1], "website '{}' not at {}".format(
-                url_and_name[1], self.current_uri))
-            #TODO(mda): get current time
-            #TODO(mda): check the database directly
-
-    def test_submit_website_dev_entries(self):
-        self._visit_uri('/')
-        self._follow_link('Next Up')
-        dev_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
-        for data_variation in dev_websites_gen:
-            self._submit_form({
-                'website': data_variation['websites'],
-                'company_name':'x',
-                'submitter_name':'x'
-            })
-            self._verify_text('Website invalid or unavailable')
-            #TODO(mda): be certain that the website is not in the database
 
     def _follow_link(self, link_text):
         url = None
