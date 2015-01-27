@@ -17,7 +17,7 @@ import publicprize.controller as ppc
 import publicprize.debug
 from publicprize.debug import pp_t
 import workflow_data as wd
-from contest_common.py import ParseData, FlaskTestClientProxy, DbCheck
+from contest_common import ParseData, FlaskTestClientProxy, DbCheck
 
 
 class PublicPrizeTestCase(unittest.TestCase):
