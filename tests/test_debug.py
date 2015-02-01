@@ -5,6 +5,7 @@
     :license: Apache, see LICENSE for more details.
 """
 
+import glob
 import inspect
 import os.path
 import pytest
@@ -91,6 +92,8 @@ def test_log():
     assert_file('00000003', 'response_headers')
     assert_file('new_dir/00000001', 'response_data')
     assert_file('new_dir/00000002', 'other')
+    _request_logger.log('not written', 'invalid/suffix')
+    assert list(glob.glob('debug/*invalid*')) == [], 'found invalid/suffix'
 
 def test_trace():
     _last_msg = None
