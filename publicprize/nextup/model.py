@@ -54,7 +54,6 @@ class Nominee(db.Model, common.ModelWithDates):
         primary_key=True
     )
     display_name = db.Column(db.String(100), nullable=False)
-    url = db.Column(db.String(100), nullable=False)
     is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
 
@@ -64,6 +63,31 @@ class Nominee(db.Model, common.ModelWithDates):
             pam.BivAccess.source_biv_id == NUContest.biv_id,
             pam.BivAccess.target_biv_id == self.biv_id
         ).one()
+
+
+class Nominee_url(db.Model, common.ModelWithDates):
+    """ submitted urls for a single nominee
+
+    Fields:
+        biv_id: primary ID
+        Nominee: Foreign Key to a nominee
+        url: nominated website
+
+    ex: bivio.biz
+        - https://www.bivio.biz
+        - http://www.bivio.biz
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('nominee_url_s', start=1014, increment=1000),
+        primary_key=True,
+    )
+    nominee = db.Column(
+        db.Numeric(18),
+        db.ForeignKey('nominee.biv_id'),
+        nullable=False
+    )
+    url = db.Column(db.String(100), nullable=False)
 
 
 class Nominator(db.Model, common.ModelWithDates):
