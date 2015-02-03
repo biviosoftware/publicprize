@@ -5,8 +5,12 @@
     :license: Apache, see LICENSE for more details.
 """
 import random
+import re
+
+from bs4 import BeautifulSoup
 
 import publicprize.controller as ppc
+from publicprize.debug import pp_t
 
 class ParseData(object):
     """ Takes in a data set of the form:
@@ -146,3 +150,63 @@ class DbCheck(object):
 
     def _filter(self, db_item, filters_str):
         return eval('db_item.query.filter({})'.format(filters_str))
+
+
+class TestCaseHelpers(object):
+    """ Helper methods shared across test_evc and test_nextup (possibly more
+    files as of the date this is read).
+
+    Subclass Dependencies:
+        - self.current_page must be set (setting to None is acceptable)
+        - self.client is expected to be app.test_client()
+    """
+
+    def __init__(self):
+        self.client = None
+
+    def _follow_link(self, link_text):
+        url = None
+        # exact match
+        for link in self.current_page.find_all('a'):
+            if link.get_text() == link_text:
+                url = link['href']
+                break
+        # partial match
+        if not url:
+            regexp = re.compile(re.escape(link_text))
+            for link in self.current_page.find_all('a'):
+                if re.search(regexp, link.get_text()):
+                    url = link['href']
+                    break
+
+        assert url
+        self._visit_uri(url)
+
+    def _set_current_page(self, response):
+        self.current_response = response
+        self.current_page = BeautifulSoup(response.data)
+
+    def _submit_form(self, data):
+        pp_t(self.current_page)
+        url = self.current_page.find('form')['action']
+        assert url
+        # data['csrf_token'] = self.current_page.find(id='csrf_token')['value']
+        # assert data['csrf_token']
+        self._set_current_page(self.client.post(
+            url,
+            data=data,
+            follow_redirects=True))
+        self.current_uri = url
+
+    def _verify_text(self, text, msg=""):
+        if not self.current_page.find(text=re.compile(re.escape(text))):
+            if not msg:
+                msg = text + ': text not found in '
+            pp_t(msg)
+            pp_t(str(self.current_page))
+            raise AssertionError(msg)
+
+    def _visit_uri(self, uri):
+        assert uri
+        self._set_current_page(self.client.get(uri, follow_redirects=True))
+        self.current_uri = uri

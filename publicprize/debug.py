@@ -82,7 +82,7 @@ class RequestLogger(object):
             with self._open(suffix) as f:
                 f.write(data)
         except:
-            _app.logger.warn('unable log ' + suffix + ':' + logger._index)
+            sys.stderr.write('unable log ' + suffix + ':' + str(self._index) + '\n')
 
     def set_log_dir(self, relpath):
         """Set the log diretory to relpath (relative to root_dir), resets the index"""

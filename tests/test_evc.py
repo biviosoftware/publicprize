@@ -17,10 +17,10 @@ import publicprize.controller as ppc
 import publicprize.debug
 from publicprize.debug import pp_t
 import workflow_data as wd
-from contest_common import ParseData, FlaskTestClientProxy, DbCheck
+from contest_common import ParseData, FlaskTestClientProxy, DbCheck, TestCaseHelpers
 
 
-class PublicPrizeTestCase(unittest.TestCase):
+class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
     def setUp(self):
         ppc.init()
         app = ppc.app()
@@ -295,53 +295,6 @@ class PublicPrizeTestCase(unittest.TestCase):
         self._verify_text(name)
         self._follow_link('My Entry')
         self._verify_text(name)
-
-    def _follow_link(self, link_text):
-        url = None
-        # exact match
-        for link in self.current_page.find_all('a'):
-            if link.get_text() == link_text:
-                url = link['href']
-                break
-        # partial match
-        if not url:
-            regexp = re.compile(re.escape(link_text))
-            for link in self.current_page.find_all('a'):
-                if re.search(regexp, link.get_text()):
-                    url = link['href']
-                    break
-
-        assert url
-        self._visit_uri(url)
-
-    def _set_current_page(self, response):
-        self.current_response = response
-        self.current_page = BeautifulSoup(response.data)
-
-    def _submit_form(self, data):
-        pp_t(self.current_page)
-        url = self.current_page.find('form')['action']
-        assert url
-        # data['csrf_token'] = self.current_page.find(id='csrf_token')['value']
-        # assert data['csrf_token']
-        self._set_current_page(self.client.post(
-            url,
-            data=data,
-            follow_redirects=True))
-        self.current_uri = url
-
-    def _verify_text(self, text, msg=""):
-        if not self.current_page.find(text=re.compile(re.escape(text))):
-            if not msg:
-                msg = text + ': text not found in '
-            pp_t(msg)
-            pp_t(str(self.current_page))
-            raise AssertionError(msg)
-
-    def _visit_uri(self, uri):
-        assert uri
-        self._set_current_page(self.client.get(uri, follow_redirects=True))
-        self.current_uri = uri
 
 if __name__ == '__main__':
     unittest.main()
