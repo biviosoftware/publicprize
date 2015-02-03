@@ -57,6 +57,13 @@ class Nominee(db.Model, common.ModelWithDates):
     is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
 
+    def get_urls(self):
+        """Returns all urls linked with this Contestant"""
+        return Nominee_url.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == Nominee_url.biv_id
+        ).all()
+
     def get_contest(self):
         """Returns the Contest model which owns this Contestant"""
         return NUContest.query.select_from(pam.BivAccess).filter(
