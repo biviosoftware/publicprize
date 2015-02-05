@@ -64,9 +64,6 @@ body {
   width: 90%;
   margin-bottom: 5px;
 }
-.pp-lock-button, .pp-lock-button:hover, .pp-lock-button:active, .pp-lock-button:focus {
-  color: black;
-}
 
 .pp-lock-icon {
   margin-left: -40px;
