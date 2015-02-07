@@ -22,11 +22,6 @@
 	  "logo_filename": "data/bivio-255x178.gif"
 	},
         {
-          "display_name": "Demand MCG",
-          "website": "http://www.demandmcg.com",
-          "logo_filename": "data/bdsc/mcg.gif"
-        },
-        {
           "display_name": "Clifton Larson Allen",
           "website": "http://www.cliftonlarsonallen.com/",
           "logo_filename": "data/bdsc/cliftonlarsonallen.gif"
