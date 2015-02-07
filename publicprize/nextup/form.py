@@ -8,6 +8,7 @@
 import flask
 import flask_wtf
 import re
+import urllib.request
 import wtforms
 import wtforms.validators as wtfv
 
@@ -111,7 +112,7 @@ class Nomination(flask_wtf.Form):
     def _create_models(self, contest):
         """Creates the Nominee and Nominator models and links them
         with BivAccess models"""
-        url = self._normalize_url(self.website.data)
+        url = self._follow_url_and_redirects(self.website.data)
         # (mda) get the time here to minimize server processing time
         # interference (just in case of a hangup of some sort)
         if self._is_already_nominated(url):
@@ -126,6 +127,13 @@ class Nomination(flask_wtf.Form):
 
     def _is_already_nominated(self, url):
         return pnm.Nominee.query.filter(pnm.Nominee.url == url).count() > 0
+
+    def _follow_url_and_redirects(self, url):
+        initial_normalized_url = self._normalize_url(url)
+        response = urllib.request.urlopen(initial_normalized_url)
+        response_url = response.geturl()
+        response.close()
+        return response_url
 
     def _normalize_url(self, url):
         if not re.search(r'^http', url):

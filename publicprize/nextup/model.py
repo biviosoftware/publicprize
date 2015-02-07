@@ -64,7 +64,7 @@ class Nominee(db.Model, common.ModelWithDates):
             pam.BivAccess.source_biv_id == NUContest.biv_id,
             pam.BivAccess.target_biv_id == self.biv_id
         ).one()
-    
+
 
 class Nominator(db.Model, common.ModelWithDates):
     """database model that carries the information of a website nominator
