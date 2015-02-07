@@ -8,8 +8,9 @@
 import flask_script as fes
 from publicprize.controller import db
 import publicprize.auth.model as pam
-import publicprize.contest.model as pcm
 import publicprize.controller as ppc
+import publicprize.nextup.model as pnm
+
 
 # Needs to be explicit
 ppc.init()
@@ -17,22 +18,25 @@ _MANAGER = fes.Manager(ppc.app())
 
 
 @_MANAGER.command
-def add_contest_column():
-    """Adds Contest.is_scoring_completed."""
-    _add_column(pcm.Contest, pcm.Contest.is_scoring_completed, False)
-
-
-@_MANAGER.command
-def admin_table():
-    """Creates database table for Admin model."""
-    pam.Admin.__table__.create(bind=db.get_engine(ppc.app()))
-
+def nextup_tables():
+    """Creates NextUp contest tables."""
+    pnm.NUContest.__table__.create(bind=db.get_engine(ppc.app()))
+    pnm.Nominee.__table__.create(bind=db.get_engine(ppc.app()))
+    pnm.Nominator.__table__.create(bind=db.get_engine(ppc.app()))
+    
 
 @_MANAGER.command
-def judge_tables():
-    """Creates database tables for Judge and JudgeScore models."""
-    pcm.Judge.__table__.create(bind=db.get_engine(ppc.app()))
-    pcm.JudgeScore.__table__.create(bind=db.get_engine(ppc.app()))
+def nextup_data():
+    """Creates the NextUp contest data."""
+    nucontest = pnm.NUContest(
+        display_name="Next Up"
+    )
+    db.session.add(nucontest)
+    db.session.flush()
+    db.session.add(pam.BivAlias(
+        biv_id=nucontest.biv_id,
+        alias_name="next-up"
+    ))
 
 
 def _add_column(model, column, default_value=None):
