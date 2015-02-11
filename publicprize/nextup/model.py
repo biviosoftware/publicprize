@@ -22,8 +22,15 @@ class NUContest(db.Model, common.ModelWithDates):
     )
     display_name = db.Column(db.String(100), nullable=False)
 
-    def get_nominees(self, randomize=False):
-        """Returns a list of all websites that haven been nominated
+    def get_admin_nominees(self):
+        """Returns a list of all admin review nominees."""
+        return Nominee.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == Nominee.biv_id
+        ).all()
+    
+    def get_public_nominees(self, randomize=False):
+        """Returns a list of all public websites that haven been nominated
         for this contest"""
         nominees = Nominee.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
@@ -36,6 +43,10 @@ class NUContest(db.Model, common.ModelWithDates):
     def get_sponsors(self, randomize=False):
         """Return a list of Sponsor models for this Contest"""
         return pcm.Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize)
+
+    def is_admin(self):
+        """Shortcut to Admin.is_admin"""
+        return pam.Admin.is_admin()
 
 
 class Nominee(db.Model, common.ModelWithDates):
