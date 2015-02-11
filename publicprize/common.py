@@ -5,18 +5,48 @@
     :license: Apache, see LICENSE for more details.
 """
 
+import flask
+import functools
 import inspect
 import locale
 import re
 import socket
+import sqlalchemy
 import sys
 import urllib.parse
 import urllib.request
-import flask
-import sqlalchemy
 
 from . import controller as ppc
 from . import biv
+import publicprize.auth.model
+
+
+def decorator_login_required(func):
+    """Method decorator which requires a logged in user."""
+    @functools.wraps(func)
+    def decorated_function(*args, **kwargs):
+        """If user is not logged in, redirects to the appropriate oauth task"""
+        if not flask.session.get('user.is_logged_in'):
+            uri = flask.g.pub_obj.get_login_uri()
+            return flask.redirect(
+                uri + '?' + urllib.parse.urlencode({
+                    'next': flask.request.url
+                })
+            )
+        return func(*args, **kwargs)
+    return decorated_function
+
+
+def decorator_user_is_admin(func):
+    """Require the current user is an administrator."""
+    @functools.wraps(func)
+    def decorated_function(*args, **kwargs):
+        """Forbidden unless allowed."""
+        if publicprize.auth.model.Admin.is_admin():
+            return func(*args, **kwargs)
+        werkzeug.exceptions.abort(403)
+    return decorated_function
+
 
 class Model(object):
     """Provides biv support for Models"""
