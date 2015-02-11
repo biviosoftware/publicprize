@@ -159,7 +159,7 @@ class NomineeEdit(flask_wtf.Form):
             self.populate_obj(nominee)
             ppc.db.session.add(nominee)
             return flask.redirect(contest.format_uri('admin-review-nominees'))
-        return nominee.task_class.get_template().render_template(
+        return contest.task_class.get_template().render_template(
             contest,
             'admin-edit-nominee',
             form=self,
