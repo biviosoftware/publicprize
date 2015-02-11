@@ -11,7 +11,7 @@
   Browse the future technology industry titans below. Polls will open
   on March 1st for voting.
   <div class="pp-form">
-  {%- for nominee in contest.get_nominees(randomize=True) %}
+  {%- for nominee in contest.get_public_nominees(randomize=True) %}
     <div class="lead">
       <a href="{{ nominee.url }}">{{ nominee.display_name }}</a>
     </div>
