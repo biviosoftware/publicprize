@@ -36,9 +36,9 @@
       <div class="row">
         {%- for sponsor in contest.get_sponsors(randomize=False) %}
         <div class="col-sm-12 col-xs-6">
-          <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
+          <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar pp-sponsor-images">
             <a href="{{ sponsor.website }}">
-              <img style="width: 100%" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
+              <img style="width: 100%; max-width: 120px" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
           </div>
         </div>
         {%- endfor %}
