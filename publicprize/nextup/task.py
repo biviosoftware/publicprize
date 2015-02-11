@@ -48,7 +48,3 @@ class Nominee(ppc.Task):
             nominees_url=biv_obj.get_contest().format_absolute_uri('nominees'),
             nominee_tweet="I just nominated " + biv_obj.display_name
         );
-
-    def get_template():
-        return _template
-    
