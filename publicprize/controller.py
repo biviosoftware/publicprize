@@ -15,7 +15,6 @@ import sys
 
 from beaker.middleware import SessionMiddleware
 from flask_sqlalchemy import SQLAlchemy
-from functools import wraps
 import flask
 import flask.sessions
 import flask_mail
@@ -45,22 +44,6 @@ def init():
         module_prefix = 'publicprize.' + name + '.'
         importlib.import_module(module_prefix + _MODEL_MODULE)
         importlib.import_module(module_prefix + _TASK_MODULE)
-
-
-def login_required(func):
-    """Method decorator which requires a logged in user."""
-    @wraps(func)
-    def decorated_function(*args, **kwargs):
-        """If user is not logged in, redirects to the appropriate oauth task"""
-        if not flask.session.get('user.is_logged_in'):
-            uri = flask.g.pub_obj.get_login_uri()
-            return flask.redirect(
-                uri + '?' + urllib.parse.urlencode({
-                    'next': flask.request.url
-                })
-            )
-        return func(*args, **kwargs)
-    return decorated_function
 
 
 def mail():
