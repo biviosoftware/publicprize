@@ -22,17 +22,6 @@ from ..auth import model as pam
 
 _template = common.Template('evc');
 
-def user_is_admin(func):
-    """Require the current user is an administrator."""
-    @functools.wraps(func)
-    def decorated_function(*args, **kwargs):
-        """Forbidden unless allowed."""
-        if pam.Admin.is_admin():
-            return func(*args, **kwargs)
-        werkzeug.exceptions.abort(403)
-    return decorated_function
-
-
 def user_is_contestant_founder_or_admin(func):
     """Require the current user is the contestant founder for an expired
     contest or an administrator."""
@@ -65,8 +54,8 @@ class Contest(ppc.Task):
         """About page"""
         return _template.render_template(biv_obj, 'about')
 
-    @ppc.login_required
-    @user_is_admin
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
     def action_admin(biv_obj):
         """Contest administration"""
         return _template.render_template(biv_obj, 'admin')
@@ -87,7 +76,7 @@ class Contest(ppc.Task):
         """List of judges page"""
         return _template.render_template(biv_obj, 'judges')
 
-    @ppc.login_required
+    @common.decorator_login_required
     @user_is_judge
     def action_judging(biv_obj):
         """List of contestants for judgement"""
@@ -123,7 +112,7 @@ class Contest(ppc.Task):
     def action_rules(biv_obj):
         return flask.redirect('/static/pdf/rules.pdf')
 
-    @ppc.login_required
+    @common.decorator_login_required
     def action_submit_contestant(biv_obj):
         """Submit project page"""
         return pcf.Contestant().execute(biv_obj)
@@ -168,13 +157,13 @@ class Contestant(ppc.Task):
         """Default to contestant page"""
         return Contestant.action_contestant(biv_obj)
 
-    @ppc.login_required
+    @common.decorator_login_required
     @user_is_judge
     def action_judging(biv_obj):
         """Contestant judgement"""
         return pcf.Judgement().execute(biv_obj)
 
-    @ppc.login_required
+    @common.decorator_login_required
     @user_is_contestant_founder_or_admin
     def action_score(biv_obj):
         """Show the score report for the contestant."""
