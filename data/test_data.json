@@ -14,12 +14,12 @@
         {
 	  "display_name": "Market Creation Group",
 	  "website": "http://marketcreationgroup.com",
-	  "logo_filename": "data/marketcreationgroup-255x178.gif"
+	  "logo_filename": "data/bdsc/mcg.gif"
 	},
         {
 	  "display_name": "Bivio Software",
 	  "website": "http://www.bivio.biz",
-	  "logo_filename": "data/bivio-255x178.gif"
+	  "logo_filename": "data/bdsc/bivio.gif"
 	},
         {
           "display_name": "Clifton Larson Allen",
