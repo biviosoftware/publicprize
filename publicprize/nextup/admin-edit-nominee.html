@@ -1,0 +1,20 @@
+{% extends base_template %}
+{%- import "layout/macros.html" as macros %}
+
+{%- block subtitle %}Admin Edit Nominate{% endblock %}
+{%- block sponsor_list %}{% endblock %}
+{% block contest_content_class %}col-sm-offset-1 col-sm-8{% endblock %}
+{%- block contest_content %}
+  <div class="pp-form">
+    <form method="POST" action="{{ nominee.format_uri('admin-edit-nominee') }}">
+      <h1>Nominate a Company</h1>
+      {{- macros.form_field(form.display_name) }}
+      {{- macros.form_field(form.url) }}
+      {{- macros.form_field(form.is_public) }}
+      <div class="pull-right">
+        {{- macros.submit_button('Update Nominee') }}
+      </div>
+      <div class="clearfix"></div>
+    </form>
+  </div>
+{%- endblock %}
