@@ -7,12 +7,16 @@
 {%- block title %}
   {%- block subtitle %}{% endblock %} - {{ contest.display_name }}
 {%- endblock %}
+
+{%- block logged_in_nav %}
+  {%- if contest.is_admin() %}
+    <li><a class="pp-nav-item pp-nav-important" href="{{ contest.format_uri('admin-review-nominees') }}">Admin</a>
+  {%- endif %}
+{%- endblock %}
+
 {%- block css %}
   {{- super() }}
   <link href="/static/css/nextup.css?20150211" rel="stylesheet">
-{%- endblock %}
-
-{%- block logged_in_nav %}
 {%- endblock %}
 
 {%- block jumbo_header %}
