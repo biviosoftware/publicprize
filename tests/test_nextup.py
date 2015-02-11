@@ -56,7 +56,7 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
             url_and_name = data_variation['websites'].split('-')
             self._visit_uri(nominate_website_uri)
             self._submit_form({
-                'website': url_and_name[0],
+                'url': url_and_name[0],
                 'company_name': url_and_name[1],
                 'submitter_name':'x'
             })
@@ -73,7 +73,7 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
         dev_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
         for data_variation in dev_websites_gen:
             self._submit_form({
-                'website': data_variation['websites'],
+                'url': data_variation['websites'],
                 'company_name':'x',
                 'submitter_name':'x'
             })
