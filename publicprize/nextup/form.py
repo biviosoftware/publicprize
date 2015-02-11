@@ -26,13 +26,13 @@ class Nomination(flask_wtf.Form):
 
     company_name = wtforms.StringField(
         'Company Name', validators=[
-            wtfv.DataRequired(), wtfv.Length(max=200)])
-    website = wtforms.StringField(
+            wtfv.DataRequired(), wtfv.Length(max=100)])
+    url = wtforms.StringField(
         'Company Website', validators=[
-            wtfv.DataRequired(), wtfv.Length(max=200)])
+            wtfv.DataRequired(), wtfv.Length(max=100)])
     submitter_name = wtforms.StringField(
         'Your Name', validators=[
-            wtfv.DataRequired(), wtfv.Length(max=200)])
+            wtfv.DataRequired(), wtfv.Length(max=100)])
 
     def execute(self, contest):
         """Validates website url and adds it to the database"""
@@ -49,7 +49,7 @@ class Nomination(flask_wtf.Form):
     def validate(self):
         """Performs url field validation"""
         super(Nomination, self).validate()
-        self._validate_website()
+        validate_website(self)
         common.log_form_errors(self)
         return not self.errors
 
@@ -112,7 +112,7 @@ class Nomination(flask_wtf.Form):
     def _create_models(self, contest):
         """Creates the Nominee and Nominator models and links them
         with BivAccess models"""
-        url = self._follow_url_and_redirects(self.website.data)
+        url = self._follow_url_and_redirects(self.url.data)
         # (mda) get the time here to minimize server processing time
         # interference (just in case of a hangup of some sort)
         if self._is_already_nominated(url):
@@ -140,10 +140,45 @@ class Nomination(flask_wtf.Form):
             url = 'http://' + url
         return url.lower()
 
-    def _validate_website(self):
-        """Ensures the website exists"""
-        if self.website.errors:
-            return
-        if self.website.data:
-            if not common.get_url_content(self.website.data):
-                self.website.errors = ['Website invalid or unavailable.']
+
+class NomineeEdit(flask_wtf.Form):
+    """Update nominee fields."""
+
+    display_name = wtforms.StringField(
+        'Company Name', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=100)])
+    url = wtforms.StringField(
+        'Company Website', validators=[
+            wtfv.DataRequired(), wtfv.Length(max=100)])
+    is_public = wtforms.BooleanField('Public')
+
+    def execute(self, nominee):
+        """Update nominee info."""
+        contest = nominee.get_contest()
+        if self.is_submitted() and self.validate():
+            self.populate_obj(nominee)
+            ppc.db.session.add(nominee)
+            return flask.redirect(contest.format_uri('admin-review-nominees'))
+        return nominee.task_class.get_template().render_template(
+            contest,
+            'admin-edit-nominee',
+            form=self,
+            nominee=nominee,
+        )
+
+    def validate(self):
+        """Performs url field validation"""
+        super(NomineeEdit, self).validate()
+        validate_website(self)
+        common.log_form_errors(self)
+        return not self.errors
+
+
+def validate_website(form):
+    """Ensures the website exists"""
+    if form.url.errors:
+        return
+    if form.url.data:
+        if not common.get_url_content(form.url.data):
+            form.url.errors = ['Website invalid or unavailable.']
+    
