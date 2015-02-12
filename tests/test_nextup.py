@@ -17,6 +17,8 @@ from publicprize.debug import pp_t
 import workflow_data as wd
 from contest_common import ParseData, FlaskTestClientProxy, DbCheck, TestCaseHelpers
 
+CONTEST_NAME = 'Next Up'
+
 
 class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
     def setUp(self):
@@ -45,7 +47,6 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
         self._verify_text('Page Not Found')
 
     def test_submit_website_conf_entries(self):
-        CONTEST_NAME = 'Next Up'
         self._visit_uri('/')
         self._follow_link(CONTEST_NAME)
         conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
