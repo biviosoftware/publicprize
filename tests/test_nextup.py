@@ -38,6 +38,14 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
             os.path.join('test_workflow', method.__name__)
         )
 
+    def test_admin(self):
+        self._visit_uri('/')
+        self._visit_uri('/pub/new-test-admin')
+        self._follow_link('{}'.format(CONTEST_NAME))
+        self._verify_text('Admin')
+        self._follow_link('Admin')
+        self._verify_text('Review Nominees')
+
     def test_not_found(self):
         self._visit_uri('/x')
         self._verify_text('Page Not Found')
