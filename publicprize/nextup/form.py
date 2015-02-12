@@ -38,7 +38,7 @@ class Nomination(flask_wtf.Form):
         """Validates website url and adds it to the database"""
         if self.is_submitted() and self.validate():
             nominee = self._create_models(contest)
-            return flask.redirect(nominee.format_uri('nominate-thank-you'))
+            return flask.redirect(nominee.format_uri('nominate'))
         return contest.task_class.get_template().render_template(
             contest,
             'nominate-website',
