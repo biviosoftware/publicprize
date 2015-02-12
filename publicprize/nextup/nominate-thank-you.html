@@ -2,6 +2,14 @@
 {%- import "layout/macros.html" as macros %}
 
 {%- block subtitle %}Thank You{%- endblock %}
+
+{%- block social_meta %}
+  <meta property="og:image" content="https://www.publicprize.com/static/img/nextup-265x125.png" /> 
+  <link rel="canonical" href="{{ nominee_url }}">
+  <meta property="og:url" content="{{ nominee_url }}">
+  <meta property="og:title" content="{{ nominee_tweet }} - {{ contest.display_name }}">
+{%- endblock %}
+
 {%- block sponsor_list %}{% endblock %}
 
 {%- block content %}
@@ -18,10 +26,10 @@
   <div class="pp-form">
     <p><strong>Share Your Nomination:</strong></p>
     <p class="text-center">
-      <a target="_blank" class="pp-social-icon" href="http://www.linkedin.com/shareArticle?mini=true&amp;url={{ nominees_url|urlencode }}&amp;title={{ nominee_tweete|urlencode }}&amp;summary={{ nominee_summary|urlencode }}"><img src="/static/img/linkedin39.png" alt="LinkedIn"></a>
-      <a target="_blank" class="pp-social-icon" href="https://twitter.com/intent/tweet?text={{ nominee_tweet|urlencode }}&amp;hashtags=NextUp&amp;url={{ nominees_url|urlencode }}&amp;via=publicprize"><img src="/static/img/twitter39.png" alt="Twitter"></a>
-      <a target="_blank" class="pp-social-icon" href="https://facebook.com/sharer.php?u={{ nominees_url|urlencode }}&amp;title={{ nominee_tweet|urlencode }}"><img src="/static/img/facebook39.png" alt="Facebook"></a>
-      <a target="_blank" class="pp-social-icon" href="https://plus.google.com/share?url={{ nominees_url|urlencode }}"><img src="/static/img/google39.png" alt="Google+"></a>
+      <a target="_blank" class="pp-social-icon" href="http://www.linkedin.com/shareArticle?mini=true&amp;url={{ nominee_url|urlencode }}&amp;title={{ nominee_tweet|urlencode }}&amp;summary={{ nominee_summary|urlencode }}&amp;source={{ 'Next Up - Public Prize'|urlencode }}"><img src="/static/img/linkedin39.png" alt="LinkedIn"></a>
+      <a target="_blank" class="pp-social-icon" href="https://twitter.com/intent/tweet?text={{ nominee_tweet|urlencode }}&amp;hashtags=NextUp&amp;url={{ nominee_url|urlencode }}&amp;via=publicprize"><img src="/static/img/twitter39.png" alt="Twitter"></a>
+      <a target="_blank" class="pp-social-icon" href="https://facebook.com/sharer.php?u={{ nominee_url|urlencode }}"><img src="/static/img/facebook39.png" alt="Facebook"></a>
+      <a target="_blank" class="pp-social-icon" href="https://plus.google.com/share?url={{ nominee_url|urlencode }}"><img src="/static/img/google39.png" alt="Google+"></a>
     </p>
     <hr>
     Share your nomination with your network and get people talking
