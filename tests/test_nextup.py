@@ -46,6 +46,12 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
         self._follow_link('Admin')
         self._verify_text('Review Nominees')
 
+    def test_review_nominees_security(self):
+        self._visit_uri('/pub/logout')
+        self._visit_uri('/_10D/admin-review-nominees')
+        self._verify_text('Please log in')
+        self._visit_uri('/pub/new-test-user')
+
     def test_not_found(self):
         self._visit_uri('/x')
         self._verify_text('Page Not Found')
