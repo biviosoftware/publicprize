@@ -40,11 +40,11 @@ class Nominee(ppc.Task):
         """Admin edit nominees"""
         return pnf.NomineeEdit(obj=biv_obj).execute(biv_obj)
     
-    def action_nominate_thank_you(biv_obj):
+    def action_nominate(biv_obj):
         return _template.render_template(
             biv_obj.get_contest(),
             'nominate-thank-you',
             nominee=biv_obj,
-            nominees_url=biv_obj.get_contest().format_absolute_uri('nominees'),
+            nominee_url=biv_obj.format_absolute_uri('nominate'),
             nominee_tweet="I just nominated " + biv_obj.display_name
         );
