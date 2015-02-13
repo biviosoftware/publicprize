@@ -35,7 +35,7 @@ class Config(object):
     SECRET_KEY = PUBLICPRIZE['SECRET_KEY']
     DEBUG = PUBLICPRIZE['TEST_MODE']
     SQLALCHEMY_DATABASE_URI = \
-        'postgresql://{user}:{password}@{host}/{name}'.format(**PUBLICPRIZE['DATABASE'])
+        'postgresql://{user}:{password}@/{name}'.format(**PUBLICPRIZE['DATABASE'])
     if 'SQLALCHEMY_ECHO' in PUBLICPRIZE:
         SQLALCHEMY_ECHO = PUBLICPRIZE['SQLALCHEMY_ECHO']
     MAIL_DEFAULT_SENDER = PUBLICPRIZE['SUPPORT_EMAIL']
