@@ -24,7 +24,7 @@ body {
 .container .jumbotron {
   background: none repeat scroll 0 0 transparent;
   color: #fbb153;
-  text-shadow: 0 2px 2px #444;
+  text-shadow: -5px 5px 5px #222;
   height: 230px;
   padding-top: 15px;
   padding-left: 15px;
