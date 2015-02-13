@@ -86,7 +86,7 @@ class Model(object):
 
     def format_uri(
             self, action_uri=None, path_info=None, query=None,
-            preserve_next=False, next=None):
+            preserve_next=False, next=None, anchor=None):
         """Creates a URI for this biv_obj appending action and path_info"""
         biv_id = biv.Id(self.biv_id)
         uri = '/' + biv_id.to_biv_uri()
@@ -111,6 +111,8 @@ class Model(object):
             query['next'] = next
         if query:
             uri += '?' + urllib.parse.urlencode(query)
+        if anchor:
+            uri += '#' + anchor
         return uri
 
     def __repr__(self):
@@ -204,3 +206,8 @@ def log_form_errors(form):
             'data': flask.request.form,
             'errors': form.errors
         })
+
+
+def safe_unicode(str):
+    """Strip non-ascii characters out of a unicode string."""
+    return str.encode("ascii", "replace").decode("utf-8")
