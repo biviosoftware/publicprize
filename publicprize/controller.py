@@ -101,7 +101,7 @@ debug.init(_app)
 BeakerSession(_app)
 _mail = flask_mail.Mail(_app)
 flask_mobility.Mobility(_app)
-db = SQLAlchemy(_app)
+db = SQLAlchemy(_app, session_options=dict(autoflush=True))
 
 
 def _action_uri_to_function(name, biv_obj):
