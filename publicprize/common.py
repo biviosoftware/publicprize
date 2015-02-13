@@ -184,8 +184,7 @@ def get_url_content(url):
 
     Returns False if the url is invalid or not-found"""
     res = None
-    if not re.search(r'^http', url):
-        url = 'http://' + url
+    url = normalize_url(url);
     try:
         req = urllib.request.urlopen(url, None, 30)
         res = req.read().decode(locale.getlocale()[1])
@@ -206,6 +205,13 @@ def log_form_errors(form):
             'data': flask.request.form,
             'errors': form.errors
         })
+
+
+def normalize_url(url):
+    """Adds leading http:// to url if missing."""
+    if not re.search(r'^http', url, re.IGNORECASE):
+        url = 'http://' + url
+    return url
 
 
 def safe_unicode(str):
