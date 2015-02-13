@@ -6,6 +6,7 @@
 """
 
 import flask
+import flask_mail
 import flask_wtf
 import re
 import urllib.request
@@ -96,8 +97,7 @@ class Nomination(flask_wtf.Form):
         nominee = pnm.Nominee()
         nominee.url = url
         nominee.display_name = self.company_name.data
-        nominee.is_public = \
-            ppc.app().config['PUBLICPRIZE']['ALL_PUBLIC_CONTESTANTS']
+        nominee.is_public = True
         nominee.is_under_review = False
         ppc.db.session.add(nominee)
         ppc.db.session.flush()
@@ -119,7 +119,8 @@ class Nomination(flask_wtf.Form):
             nominee = self._get_matching_nominee(url)
         else:
             nominee = self._create_nominee(url, contest)
-        self._create_nominator(nominee, contest)
+        nominator = self._create_nominator(nominee, contest)
+        self._send_admin_email(nominee, nominator)
         return nominee
 
     def _get_matching_nominee(self, url):
@@ -139,6 +140,15 @@ class Nomination(flask_wtf.Form):
         if not re.search(r'^http', url):
             url = 'http://' + url
         return url.lower()
+
+    def _send_admin_email(self, nominee, nominator):
+        ppc.mail().send(flask_mail.Message(
+            common.safe_unicode(
+                    'Company Nominated: {}'.format(nominee.display_name)),
+            recipients=[ppc.app().config['PUBLICPRIZE']['ADMIN_EMAIL']],
+            body=common.safe_unicode('{} ({})\nSubmitted by {}'.format(
+                    nominee.display_name, nominee.url, nominator.display_name))
+            ))
 
 
 class NomineeEdit(flask_wtf.Form):
@@ -181,4 +191,4 @@ def validate_website(form):
     if form.url.data:
         if not common.get_url_content(form.url.data):
             form.url.errors = ['Website invalid or unavailable.']
-    
+
