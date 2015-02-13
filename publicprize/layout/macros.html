@@ -62,14 +62,14 @@
     	</div>
         {{- signin_links(next) }}
       </div>
+    </div>
   </div>
-</div>
 {%- endmacro %}
-  
-{%- macro submit_button(text) %}  
+
+{%- macro submit_button(text) %}
   <button type="submit" class="pp-big-button btn btn-primary btn-lg ladda-button" data-style="expand-left"><span class="ladda-label">{{ text }}</span></button>
 {%- endmacro %}
-    
-{%- macro support_mailto(text) %}  
+
+{%- macro support_mailto(text) %}
 <a href="mailto:{{ config['PUBLICPRIZE']['SUPPORT_EMAIL'] }}">{{ text }}</a>
 {%- endmacro %}
