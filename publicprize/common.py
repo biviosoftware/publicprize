@@ -19,7 +19,6 @@ import werkzeug.exceptions
 
 from . import controller as ppc
 from . import biv
-import publicprize.auth.model
 
 
 def decorator_login_required(func):
@@ -43,6 +42,7 @@ def decorator_user_is_admin(func):
     @functools.wraps(func)
     def decorated_function(*args, **kwargs):
         """Forbidden unless allowed."""
+        import publicprize.auth.model
         if publicprize.auth.model.Admin.is_admin():
             return func(*args, **kwargs)
         werkzeug.exceptions.abort(403)
