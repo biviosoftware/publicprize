@@ -28,14 +28,14 @@
     </div>
   </div>
 {% endblock %}
-  
+
 {%- block content %}
   {%- block contest_header %}{% endblock %}
-  <div class="{% block contest_content_class %}col-sm-offset-1 col-sm-6{% endblock %}">
+  <div class="{% block contest_content_class %}col-sm-offset-1 col-sm-7{% endblock %}">
     {%- block contest_content %}{% endblock %}
   </div>
   {%- block sponsor_list %}
-    <div class="col-sm-3 col-sm-offset-2 col-xs-12 pp-sidebar">
+    <div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">
       <h1>Sponsors</h1>
       <div class="row">
         {%- for sponsor in contest.get_sponsors(randomize=False) %}
@@ -47,6 +47,6 @@
         </div>
         {%- endfor %}
       </div>
-    </div>  
+    </div>
   {%- endblock %}
 {%- endblock %}
