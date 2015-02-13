@@ -50,12 +50,12 @@
         <div class="col-sm-12 col-xs-6">
           <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar">
             <a href="{{ sponsor.website }}">
-              <img style="width: 100%" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
+              <img style="width: 100%; max-width: 255px" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
           </div>
         </div>
         {%- endfor %}
       </div>
-    </div>  
+    </div>
   {%- endblock %}
   {{- macros.signin_modal('pp_how_to_enter_modal', 'Sign up', next=contest.format_uri('submit-contestant')) }}
 {%- endblock %}
