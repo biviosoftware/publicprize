@@ -54,10 +54,6 @@ body {
     margin-top: 20px;
 }
 
-.pp-arrow {
-  float: left;
-}
-
 .pp-lock-button {
   padding-right: 45px;
   cursor: not-allowed;
@@ -81,4 +77,8 @@ body {
 }
 .pp-sponsor-images {
   text-align: center;
+}
+
+.pp-nominees .pp-arrow {
+  margin-top: 20px;
 }
