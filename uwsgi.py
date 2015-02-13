@@ -12,3 +12,4 @@ handler.setLevel(logging.INFO)
 handler.setFormatter(logging.Formatter(
         '[%(asctime)s] {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s'))
 app.logger.addHandler(handler)
+app.logger.setLevel(logging.INFO)
