@@ -1,20 +1,42 @@
 {% extends base_template %}
 {%- import "layout/macros.html" as macros %}
 
-<!-- TODO: add block social_meta -->
+{%- macro nominate_button() %}
+  <div class="pp-form">
+    <a class="btn btn-lg btn-primary btn-block"
+       href="{{ contest.format_uri(anchor='nominate') }}">Nominate a Company</a>
+  </div>
+{%- endmacro %}
 
 {%- block subtitle %}Meet The Nominees{%- endblock %}
-{%- block sponsor_list %}{% endblock %}
-{% block contest_content_class %}col-sm-offset-1 col-sm-8{% endblock %}
+
+{%- block social_meta %}
+  {%- if nominee %}
+  <meta property="og:image" content="{{ nextup_icon_url }}" />
+  <link rel="canonical" href="{{ nominee_url }}">
+  <meta property="og:url" content="{{ nominee_url }}">
+  <meta property="og:title" content="{{ nominee_tweet }} - {{ contest.display_name }}">
+  {%- endif %}
+{%- endblock %}
+
+{%- block contest_content_class %}pp-nominees{%- endblock %}
 {%- block contest_content %}
+  <div class="col-sm-1 hidden-xs pp-arrow">
+    <img style="width:100%" src="/static/img/nextuparrow-87x80.png"
+    alt="Arrow">
+  </div>
+  <div class="col-sm-7">
   <h1>Meet The Nominees</h1>
   Browse the future technology industry titans below. Polls will open
   on March 1st for voting.
+  {{- nominate_button() }}
   <div class="pp-form">
   {%- for nominee in contest.get_public_nominees(randomize=True) %}
     <div class="lead">
       <a href="{{ nominee.url }}">{{ nominee.display_name }}</a>
     </div>
   {%- endfor %}
+  </div>
+  {{- nominate_button() }}
   </div>
 {%- endblock %}
