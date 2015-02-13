@@ -130,16 +130,11 @@ class Nomination(flask_wtf.Form):
         return pnm.Nominee.query.filter(pnm.Nominee.url == url).count() > 0
 
     def _follow_url_and_redirects(self, url):
-        initial_normalized_url = self._normalize_url(url)
+        initial_normalized_url = common.normalize_url(url)
         response = urllib.request.urlopen(initial_normalized_url)
         response_url = response.geturl()
         response.close()
         return response_url
-
-    def _normalize_url(self, url):
-        if not re.search(r'^http', url):
-            url = 'http://' + url
-        return url.lower()
 
     def _send_admin_email(self, nominee, nominator):
         ppc.mail().send(flask_mail.Message(
