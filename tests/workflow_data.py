@@ -226,7 +226,7 @@ WEBSITE_SUBMISSION_FIELDS = {
     'websites': {
         'conf': [
             'www.bivio.biz-Bivio software',
-            'bivio.biz-Bivio software 2',
+            'bivio.biz/bp/Clients-Bivio software 2',
             'http://www.bivio.biz-Bivio software',
             'https://www.google.com-Google',
         ],
