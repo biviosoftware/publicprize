@@ -186,9 +186,14 @@ class TestCaseHelpers(object):
         self.current_response = response
         self.current_page = BeautifulSoup(response.data)
 
+    def _strip_anchor(self, url):
+        if not url:
+            return url
+        return re.compile('\#.*').sub('', url)
+
     def _submit_form(self, data):
         pp_t(self.current_page)
-        url = self.current_page.find('form')['action']
+        url = self._strip_anchor(self.current_page.find('form')['action'])
         assert url
         # data['csrf_token'] = self.current_page.find(id='csrf_token')['value']
         # assert data['csrf_token']
@@ -207,6 +212,7 @@ class TestCaseHelpers(object):
             raise AssertionError(msg)
 
     def _visit_uri(self, uri):
+        uri = self._strip_anchor(uri)
         assert uri
         self._set_current_page(self.client.get(uri, follow_redirects=True))
         self.current_uri = uri
