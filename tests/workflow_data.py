@@ -169,27 +169,27 @@ JUDGING_POINTS = {
 # MA: I'm not sure what would constitute a deviating entry here
 JUDGING_FIELDS = {
     'question1': {
-        'conf': {1, 2, 3, 4},
+        'conf': [1, 2, 3, 4],
         'dev': None
     },
     'question2': {
-        'conf': {1, 2, 3, 4},
+        'conf': [1, 2, 3, 4],
         'dev': None
     },
     'question3': {
-        'conf': {1, 2, 3, 4},
+        'conf': [1, 2, 3, 4],
         'dev': None
     },
     'question4': {
-        'conf': {1, 2, 3, 4},
+        'conf': [1, 2, 3, 4],
         'dev': None
     },
     'question5': {
-        'conf': {1, 2, 3, 4},
+        'conf': [1, 2, 3, 4],
         'dev': None
     },
     'question6': {
-        'conf': {1, 2, 3, 4},
+        'conf': [1, 2, 3, 4],
         'dev': None
     },
     'question1_comment': {
