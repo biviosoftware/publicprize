@@ -14,24 +14,30 @@ body {
   border: 0;
 }
 
-.pp_jumbo_bg {
+.pp-jumbo-bg {
   background: url("/static/img/denver-2572x375.jpg") no-repeat scroll center center rgba(0, 0, 0, 0);
   height: 380px;
   z-index: -1;
   margin-bottom: -380px;
   background-size: cover;
 }
-.container .jumbotron {
-  background: none repeat scroll 0 0 transparent;
+.pp-jumbo-text {
   color: #fbb153;
   text-shadow: -5px 5px 5px #222;
-  height: 230px;
-  padding-top: 15px;
+  height: 140px;
   padding-left: 15px;
   margin-bottom: 15px;
 }
+div.pp-jumbo-text h1 {
+  font-size: 50px;
+}
+@media (max-width: 767px) {
+  div.pp-jumbo-text h1 {
+    font-size: 36px;
+  }
+}
 
-.pp_nextup_logo {
+.pp-nextup-logo {
   margin-left: 15px;
   width: 275px;
   border-left: 5px solid #d5d5d5;
@@ -81,4 +87,20 @@ body {
 
 .pp-nominees .pp-arrow {
   margin-top: 20px;
+}
+
+div.pp-media-quote {
+  margin-top: 20px;
+}
+div.pp-media-body {
+  font-size: 110%;
+}
+img.pp-quote-photo {
+  width: 157px;
+  margin-right: 1em;
+}
+img.pp-quote-mark {
+  float: left;
+  margin-right: 1em;
+  margin-top: 3px;
 }
