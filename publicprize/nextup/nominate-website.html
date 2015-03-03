@@ -4,13 +4,13 @@
 {%- block subtitle %}Nominate a Company{% endblock %}
 
 {%- block jumbo_header %}
-  <div class="pp_jumbo_bg"></div>
+  <div class="pp-jumbo-bg"></div>
   <div class="container">
     <div class="row">
-      <div class="pp_nextup_logo">
-        <img src="/static/img/nextup-265x125.png" alt="Next Up">
+      <div class="pp-nextup-logo">
+        <img src="/static/img/nextup-logo.jpg" alt="Next Up">
       </div>
-      <div class="jumbotron">
+      <div class="pp-jumbo-text">
         <h1>Who Will Be The Next Tech Startup Success Story?</h1>
       </div>
     </div>
@@ -41,16 +41,35 @@
           <strong>Stay Tuned:</strong>
         </div>
         <div>
-          Polls will be open 3/1 - 3/31
+          Polls will be open 4/1 - 4/30
         </div>
       </div>
     </div>
-    <div class="col-sm-7 col-sm-offset-1 hidden-xs"><div class="pp-bottom-border"></div></div>
+    <div class="col-sm-8 hidden-xs"><div class="pp-bottom-border"></div></div>
     <div class="col-sm-3 col-sm-offset-1
     hidden-xs"><div class="pp-bottom-border-sidebar"></div></div>
   </div>
 {%- endblock %}
+
 {%- block contest_content %}
+  <div class="pp-media-quote">
+    <div class="media">
+      <div class="media-left">
+        <img class="pp-quote-photo hidden-xs" src="/static/img/JimFranklin.jpg" alt="Jim Franklink">
+      </div>
+      <div class="media-body pp-media-body">
+        <p><img class="pp-quote-mark" src="/static/img/nextup-openquote.png" alt="quote">
+            Next Up has evolved as an idea from a list of emerging
+            tech companies I developed and ranked on my phone. I am
+            proud to see this become an online contest and event that
+            the Colorado Tech community can participate in. It will be
+            interesting to see who the community thinks will be Next
+            Up.&rdquo;</p>
+            <p>-Jim Franklin, Board member
+            at <a href="http://fluorofinder.com">Fluorofinder.com</a></p>
+      </div>
+    </div>
+  </div>
   <div class="pp-form">
     <form method="POST" action="{{ contest.format_uri(anchor='nominate') }}">
       <h1>Nominate a Company</h1>
