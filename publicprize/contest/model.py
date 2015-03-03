@@ -40,6 +40,8 @@ class Sponsor(db.Model, common.ModelWithDates):
         ).all()
         if randomize:
             random.shuffle(sponsors)
+        else:
+            sponsors.sort(key=lambda x: x.biv_id)
         return sponsors
 
 
