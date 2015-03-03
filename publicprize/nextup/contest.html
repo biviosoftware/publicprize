@@ -1,7 +1,7 @@
 {% extends 'layout/base.html' %}
 
 {%- block bootstrap_css %}
-  <link href="/static/css/bootstrap-nextup-3.3.2.min.css?20150120" rel="stylesheet">
+  <link href="/static/css/bootstrap-nextup-3.3.2.min.css?20150302" rel="stylesheet">
 {%- endblock %}
 
 {%- block title %}
@@ -22,8 +22,8 @@
 {%- block jumbo_header %}
   <div class="container">
     <div class="row">
-      <div class="pp_nextup_logo">
-        <a href="{{ contest.format_uri() }}"><img src="/static/img/nextup-265x125.png" alt="Next Up"></a>
+      <div class="pp-nextup-logo">
+        <a href="{{ contest.format_uri() }}"><img src="/static/img/nextup-logo.jpg" alt="Next Up"></a>
       </div>
     </div>
   </div>
@@ -31,7 +31,7 @@
 
 {%- block content %}
   {%- block contest_header %}{% endblock %}
-  <div class="{% block contest_content_class %}col-sm-offset-1 col-sm-7{% endblock %}">
+  <div class="{% block contest_content_class %}col-sm-8{% endblock %}">
     {%- block contest_content %}{% endblock %}
   </div>
   {%- block sponsor_list %}
