@@ -229,6 +229,7 @@ WEBSITE_SUBMISSION_FIELDS = {
             'bivio.biz/bp/Clients-Bivio software 2',
             'http://www.bivio.biz-Bivio software',
             'https://www.google.com-Google',
+            'www.zayo.com-Zayo Group',
         ],
         'dev': [
             'asldkfjasdklfjalskdjf-x',
