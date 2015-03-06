@@ -178,13 +178,15 @@ class Template(object):
         return '{pkg}/{base}.html'.format(base=name, pkg=self.template_dir)
 
 
-def get_url_content(url):
+def get_url_content(url, want_decode=True):
     """Performs a HTTP GET on the url, returns the HTML content.
 
     Returns None if the url is invalid or not-found"""
     res = None
     try:
-        res = get_url_request(url).read().decode(locale.getlocale()[1])
+        res = get_url_request(url).read()
+        if want_decode:
+            res = res.decode(locale.getlocale()[1])
     except urllib.request.URLError:
         return None
     except ValueError:
