@@ -230,6 +230,7 @@ WEBSITE_SUBMISSION_FIELDS = {
             'http://www.bivio.biz-Bivio software',
             'https://www.google.com-Google',
             'www.zayo.com-Zayo Group',
+            'http://www.secure64.com-Secure64',
         ],
         'dev': [
             'asldkfjasdklfjalskdjf-x',
