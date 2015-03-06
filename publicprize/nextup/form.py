@@ -112,13 +112,12 @@ class Nomination(flask_wtf.Form):
     def _create_models(self, contest):
         """Creates the Nominee and Nominator models and links them
         with BivAccess models"""
-        url = self._follow_url_and_redirects(self.url.data)
         # (mda) get the time here to minimize server processing time
         # interference (just in case of a hangup of some sort)
-        if self._is_already_nominated(url):
-            nominee = self._get_matching_nominee(url)
+        if self._is_already_nominated(self.url.data):
+            nominee = self._get_matching_nominee(self.url.data)
         else:
-            nominee = self._create_nominee(url, contest)
+            nominee = self._create_nominee(self.url.data, contest)
         nominator = self._create_nominator(nominee, contest)
         self._send_admin_email(nominee, nominator)
         return nominee
@@ -128,13 +127,6 @@ class Nomination(flask_wtf.Form):
 
     def _is_already_nominated(self, url):
         return pnm.Nominee.query.filter(pnm.Nominee.url == url).count() > 0
-
-    def _follow_url_and_redirects(self, url):
-        initial_normalized_url = common.normalize_url(url)
-        response = urllib.request.urlopen(initial_normalized_url)
-        response_url = response.geturl()
-        response.close()
-        return response_url
 
     def _send_admin_email(self, nominee, nominator):
         ppc.mail().send(flask_mail.Message(
@@ -186,4 +178,5 @@ def validate_website(form):
     if form.url.data:
         if not common.get_url_content(form.url.data):
             form.url.errors = ['Website invalid or unavailable.']
-
+            return
+        form.url.data = common.get_url_request(form.url.data).geturl()
