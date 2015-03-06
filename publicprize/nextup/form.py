@@ -176,7 +176,7 @@ def validate_website(form):
     if form.url.errors:
         return
     if form.url.data:
-        if not common.get_url_content(form.url.data):
+        if not common.get_url_content(form.url.data, want_decode=False):
             form.url.errors = ['Website invalid or unavailable.']
             return
         form.url.data = common.get_url_request(form.url.data).geturl()
