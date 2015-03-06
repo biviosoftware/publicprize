@@ -179,15 +179,12 @@ class Template(object):
 
 
 def get_url_content(url):
-    """Performs a HTTP GET on the url.
+    """Performs a HTTP GET on the url, returns the HTML content.
 
-    Returns False if the url is invalid or not-found"""
+    Returns None if the url is invalid or not-found"""
     res = None
-    url = normalize_url(url);
     try:
-        req = urllib.request.urlopen(url, None, 30)
-        res = req.read().decode(locale.getlocale()[1])
-        req.close()
+        res = get_url_request(url).read().decode(locale.getlocale()[1])
     except urllib.request.URLError:
         return None
     except ValueError:
@@ -195,6 +192,20 @@ def get_url_content(url):
     except socket.timeout:
         return None
     return res
+
+
+def get_url_request(url):
+    """Performs a HTTP GET on the url, returns the response object.
+
+    Throws exceptions URLError, ValueError or socket.timeout on error."""
+    url = normalize_url(url);
+    # spoof user-agent to prevent robot blocking
+    opener = urllib.request.build_opener()
+    opener.addheaders = [(
+            'User-agent',
+            'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
+            )]
+    return opener.open(url, None, 30)
 
 
 def log_form_errors(form):
