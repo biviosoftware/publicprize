@@ -203,9 +203,14 @@ def get_url_request(url):
     url = normalize_url(url);
     # spoof user-agent to prevent robot blocking
     opener = urllib.request.build_opener()
-    opener.addheaders = [(
+    opener.addheaders = [
+        (
             'User-agent',
             'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'
+            ),
+        (
+            'Accept',
+            'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
             )]
     return opener.open(url, None, 30)
 
