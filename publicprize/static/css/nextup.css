@@ -104,3 +104,20 @@ img.pp-quote-mark {
   margin-right: 1em;
   margin-top: 3px;
 }
+
+.pp-nav-text {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  font-weight: 500;
+  line-height: 20px;
+  color: #068587;
+  white-space: nowrap;
+}
+.pp-twitter-link {
+  font-size: 16px;
+  font-weight: bold;
+  color: #0032ff;
+}
+.pp-nav-text img {
+  vertical-align: bottom;
+}
