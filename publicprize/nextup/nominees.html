@@ -28,12 +28,12 @@
   <div class="col-sm-7">
   <h1>Meet The Nominees</h1>
   Browse the future technology industry titans below. Polls will open
-  on April 1st for voting.
+  on April 15th for voting.
   {{- nominate_button() }}
   <div class="pp-form">
   {%- for nominee in contest.get_public_nominees(randomize=True) %}
     <div class="lead">
-      <a href="{{ nominee.url }}">{{ nominee.display_name }}</a>
+      <a href="{{ nominee.url }}" target="_blank">{{ nominee.display_name }}</a>
     </div>
   {%- endfor %}
   </div>
