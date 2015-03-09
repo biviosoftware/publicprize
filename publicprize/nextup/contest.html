@@ -1,11 +1,19 @@
 {% extends 'layout/base.html' %}
 
+{%- macro twitter_link() %}
+  <a rel="nofollow" class="pp-twitter-link" href="http://www.twitter.com/NextUpColorado">@NextUpColorado</a>
+{%- endmacro %}
+
 {%- block bootstrap_css %}
   <link href="/static/css/bootstrap-nextup-3.3.2.min.css?20150302" rel="stylesheet">
 {%- endblock %}
 
 {%- block title %}
   {%- block subtitle %}{% endblock %} - {{ contest.display_name }}
+{%- endblock %}
+
+{%- block extra_nav_items %}
+<div class="pp-nav-text navbar-left">Follow Us on Twitter: {{ twitter_link() }}</div>
 {%- endblock %}
 
 {%- block logged_in_nav %}
@@ -36,12 +44,14 @@
   </div>
   {%- block sponsor_list %}
     <div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">
+      <div class="pp-nav-text"><img src="/static/img/twitter-38x31.png" alt="Twitter">{{ twitter_link() }}</div>
+      <div class="pp-bottom-border"></div>
       <h1>Sponsors</h1>
       <div class="row">
         {%- for sponsor in contest.get_sponsors(randomize=False) %}
         <div class="col-sm-12 col-xs-6">
           <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar pp-sponsor-images">
-            <a href="{{ sponsor.website }}">
+            <a href="{{ sponsor.website }}" target="_blank">
               <img style="width: 100%; max-width: 120px" src="{{ sponsor.format_uri('sponsor_logo') }}" alt="{{ sponsor.display_name }}" /></a>
           </div>
         </div>
