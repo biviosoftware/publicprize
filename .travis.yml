@@ -5,10 +5,11 @@ python:
   - 3.3
 env:
   - FACEBOOK_APP_ID=524730380959867 FACEBOOK_APP_SECRET=3c3b466006521f5a7749d359eac1b909
+before_install:
+  - pip install git+git://github.com/biviosoftware/pybivio
 install:
   - pip install -r requirements.txt
 before_script:
-  - python manage.py create_test_db -f 
+  - python manage.py create_test_db -f
 script:
   - python setup.py test
-
