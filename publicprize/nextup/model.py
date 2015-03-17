@@ -28,14 +28,15 @@ class NUContest(db.Model, common.ModelWithDates):
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == Nominee.biv_id
         ).all()
-    
+
     def get_public_nominees(self, randomize=False):
         """Returns a list of all public websites that haven been nominated
         for this contest"""
         nominees = Nominee.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == Nominee.biv_id
-        ).filter(Nominee.is_public == True).all()  # noqa
+        ).filter(Nominee.is_public == True).order_by(
+            Nominee.display_name).all()  # noqa
         if randomize:
             random.shuffle(nominees)
         return nominees
