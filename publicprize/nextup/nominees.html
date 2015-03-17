@@ -31,7 +31,7 @@
   on April 15th for voting.
   {{- nominate_button() }}
   <div class="pp-form">
-  {%- for nominee in contest.get_public_nominees(randomize=True) %}
+  {%- for nominee in contest.get_public_nominees() %}
     <div class="lead">
       <a href="{{ nominee.url }}" target="_blank">{{ nominee.display_name }}</a>
     </div>
