@@ -1,7 +1,6 @@
 {% extends base_template %}
 {%- import "layout/macros.html" as macros %}
 
-<!-- TODO: add block social_meta -->
 {%- block css %}
   {{- super() }}
   <link href="/static/css/bootstrap-sortable-1.9.0.css" rel="stylesheet">
@@ -16,9 +15,10 @@
   <table class="table table-hover sortable">
     <thead>
     <tr>
-      <th>Name</th>
+      <th data-defaultsort="asc">Name</th>
       <th>Website</th>
-      <th data-defaultsort="desc">Date Submitted</th>
+      <th>Date Submitted</th>
+      <th>Category</ht>
       <th>Public</th>
       <th> </th>
     </tr>
@@ -29,6 +29,7 @@
         <td>{{ nominee.display_name }}</td>
         <td><a href="{{ nominee.url }}">{{ nominee.url }}</a></td>
         <td>{{ nominee.creation_date_time.strftime('%Y-%m-%d %H:%M GMT') }}</td>
+        <td>{{ nominee.category }}</td>
         <td>{{ nominee.is_public }}</td>
         <td><a href="{{ nominee.format_uri('admin-edit-nominee') }}">edit</a></td>
       </tr>
