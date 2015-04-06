@@ -1,0 +1,37 @@
+{% extends sub_base_template %}
+
+{%- block subtitle %}Thank You - {{ super() }}{% endblock %}
+
+{%- block content %}
+  {{- super() }}
+  <div class="modal" id="pp-thank-you-modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success pp-modal-header">
+	  <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+	   <h1 class="modal-title text-center">Thanks for voting!</h1>
+	</div>
+        <div class="modal-body pp-large-text">
+	  <p class="text-center"><span class="text-primary"><strong>{{ nominee.display_name }}</strong></span> thanks you for your vote.</p>
+    	  <p class="text-center">
+	    <span class="pp-share-text text-muted"> SHARE ON</span>
+
+      <a target="_blank" class="pp-social-icon pp-social-icon-click" href="http://www.linkedin.com/shareArticle?mini=true&amp;url={{ nominee_url|urlencode }}&amp;title={{ nominee_tweet|urlencode }}&amp;summary={{ nominee_summary|urlencode }}&amp;source={{ 'Next Up - Public Prize'|urlencode }}"><img src="/static/img/linkedin39.png" alt="LinkedIn"></a>
+      <a target="_blank" class="pp-social-icon pp-social-icon-click" href="https://twitter.com/intent/tweet?text={{ nominee_tweet|urlencode }}&amp;hashtags=NextUp&amp;url={{ nominee_url|urlencode }}&amp;via=publicprize"><img src="/static/img/twitter39.png" alt="Twitter"></a>
+      <a target="_blank" class="pp-social-icon pp-social-icon-click" href="https://facebook.com/sharer.php?u={{ nominee_url|urlencode }}"><img src="/static/img/facebook39.png" alt="Facebook"></a>
+      <a target="_blank" class="pp-social-icon pp-social-icon-click" href="https://plus.google.com/share?url={{ nominee_url|urlencode }}"><img src="/static/img/google39.png" alt="Google+"></a>
+	  </p>
+      	</div>
+      </div>
+    </div>
+  </div>
+{%- endblock %}
+
+{%- block scripts %}
+  {{- super() }}
+  <script>
+$(function() {
+  $('#pp-thank-you-modal').modal('show');
+});
+  </script>
+{%- endblock %}
