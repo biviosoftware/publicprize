@@ -10,15 +10,6 @@
 
 {%- block subtitle %}Meet The Nominees{%- endblock %}
 
-{%- block social_meta %}
-  {%- if nominee %}
-  <meta property="og:image" content="{{ nextup_icon_url }}" />
-  <link rel="canonical" href="{{ nominee_url }}">
-  <meta property="og:url" content="{{ nominee_url }}">
-  <meta property="og:title" content="{{ nominee_tweet }} - {{ contest.display_name }}">
-  {%- endif %}
-{%- endblock %}
-
 {%- block contest_content_class %}pp-nominees{%- endblock %}
 {%- block contest_content %}
   <div class="col-sm-1 hidden-xs pp-arrow">
