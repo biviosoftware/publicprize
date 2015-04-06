@@ -12,6 +12,15 @@
   {%- block subtitle %}{% endblock %} - {{ contest.display_name }}
 {%- endblock %}
 
+{%- block social_meta %}
+  {%- if nominee %}
+  <meta property="og:image" content="{{ nextup_icon_url }}" />
+  <link rel="canonical" href="{{ nominee_url }}">
+  <meta property="og:url" content="{{ nominee_url }}">
+  <meta property="og:title" content="{{ nominee_tweet }} - {{ contest.display_name }}">
+  {%- endif %}
+{%- endblock %}
+
 {%- block extra_nav_items %}
 <div class="pp-nav-text navbar-left">Follow Us on Twitter: {{ twitter_link() }}</div>
 {%- endblock %}
