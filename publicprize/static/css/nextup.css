@@ -106,8 +106,7 @@ img.pp-quote-mark {
 }
 
 .pp-nav-text {
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding: 15px;
   font-weight: 500;
   line-height: 20px;
   color: #068587;
@@ -120,4 +119,26 @@ img.pp-quote-mark {
 }
 .pp-nav-text img {
   vertical-align: bottom;
+}
+
+.pp-tab-page {
+  background-color: white;
+  padding: 2em;
+  border-radius: 8px;
+}
+.pp-voting-tabs {
+  margin-left: 8px;
+  margin-right: 8px;
+  margin-top: 1ex;
+  border-bottom: 0;
+}
+ul.pp-voting-tabs li a {
+  border-radius: 8px 8px 0 0;
+}
+a.pp-vote-button {
+  font-weight: bold;
+  line-height: 1;
+}
+.modal .btn-default {
+  min-width: 8em;
 }
