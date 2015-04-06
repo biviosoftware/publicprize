@@ -192,6 +192,24 @@ def refresh_founder_avatars():
     print('refreshed {} founder avatars'.format(count))
 
 
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-s', '--name', help='Sponsor name')
+def remove_sponsor(contest, name):
+    """Removed the sponsor from a contest by name."""
+    sponsors = pcm.Sponsor.get_sponsors_for_biv_id(contest, False)
+    found = False
+    for sponsor in sponsors:
+        if (sponsor.display_name == name):
+            db.session.delete(pam.BivAccess.query.filter_by(
+                    source_biv_id=contest,
+                    target_biv_id=sponsor.biv_id).one())
+            db.session.delete(sponsor)
+            print('deleted sponsor {}'.format(name))
+            found = True
+    if not found:
+        print('no sponsor found for name: {}'.format(name))
+
+
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 @_MANAGER.option('-i', '--input_file', help='Image file name')
 def replace_founder_avatar(user, input_file):
@@ -316,7 +334,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
         for sponsor in contest['Sponsor']:
             add_sponsor(contest_id, sponsor['display_name'],
                         sponsor['website'], sponsor['logo_filename'])
-        
+
     db.session.commit()
 
 
