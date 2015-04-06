@@ -18,12 +18,18 @@ _MANAGER = fes.Manager(ppc.app())
 
 
 @_MANAGER.command
+def clear_all_sessions():
+    """Logs out all users - clears all user session state from db."""
+    db.get_engine(ppc.app()).execute('DELETE FROM beaker_cache')
+
+
+@_MANAGER.command
 def nextup_tables():
     """Creates NextUp contest tables."""
     pnm.NUContest.__table__.create(bind=db.get_engine(ppc.app()))
     pnm.Nominee.__table__.create(bind=db.get_engine(ppc.app()))
     pnm.Nominator.__table__.create(bind=db.get_engine(ppc.app()))
-    
+
 
 @_MANAGER.command
 def nextup_data():
@@ -37,6 +43,19 @@ def nextup_data():
         biv_id=nucontest.biv_id,
         alias_name="next-up"
     ))
+
+
+@_MANAGER.command
+def upgrade_nuvote_table():
+    """Adds table for NUVote model."""
+    pnm.NUVote.__table__.create(bind=db.get_engine(ppc.app()))
+
+
+@_MANAGER.command
+def upgrade_nextup_nominee():
+    """Adds nominee.category"""
+    _add_enum_type('nominee_category', ['unknown', 'pint', 'pitcher'])
+    _add_column(pnm.Nominee, pnm.Nominee.category, "'unknown'")
 
 
 def _add_column(model, column, default_value=None):
@@ -56,6 +75,13 @@ def _add_column(model, column, default_value=None):
         engine.execute(
             'ALTER TABLE {} ALTER COLUMN {} SET NOT NULL'.format(
                 table, colname))
+
+def _add_enum_type(type_name, values):
+    """Adds an enum type to the database."""
+    #CREATE TYPE bug_status AS ENUM ('new', 'open', 'closed');
+    db.get_engine(ppc.app()).execute('CREATE TYPE {} AS ENUM ({})'.format(
+            type_name,
+            ','.join(list(map((lambda x: "'{}'".format(x)), values)))))
 
 if __name__ == '__main__':
     _MANAGER.run()
