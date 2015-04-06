@@ -50,6 +50,8 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
             votes4['Test Pint 1 Nominee'][0] - 1
         assert votes['Test Pint 2 Nominee'][0] == \
             votes4['Test Pint 2 Nominee'][0]
+        self._follow_link('Pitchers')
+        self._verify_text('Test Pitcher 1 Nominee')
 
     def _find_ok_link(self):
         """Returns the link which has OK for text"""
