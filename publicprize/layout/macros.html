@@ -44,11 +44,13 @@
 
 {%- macro signin_links(next, preserve_next=False) %}
   <div class="pp-login-body modal-body pp-social-icon">
-    <a rel="nofollow" href="{{ g.pub_obj.format_uri('linkedin-login', next=next, preserve_next=preserve_next) }}" class="btn btn-lg"><img src="/static/img/linkedin39.png" alt="LinkedIn"> {{ text }} using LinkedIn</a>
+    <a rel="nofollow" href="{{ g.pub_obj.format_uri('linkedin-login', next=next, preserve_next=preserve_next) }}" class="btn btn-lg pp-login-link"><img src="/static/img/linkedin39.png" alt="LinkedIn"> {{ text }} using LinkedIn</a>
     <br />
-    <a rel="nofollow" href="{{ g.pub_obj.format_uri('facebook-login', next=next, preserve_next=preserve_next) }}" class="btn btn-lg"><img src="/static/img/facebook39.png" alt="Facebook"> {{ text }} using Facebook</a>
+    {#- removed for NextUp contest, linked-in login only
+    <a rel="nofollow" href="{{ g.pub_obj.format_uri('facebook-login', next=next, preserve_next=preserve_next) }}" class="btn btn-lg pp-login-link"><img src="/static/img/facebook39.png" alt="Facebook"> {{ text }} using Facebook</a>
     <br />
-    <a rel="nofollow" href="{{ g.pub_obj.format_uri('google-login', next=next, preserve_next=preserve_next) }}" class="btn  btn-lg"><img src="/static/img/google39.png" alt="Google"> {{ text }} using Google</a>
+    <a rel="nofollow" href="{{ g.pub_obj.format_uri('google-login', next=next, preserve_next=preserve_next) }}" class="btn  btn-lg pp-login-link"><img src="/static/img/google39.png" alt="Google"> {{ text }} using Google</a>
+    #}
   </div>
 {%- endmacro %}
 
