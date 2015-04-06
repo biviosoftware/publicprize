@@ -99,6 +99,7 @@ class Nomination(flask_wtf.Form):
         nominee.display_name = self.company_name.data
         nominee.is_public = True
         nominee.is_under_review = False
+        nominee.category = 'unknown'
         ppc.db.session.add(nominee)
         ppc.db.session.flush()
         ppc.db.session.add(
@@ -147,6 +148,11 @@ class NomineeEdit(flask_wtf.Form):
     url = wtforms.StringField(
         'Company Website', validators=[
             wtfv.DataRequired(), wtfv.Length(max=100)])
+    #TODO(pjm): should get values from model field
+    category = wtforms.RadioField('Category', choices=[
+            ('unknown', 'unknown'),
+            ('pint', 'pint'),
+            ('pitcher', 'pitcher')])
     is_public = wtforms.BooleanField('Public')
 
     def execute(self, nominee):
