@@ -335,6 +335,17 @@ def _create_database(is_production=False, is_prompt_forced=False):
             add_sponsor(contest_id, sponsor['display_name'],
                         sponsor['website'], sponsor['logo_filename'])
 
+        for nominee in contest['Nominee']:
+            _add_owner(
+                contest_id,
+                _add_model(pnm.Nominee(
+                        display_name=nominee['display_name'],
+                        url=nominee['url'],
+                        category=nominee['category'],
+                        is_public=True,
+                        is_under_review=False
+                        )))
+
     db.session.commit()
 
 
