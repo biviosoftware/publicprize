@@ -13,7 +13,7 @@
 {%- endblock %}
 
 {%- block social_meta %}
-  {%- if nominee %}
+  {%- if nominee and nextup_icon_url %}
   <meta property="og:image" content="{{ nextup_icon_url }}" />
   <link rel="canonical" href="{{ nominee_url }}">
   <meta property="og:url" content="{{ nominee_url }}">
