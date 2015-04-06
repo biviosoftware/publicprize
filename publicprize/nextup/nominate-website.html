@@ -65,7 +65,7 @@
   </div>
   <a id="nominate"></a>
   <div class="pp-form">
-    <form method="POST" action="{{ contest.format_uri(anchor='nominate') }}">
+    <form method="POST" action="{{ contest.format_uri('nominate', anchor='nominate') }}">
       <h2>Who's the Next Tech Company Success Story?</h2>
       {{- macros.form_field(form.company_name, with_placeholder=True) }}
       {{- macros.form_field(form.url, with_placeholder=True) }}
