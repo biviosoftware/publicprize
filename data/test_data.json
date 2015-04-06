@@ -5,6 +5,28 @@
       "Alias": {
         "name": "next-up"
       },
+      "Nominee": [
+        {
+          "display_name": "Test Pint 1 Nominee",
+          "url": "http://pint.bivio.biz",
+          "category": "pint"
+        },
+        {
+          "display_name": "Test Pint 2 Nominee",
+          "url": "http://pint2.bivio.biz",
+          "category": "pint"
+        },
+        {
+          "display_name": "Test Pitcher 1 Nominee",
+          "url": "http://pitcher.bivio.biz",
+          "category": "pitcher"
+        },
+        {
+          "display_name": "Test Pitcher 2 Nominee",
+          "url": "http://pitcher2.bivio.biz",
+          "category": "pitcher"
+        }
+      ],
       "Sponsor": [
         {
 	  "display_name": "Bivio Software",
@@ -105,7 +127,8 @@
     },
     {
       "display_name": "Empty Next Up Contest",
-      "Sponsor": []
+      "Sponsor": [],
+      "Nominee": []
     }
   ],
   "Contest": [
