@@ -65,7 +65,7 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
         self._follow_link(CONTEST_NAME)
         conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
         #TODO(mda): the current_uri tracking doesn't notice redirects
-        nominate_website_uri = self.current_uri
+        nominate_website_uri = self.current_uri + '/nominate'
         submitted_websites_uri = self.current_uri + '/nominees'
         for data_variation in conf_websites_gen:
             url_and_name = data_variation['websites'].split('-')
@@ -85,6 +85,7 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
     def test_submit_website_dev_entries(self):
         self._visit_uri('/')
         self._follow_link('Next Up')
+        self._visit_uri(self.current_uri + '/nominate')
         dev_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('dev')
         for data_variation in dev_websites_gen:
             self._submit_form({
