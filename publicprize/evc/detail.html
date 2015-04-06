@@ -4,7 +4,7 @@
 {%- block subtitle %}{{ contestant.display_name }}{% endblock %}
 
 {%- block social_meta %}
-  <meta property="og:image" content="https://www.publicprize.com/static/img/rosie200x200.jpg" /> 
+  <meta property="og:image" content="https://www.publicprize.com/static/img/rosie200x200.jpg" />
   <meta property="og:image" content="https://img.youtube.com/vi/{{ contestant.youtube_code }}/mqdefault.jpg" />
   <link rel="canonical" href="{{ contestant.format_absolute_uri() }}">
   <meta property="og:url" content="{{ contestant.format_absolute_uri() }}">
@@ -79,9 +79,9 @@
       <div class="pp-abstract">
         {%- block social_links %}
 	<div class="pp-detail-social">
-	  <a target="_blank" class="pp-social-icon" href="https://facebook.com/sharer.php?u={{ contestant_url|urlencode }}&amp;title={{ contestant.display_name|urlencode }}"><img src="/static/img/facebook30.png" alt="Facebook"></a>
-	  <a target="_blank" class="pp-social-icon" href="https://twitter.com/intent/tweet?text={{ contestant_tweet|urlencode }}&amp;hashtags=EspritVentureChallenge&amp;url={{ contestant_url|urlencode }}&amp;via=publicprize"><img src="/static/img/twitter30.png" alt="Twitter"></a>
-	  <a target="_blank" class="pp-social-icon" href="https://plus.google.com/share?url={{ contestant_url|urlencode }}"><img src="/static/img/google30.png" alt="Google+"></a>
+	  <a target="_blank" class="pp-social-icon pp-social-icon-click" href="https://facebook.com/sharer.php?u={{ contestant_url|urlencode }}&amp;title={{ contestant.display_name|urlencode }}"><img src="/static/img/facebook30.png" alt="Facebook"></a>
+	  <a target="_blank" class="pp-social-icon pp-social-icon-click" href="https://twitter.com/intent/tweet?text={{ contestant_tweet|urlencode }}&amp;hashtags=EspritVentureChallenge&amp;url={{ contestant_url|urlencode }}&amp;via=publicprize"><img src="/static/img/twitter30.png" alt="Twitter"></a>
+	  <a target="_blank" class="pp-social-icon pp-social-icon-click" href="https://plus.google.com/share?url={{ contestant_url|urlencode }}"><img src="/static/img/google30.png" alt="Google+"></a>
 	</div>
 	{%- endblock %}
     	<h3 class="pp-heading">Summary</h3>
