@@ -15,6 +15,7 @@ import json
 import locale
 import os
 import publicprize.auth.model as pam
+import publicprize.biv as biv
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
 import publicprize.evc.model as pem
@@ -106,6 +107,9 @@ def add_sponsor(contest, name, website, input_file):
         ))
     _add_owner(contest, sponsor_id)
 
+@_MANAGER.option('-uri', help='URI')
+def biv_id(uri):
+    print(biv.URI(uri).biv_id)
 
 @_MANAGER.command
 def create_db():
