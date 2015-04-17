@@ -15,7 +15,16 @@ from ..auth import model as pam
 from ..contest import model as pcm
 from ..controller import db
 
-class NUContest(db.Model, common.ModelWithDates):
+class JudgeRank(db.Model, common.ModelWithDates):
+    """Judge's top 10 ranks."""
+    MAX_RANKS = 10
+
+    judge_biv_id = db.Column(db.Numeric(18), primary_key=True)
+    nominee_biv_id = db.Column(db.Numeric(18), primary_key=True)
+    judge_rank = db.Column(db.Numeric(2))
+
+
+class NUContest(db.Model, pcm.ContestBase):
     biv_id = db.Column(
         db.Numeric(18),
         db.Sequence('nucontest_s', start=1013, increment=1000),
@@ -23,18 +32,48 @@ class NUContest(db.Model, common.ModelWithDates):
     )
     display_name = db.Column(db.String(100), nullable=False)
 
+    def delete_judge_ranks_for_auth_user(self, category):
+        """Delete the judge auth user's ranks for the specified category."""
+        for rank in self.get_judge_ranks_for_auth_user(category):
+            db.session.delete(rank)
+
     def delete_votes_for_auth_user(self, category):
         """Delete the auth user's votes for the specified category."""
         votes = self._votes_for_auth_user(category)
         for vote in votes:
             db.session.delete(vote)
 
-    def get_admin_nominees(self):
-        """Returns a list of all admin review nominees."""
+    def get_admin_nominees(self, category):
+        """Returns a list of nominee info with vote and ranks."""
+        rows = []
+
+        for nominee in self.get_public_nominees(category=category):
+            ranks = self.get_judge_ranks(nominee)
+            rows.append({
+                'display_name': nominee.display_name,
+                'vote_count': nominee.get_vote_count(),
+                'judge_score': self._score_ranks(ranks),
+                'judge_ranks': '( {} )'.format(', '.join(map(str, ranks)))
+            })
+        return sorted(rows, key=lambda nominee: nominee['display_name'])
+
+    def get_all_nominees(self):
+        """Returns a list of all nominees."""
         return Nominee.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == Nominee.biv_id
         ).all()
+
+    def get_judge_ranks(self, nominee):
+        ranks = JudgeRank.query.select_from(pam.BivAccess, Nominee).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == nominee.biv_id,
+            JudgeRank.nominee_biv_id == nominee.biv_id
+        ).all()
+        res = []
+        for rank in ranks:
+            res.append(rank.judge_rank)
+        return res
 
     def get_public_nominees(self, randomize=False, category=None):
         """Returns a list of all public websites that haven been nominated
@@ -54,6 +93,16 @@ class NUContest(db.Model, common.ModelWithDates):
         """Return a list of Sponsor models for this Contest"""
         return pcm.Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize)
 
+    def get_judge_ranks_for_auth_user(self, category):
+        """Returns the JudgeRank models for the current user."""
+        return JudgeRank.query.select_from(pam.BivAccess, Nominee).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == Nominee.biv_id,
+            JudgeRank.judge_biv_id == flask.session['user.biv_id'],
+            Nominee.biv_id == JudgeRank.nominee_biv_id,
+            Nominee.category == category
+        ).all()
+
     def get_vote_for_auth_user(self, category):
         """Returns the NUVote model for the current user or None."""
         if not flask.session.get('user.is_logged_in'):
@@ -70,6 +119,12 @@ class NUContest(db.Model, common.ModelWithDates):
     def is_admin(self):
         """Shortcut to Admin.is_admin"""
         return pam.Admin.is_admin()
+
+    def _score_ranks(self, ranks):
+        score = 0
+        for rank in ranks:
+            score += int(JudgeRank.MAX_RANKS) - rank + 1
+        return score
 
     def _votes_for_auth_user(self, category):
         return NUVote.query.select_from(pam.BivAccess, Nominee).filter(
