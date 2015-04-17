@@ -18,13 +18,13 @@
       <th data-defaultsort="asc">Name</th>
       <th>Website</th>
       <th>Date Submitted</th>
-      <th>Category</ht>
+      <th>Category</th>
       <th>Public</th>
       <th> </th>
     </tr>
     </thead>
     <tbody>
-    {%- for nominee in contest.get_admin_nominees() %}
+    {%- for nominee in contest.get_all_nominees() %}
       <tr>
         <td>{{ nominee.display_name }}</td>
         <td><a href="{{ nominee.url }}">{{ nominee.url }}</a></td>
