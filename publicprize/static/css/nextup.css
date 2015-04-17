@@ -123,7 +123,7 @@ img.pp-quote-mark {
 
 .pp-tab-page {
   background-color: white;
-  padding: 2em;
+  padding: 2ex 0;
   border-radius: 8px;
 }
 .pp-voting-tabs {
@@ -138,7 +138,36 @@ ul.pp-voting-tabs li a {
 a.pp-vote-button {
   font-weight: bold;
   line-height: 1;
+  margin-left: 2em;
 }
 .modal .btn-default {
   min-width: 8em;
+}
+
+.pp-rank-btn, .nav-pills > li > a.pp-rank-btn {
+  min-width: 4em;
+  min-height:: 4em;
+  line-height: 4em;
+  padding: 0;
+  margin: 5px;
+  border-radius: 2em;
+}
+.pp-nominee-name {
+  font-weight: 300;
+  font-size: 16px;
+  vertical-align: middle;
+}
+.pp-rank {
+  font-size: 16px;
+  line-height: 16px;
+}
+a.pp-nominee-url {
+  text-decoration: none;
+  line-height: 4em;
+}
+.pp-rank-btn:focus,
+.pp-rank-btn:active:focus, .pp-rank-btn.active:focus,
+.pp-rank-btn.focus,
+.pp-rank-btn.focus:active, .pp-rank-btn.active.focus {
+  outline: none;
 }
