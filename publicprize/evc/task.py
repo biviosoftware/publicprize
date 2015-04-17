@@ -14,11 +14,12 @@ import sqlalchemy.orm
 import werkzeug.exceptions
 
 from . import form as pcf
-from . import model as pcm
+from . import model as pem
 from .. import common
 from .. import controller as ppc
 from .. import inspect as ppi
 from ..auth import model as pam
+from ..contest import model as pcm
 
 _template = common.Template('evc');
 
@@ -32,17 +33,6 @@ def user_is_contestant_founder_or_admin(func):
         if pam.Admin.is_admin() or (contestant.is_founder() \
             and contestant.get_contest().is_expired() \
             and contestant.get_contest().is_scoring_completed):
-            return func(*args, **kwargs)
-        werkzeug.exceptions.abort(403)
-    return decorated_function
-
-
-def user_is_judge(func):
-    """Require the current user is a contest judge."""
-    @functools.wraps(func)
-    def decorated_function(*args, **kwargs):
-        """Forbidden unless allowed."""
-        if args[0].is_judge():
             return func(*args, **kwargs)
         werkzeug.exceptions.abort(403)
     return decorated_function
@@ -77,7 +67,7 @@ class Contest(ppc.Task):
         return _template.render_template(biv_obj, 'judges')
 
     @common.decorator_login_required
-    @user_is_judge
+    @common.decorator_user_is_judge
     def action_judging(biv_obj):
         """List of contestants for judgement"""
         return _template.render_template(
@@ -94,20 +84,7 @@ class Contest(ppc.Task):
 
     def action_new_test_judge(biv_obj):
         """Creates a new test user and judge models and log in."""
-        # will raise an exception unless TEST_USER is configured
-        flask.g.pub_obj.task_class().action_new_test_user()
-        judge = pcm.Judge()
-        pcm.db.session.add(judge)
-        pcm.db.session.flush()
-        pam.db.session.add(pam.BivAccess(
-            source_biv_id=flask.session['user.biv_id'],
-            target_biv_id=judge.biv_id
-        ))
-        pam.db.session.add(pam.BivAccess(
-            source_biv_id=biv_obj.biv_id,
-            target_biv_id=judge.biv_id
-        ))
-        return flask.redirect('/')
+        return pcm.Judge.new_test_judge(biv_obj)
 
     def action_rules(biv_obj):
         return flask.redirect('/static/pdf/rules.pdf')
@@ -140,7 +117,7 @@ class Contestant(ppc.Task):
 
     def action_donate_cancel(biv_obj):
         """Return from cancelled payment on paypal site"""
-        donor = pcm.Donor.unsafe_load_from_session()
+        donor = pem.Donor.unsafe_load_from_session()
         if donor:
             donor.remove_from_session()
             donor.donor_state = 'canceled'
@@ -158,7 +135,7 @@ class Contestant(ppc.Task):
         return Contestant.action_contestant(biv_obj)
 
     @common.decorator_login_required
-    @user_is_judge
+    @common.decorator_user_is_judge
     def action_judging(biv_obj):
         """Contestant judgement"""
         return pcf.Judgement().execute(biv_obj)
@@ -185,7 +162,7 @@ class Contestant(ppc.Task):
                     'biv_id': user_id,
                     'display_name': pam.User.query.filter_by(
                         biv_id=user_id).one().display_name,
-                    'general_comment': pcm.JudgeScore.query.filter_by(
+                    'general_comment': pem.JudgeScore.query.filter_by(
                         judge_biv_id=user_id,
                         question_number=0
                      ).first().judge_comment,
