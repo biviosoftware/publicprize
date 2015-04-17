@@ -55,14 +55,7 @@
     one <strong>Pitcher</strong>. You can change your vote at any time
     up until the close of the contest.
     </div>
-    <ul class="nav nav-tabs pp-voting-tabs">
-      <li role="presentation"
-        {%- if category == 'pint' %} class="active" {% endif %}>
-        <a href="{{ contest.format_uri('vote', query={'category': 'pint'}, anchor='vote') }}"><h4>Pints</h4></a></li>
-      <li role="presentation"
-        {%- if category == 'pitcher' %} class="active" {% endif %}>
-        <a href="{{ contest.format_uri('vote', query={'category': 'pitcher'}, anchor='vote') }}"><h4>Pitchers</h4></a></li>
-    </ul>
+    {{ pint_pitcher_tabs('vote') }}
     <div class="pp-tab-page">
       {%- for nominee in contest.get_public_nominees(category=category) %}
         <div class="lead">
