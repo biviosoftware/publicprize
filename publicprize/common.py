@@ -49,6 +49,17 @@ def decorator_user_is_admin(func):
     return decorated_function
 
 
+def decorator_user_is_judge(func):
+    """Require the current user is a contest judge."""
+    @functools.wraps(func)
+    def decorated_function(*args, **kwargs):
+        """Forbidden unless allowed."""
+        if args[0].is_judge():
+            return func(*args, **kwargs)
+        werkzeug.exceptions.abort(403)
+    return decorated_function
+
+
 class Model(object):
     """Provides biv support for Models"""
 
