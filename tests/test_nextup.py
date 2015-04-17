@@ -43,8 +43,8 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
         self._visit_uri('/pub/new-test-admin')
         self._follow_link('{}'.format(CONTEST_NAME))
         self._verify_text('Admin')
-        self._follow_link('Admin')
-        self._verify_text('Review Nominees')
+        self._follow_link('Review Nominees')
+        self._verify_text('Category')
 
     def test_review_nominees_security(self):
         self._visit_uri('/pub/logout')
