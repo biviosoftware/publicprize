@@ -5,10 +5,7 @@
     :license: Apache, see LICENSE for more details.
 """
 
-import datetime
 import decimal
-import math
-import pytz
 import random
 import re
 
@@ -22,7 +19,7 @@ from ..contest import model as pcm
 from ..auth import model as pam
 from ..controller import db
 
-class Contest(db.Model, common.ModelWithDates):
+class Contest(db.Model, pcm.ContestBase):
     """contest database model.
 
     Fields:
@@ -43,7 +40,6 @@ class Contest(db.Model, common.ModelWithDates):
     # TODO(pjm): move logo and founder_avatar to separate model BivImage
     contest_logo = db.Column(db.LargeBinary)
     logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
-    end_date = db.Column(db.Date, nullable=False)
     is_scoring_completed = db.Column(db.Boolean, nullable=False)
 
     def contestant_count(self):
@@ -54,13 +50,6 @@ class Contest(db.Model, common.ModelWithDates):
             # not a real ==, Column() overrides __eq__ to generate SQL
             Contestant.is_public == True  # noqa
         ).count()
-
-    def days_remaining(self):
-        """Days remaining for this Contest."""
-        time_left = self._time_remaining()
-        if time_left.days > 0:
-            return time_left.days
-        return 0
 
     def donor_count(self):
         """Returns the total donor count across all the contestants"""
@@ -111,14 +100,6 @@ class Contest(db.Model, common.ModelWithDates):
             row['total_score'] = row['amount_score'] + row['judge_score']
         return sorted(rows, key=lambda contestant: contestant['display_name'])
 
-    def get_contest(self):
-        """Returns self"""
-        return self
-
-    def get_sponsors(self, randomize=False):
-        """Return a list of Sponsor models for this Contest"""
-        return pcm.Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize);
-
     def get_public_contestants(self, randomize=False, userRandomize=False):
         """Return a list of contestants for this Contest. List will be
         randomized if randomize is True. If userRandomize is True, the list
@@ -134,63 +115,12 @@ class Contest(db.Model, common.ModelWithDates):
                 contestants)
         return contestants
 
-    def get_timezone(self):
-        """Returns the timezone used by this contest."""
-        # TODO(pjm): either store in config or per contest
-        return pytz.timezone('US/Mountain')
-
-    def hours_remaining(self):
-        """Hours remaining for this Contest."""
-        hours = math.floor(self._time_remaining().total_seconds() / (60 * 60))
-        if hours > 0:
-            return hours
-        return 0
-
-    def is_admin(self):
-        """Shortcut to Admin.is_admin"""
-        return pam.Admin.is_admin()
-
-    def is_expired(self):
-        """Returns True if the contest has expired."""
-        return self._time_remaining().total_seconds() <= 0
-
-    def is_judge(self):
-        """Returns True if the current user is a judge for this Contest"""
-        if not flask.session.get('user.is_logged_in'):
-            return False
-        if self.is_expired():
-            return False
-        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
-        if Judge.query.select_from(pam.BivAccess, access_alias).filter(
-            pam.BivAccess.source_biv_id == self.biv_id,
-            pam.BivAccess.target_biv_id == access_alias.target_biv_id,
-            access_alias.source_biv_id == flask.session['user.biv_id']
-        ).first():
-            return True
-        return False
-
-    def minutes_remaining(self):
-        """Minutes remaining for this Contest."""
-        minutes = math.floor(self._time_remaining().total_seconds() / 60)
-        if minutes > 0:
-            return minutes
-        return 0
-
     def user_submission_url(self, task='contestant'):
         """Returns the current user's submission url or None."""
         for contestant in self.get_public_contestants():
             if contestant.is_founder():
                 return contestant.format_uri(task)
         return None
-
-    def _time_remaining(self):
-        """Returns the time remaining using the contest time zone."""
-        tz = self.get_timezone()
-        end_of_day = tz.localize(
-            datetime.datetime(
-                self.end_date.year, self.end_date.month, self.end_date.day,
-                23, 59, 59))
-        return end_of_day - datetime.datetime.now(tz)
 
 
 class Contestant(db.Model, common.ModelWithDates):
@@ -257,7 +187,7 @@ class Contestant(db.Model, common.ModelWithDates):
         rows = JudgeScore.query.select_from(pam.BivAccess).filter(
             JudgeScore.contestant_biv_id == self.biv_id,
             JudgeScore.judge_biv_id == pam.BivAccess.source_biv_id,
-            pam.BivAccess.target_biv_id == Judge.biv_id,
+            pam.BivAccess.target_biv_id == pcm.Judge.biv_id,
             JudgeScore.question_number > 0,
             JudgeScore.judge_score > 0
         ).all()
@@ -436,23 +366,6 @@ class Founder(db.Model, common.ModelWithDates):
     avatar_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='avatar_type'))
 
 
-class Judge(db.Model, common.ModelWithDates):
-    """judge database model.
-
-    Fields:
-        biv_id: primary ID
-        judge_company: judge's company
-        judge_title: judge's title within the company
-    """
-    biv_id = db.Column(
-        db.Numeric(18),
-        db.Sequence('judge_s', start=1009, increment=1000),
-        primary_key=True
-    )
-    judge_company = db.Column(db.String(100))
-    judge_title = db.Column(db.String(100))
-
-
 class JudgeScore(db.Model, common.ModelWithDates):
     """judge_score database model.
 
@@ -507,4 +420,3 @@ Contest.BIV_MARKER = biv.register_marker(2, Contest)
 Contestant.BIV_MARKER = biv.register_marker(3, Contestant)
 Donor.BIV_MARKER = biv.register_marker(7, Donor)
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
-Judge.BIV_MARKER = biv.register_marker(9, Judge)
