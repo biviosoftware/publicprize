@@ -78,7 +78,7 @@ def add_judge(contest, user):
     """Link the User model to a Judge model."""
     contest_model = pem.Contest().query.filter_by(biv_id=contest).one()
     user_model = _lookup_user(user)
-    judge = pem.Judge.query.select_from(pam.BivAccess).filter(
+    judge = pcm.Judge.query.select_from(pam.BivAccess).filter(
         pam.BivAccess.source_biv_id == user_model.biv_id,
     ).first()
     judge_id = None
@@ -323,7 +323,10 @@ def _create_database(is_production=False, is_prompt_forced=False):
     for contest in data['NUContest']:
         contest_id = _add_model(
             pnm.NUContest(
-                display_name=contest['display_name'])
+                display_name=contest['display_name'],
+                end_date=datetime.datetime.strptime(
+                    contest['end_date'], '%m/%d/%Y').date(),
+                )
             )
         if 'Alias' in contest:
             _add_model(pam.BivAlias(
