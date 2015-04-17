@@ -13,7 +13,7 @@
 
 {%- block subtitle %}Admin Edit Nominate{% endblock %}
 {%- block sponsor_list %}{% endblock %}
-{% block contest_content_class %}col-sm-offset-1 col-sm-8{% endblock %}
+{%- block contest_content_class %}col-sm-offset-1 col-sm-8{% endblock %}
 {%- block contest_content %}
   <div class="pp-form">
     <form method="POST" action="{{ nominee.format_uri('admin-edit-nominee') }}">
