@@ -6,12 +6,14 @@
 """
 
 import flask
+import json
 
 from . import form as pnf
 from . import model as pnm
 from .. import common
 from .. import controller as ppc
 from ..auth import model as pam
+from ..contest import model as pcm
 
 _template = common.Template('nextup')
 
@@ -23,6 +25,17 @@ class NUContest(ppc.Task):
     def action_admin_review_nominees(biv_obj):
         """Admin review nominees"""
         return _template.render_template(biv_obj, 'admin-review-nominees')
+
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
+    def action_admin_review_scores(biv_obj):
+        """Admin review voting and judge ranking"""
+        category = NUContest._get_category()
+        return _template.render_template(
+            biv_obj,
+            'admin-review-scores',
+            category=category
+        )
 
     def action_index(biv_obj):
         """Contest home, redirect to nominate or vote depending on state"""
@@ -36,11 +49,36 @@ class NUContest(ppc.Task):
         """Public list of nominated websites"""
         return _template.render_template(biv_obj, 'nominees')
 
+    @common.decorator_login_required
+    @common.decorator_user_is_judge
+    def action_judging(biv_obj):
+        """Rank the nominees (1st to 10th)"""
+        category = NUContest._get_category()
+        ranks = [None] * pnm.JudgeRank.MAX_RANKS
+        ranks.insert(0, category)
+        for judge_rank in biv_obj.get_judge_ranks_for_auth_user(category):
+            ranks[int(judge_rank.judge_rank)] = str(judge_rank.nominee_biv_id)
+        return _template.render_template(
+            biv_obj,
+            'judging',
+            category=category,
+            ranks=json.dumps(ranks),
+            max_ranks=pnm.JudgeRank.MAX_RANKS
+        )
+
+    @common.decorator_login_required
+    @common.decorator_user_is_judge
+    def action_judge_ranking(biv_obj):
+        """Save the judge's ranking"""
+        return pnf.Judge().execute(biv_obj)
+
+    def action_new_test_judge(biv_obj):
+        """Creates a new test user and judge models and log in."""
+        return pcm.Judge.new_test_judge(biv_obj)
+
     def action_vote(biv_obj):
         """Vote for a nominee"""
-        category = 'pitcher' \
-            if (flask.request.args.get('category') or '') == 'pitcher' \
-            else 'pint'
+        category = NUContest._get_category()
         return _template.render_template(
             biv_obj,
             'nominee-voting',
@@ -50,6 +88,12 @@ class NUContest(ppc.Task):
 
     def get_template():
         return _template
+
+    def _get_category():
+        """Returns the category from the request query, defaults to 'pint'"""
+        return 'pitcher' \
+            if (flask.request.args.get('category') or '') == 'pitcher' \
+            else 'pint'
 
 
 class Nominee(ppc.Task):
@@ -119,7 +163,6 @@ class Nominee(ppc.Task):
             else:
                 return flask.redirect(biv_obj.format_uri(
                         'override-vote',
-                        query={'target': biv_obj.biv_id},
                         anchor='vote'))
         vote = pnm.NUVote(
             user=flask.session['user.biv_id'],
