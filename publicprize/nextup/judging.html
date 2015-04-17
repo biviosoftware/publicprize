@@ -1,0 +1,224 @@
+{% extends base_template %}
+
+{%- block subtitle %}Judging{% endblock %}
+{%- block sponsor_list %}{% endblock %}
+{%- block contest_content_class %}col-sm-12{% endblock %}
+{%- block contest_content %}
+    <a id="judging"></a>
+    <br>
+    <div class="pp-media-body">
+      <p>Select your {{ max_ranks }} favorite companies below. You may change your
+        ranking any time up until the close of the contest, May 8th.</p>
+    </div>
+    <div class="text-muted pull-right pp-auto-save" id="pp-auto-save-alert">&nbsp;</div>
+    <div class="clearfix"></div>
+    {{ pint_pitcher_tabs('judging') }}
+    <div class="row pp-tab-page">
+      {%- for nominee in contest.get_public_nominees(category=category) %}
+      <div class="col-sm-6 col-md-4" style="white-space: nowrap">
+        <div class="dropdown">
+          <button class="btn btn-default pp-rank-btn" data-toggle="dropdown" data-nominee="{{ nominee.biv_id }}">&nbsp;</button>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="#" class="pp-rank-item" data-value="0">Remove Rank</a></li>
+            <li><a href="#" class="pp-rank-item" data-value="1">1st</a></li>
+            <li><a href="#" class="pp-rank-item" data-value="2">2nd</a></li>
+            <li><a href="#" class="pp-rank-item" data-value="3">3rd</a></li>
+            {%- for i in range(4, 11) %}
+            <li><a href="#" class="pp-rank-item" data-value="{{ i }}">{{ i }}th</a></li>
+            {%- endfor %}
+          </ul>
+          <a class="pp-nominee-url" href="{{ nominee.url }}" target="_blank"><span class="pp-nominee-name">{{ nominee.display_name }}</span></a>
+        </div>
+      </div>
+      {%- endfor %}
+    </div>
+    {# put a spacer so the last drop-down menu doesn't trigger a
+    scollbar #}
+    <div style="min-height:38ex"></div>
+
+{%- endblock %}
+
+{%- block scripts %}
+  {{- super() }}
+  <script>
+$(function() {
+
+  var MAX_RANKS = {{ max_ranks }};
+  // holds nominee.biv_id, ranked from index 1 .. MAX_RANKS
+  var ranks = {{ ranks|safe }};
+  var rank_superscript = {
+    1: 'st',
+    2: 'nd',
+    3: 'rd'
+  };
+
+  init_buttons();
+
+  function bump_down(index) {
+    if (ranks[index + 1])
+      bump_down(index + 1);
+    set_rank(find_button(ranks[index]), index + 1);
+  }
+
+  function bump_up(index) {
+    if (ranks[index - 1])
+      bump_up(index - 1);
+    set_rank(find_button(ranks[index]), index - 1);
+  }
+
+  function find_button(nominee) {
+    var res = null;
+    $('.pp-rank-btn').each(function() {
+      if ($(this).data('nominee') == nominee) {
+        res = $(this);
+        return false;
+      }
+    });
+    if (! res)
+      console.log('missing button for nominee: ', nominee);
+    return res;
+  }
+
+  function init_buttons() {
+    var count = 0;
+    // set initial button state
+    for (var i = 1; i <= MAX_RANKS; i++) {
+      if (ranks[i]) {
+        btn = find_button(ranks[i]);
+        set_rank(btn, i);
+        btn.removeClass('btn-default').addClass('btn-primary');
+        count++;
+      }
+    }
+    if (count == MAX_RANKS)
+      iterate_unranked_buttons(false)
+  }
+
+  function iterate_unranked_buttons(enable_button) {
+    $('.pp-rank-btn').each(function() {
+      if (! $(this).data('rank')) {
+        if (enable_button)
+          $(this).removeClass('disabled');
+        else
+          $(this).addClass('disabled');
+      }
+    });
+  }
+
+  function next_rank_index() {
+    index = -1;
+    for (var i = 1; i <= MAX_RANKS; i++) {
+      if (! ranks[i]) {
+        index = i;
+        break;
+      }
+    }
+    return index;
+  }
+
+  function save_ranks() {
+    $.post("{{ contest.format_uri('judge-ranking') }}",
+      { ranks: JSON.stringify(ranks) },
+      function(data) {
+        var v = JSON.parse(data);
+        var ranking_done = true;
+        for (var i = 1; i <= MAX_RANKS; i++) {
+          if (! v[i]) {
+            ranking_done = false;
+            break;
+          }
+        }
+        var d = new Date();
+        $('#pp-auto-save-alert').text(
+          (ranking_done
+            ? 'Thank you for participating in this contest! '
+            : '')
+          + 'Autosaved at ' + d.toLocaleTimeString());
+      }
+    );
+  }
+
+  function set_html_rank(btn, rank) {
+      var superscript = 'th'
+      if (rank && rank_superscript[rank])
+        superscript = rank_superscript[rank];
+      v = rank
+          ? (
+            '<span class="pp-rank">' + rank
+              + '<sup>' + superscript + '</sup></span>'
+          ) : '&nbsp;'
+      btn.html(
+        rank
+          ? (
+            '<span class="pp-rank">' + rank
+              + '<sup>' + superscript + '</sup></span>'
+          ) : '&nbsp;');
+  }
+
+  function set_rank(btn, value) {
+    ranks[value] = btn.data('nominee');
+    set_html_rank(btn, value);
+    btn.data('rank', value);
+  }
+
+  $('.pp-rank-item').click(
+    function(e) {
+      e.preventDefault();
+      var value = $(this).data('value');
+      var btn = $(this).parents('.dropdown').first().find('.pp-rank-btn');
+      if (value == 0 && btn.data('rank')) {
+        ranks[btn.data('rank')] = null;
+        btn.removeData('rank');
+        set_html_rank(btn, 0);
+        btn.removeClass('btn-primary').addClass('btn-default');
+        iterate_unranked_buttons(true);
+      }
+      else {
+        old_index = btn.data('rank');
+        if (old_index == value)
+          return;
+        ranks[old_index] = null;
+        if (ranks[value]) {
+          if (old_index > value)
+            bump_down(value);
+          else
+            bump_up(value);
+        }
+        set_rank(btn, value);
+      }
+      save_ranks();
+    });
+
+  $('.pp-rank-btn').click(
+    function(e) {
+      e.preventDefault();
+      if ($(this).data('rank') || next_rank_index() < 0)
+        return;
+      // don't show the popup menu when selecting the initial rank
+      $(this).dropdown('toggle');
+      index = next_rank_index();
+      set_rank($(this), index);
+      $(this).removeClass('btn-default').addClass('btn-primary');
+      if (next_rank_index() < 0)
+        iterate_unranked_buttons(false);
+      save_ranks();
+    });
+
+  if ('ontouchstart' in document.documentElement) {
+    // don't include hover code on touchscreens
+  }
+  else {
+    $('.pp-rank-btn').hover(
+      function() {
+        if ($(this).data('rank') || next_rank_index() < 0)
+          return;
+        set_html_rank($(this), next_rank_index());
+      },
+      function() {
+        set_html_rank($(this), $(this).data('rank'));
+      });
+  }
+});
+  </script>
+{%- endblock %}
+
