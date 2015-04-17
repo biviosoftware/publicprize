@@ -24,38 +24,13 @@ def clear_all_sessions():
 
 
 @_MANAGER.command
-def nextup_tables():
-    """Creates NextUp contest tables."""
-    pnm.NUContest.__table__.create(bind=db.get_engine(ppc.app()))
-    pnm.Nominee.__table__.create(bind=db.get_engine(ppc.app()))
-    pnm.Nominator.__table__.create(bind=db.get_engine(ppc.app()))
+def upgrade_judge_rank_table():
+    pnm.JudgeRank.__table__.create(bind=db.get_engine(ppc.app()))
 
 
 @_MANAGER.command
-def nextup_data():
-    """Creates the NextUp contest data."""
-    nucontest = pnm.NUContest(
-        display_name="Next Up"
-    )
-    db.session.add(nucontest)
-    db.session.flush()
-    db.session.add(pam.BivAlias(
-        biv_id=nucontest.biv_id,
-        alias_name="next-up"
-    ))
-
-
-@_MANAGER.command
-def upgrade_nuvote_table():
-    """Adds table for NUVote model."""
-    pnm.NUVote.__table__.create(bind=db.get_engine(ppc.app()))
-
-
-@_MANAGER.command
-def upgrade_nextup_nominee():
-    """Adds nominee.category"""
-    _add_enum_type('nominee_category', ['unknown', 'pint', 'pitcher'])
-    _add_column(pnm.Nominee, pnm.Nominee.category, "'unknown'")
+def upgrade_numodel_table():
+    _add_column(pnm.NUContest, pnm.NUContest.end_date, "'2015-05-08'")
 
 
 def _add_column(model, column, default_value=None):
