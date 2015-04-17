@@ -1,11 +1,22 @@
 {% extends 'layout/base.html' %}
 
+{%- macro pint_pitcher_tabs(action) %}
+  <ul class="nav nav-tabs pp-voting-tabs">
+    <li role="presentation"
+      {%- if category == 'pint' %} class="active" {% endif %}>
+      <a href="{{ contest.format_uri(action, query={'category': 'pint'}, anchor=action) }}"><h4>Pints</h4></a></li>
+    <li role="presentation"
+      {%- if category == 'pitcher' %} class="active" {% endif %}>
+      <a href="{{ contest.format_uri(action, query={'category': 'pitcher'}, anchor=action) }}"><h4>Pitchers</h4></a></li>
+  </ul>
+{%- endmacro %}
+
 {%- macro twitter_link() %}
   <a rel="nofollow" class="pp-twitter-link" href="http://www.twitter.com/NextUpColorado">@NextUpColorado</a>
 {%- endmacro %}
 
 {%- block bootstrap_css %}
-  <link href="/static/css/bootstrap-nextup-3.3.2.min.css?20150406" rel="stylesheet">
+  <link href="/static/css/bootstrap-nextup-3.3.2.min.css?20150415-1" rel="stylesheet">
 {%- endblock %}
 
 {%- block title %}
@@ -22,12 +33,21 @@
 {%- endblock %}
 
 {%- block extra_nav_items %}
-<div class="pp-nav-text navbar-left">Follow Us on Twitter: {{ twitter_link() }}</div>
+<div class="pp-nav-text navbar-left hidden-sm">Follow Us on Twitter: {{ twitter_link() }}</div>
 {%- endblock %}
 
 {%- block logged_in_nav %}
   {%- if contest.is_admin() %}
-    <li><a class="pp-nav-item pp-nav-important" href="{{ contest.format_uri('admin-review-nominees') }}">Admin</a>
+    <li class="dropdown">
+      <a class="pp-nav-item pp-nav-important dropdown-toggle" data-toggle="dropdown" href="#">Admin <span class="caret"></span></a>
+      <ul class="dropdown-menu" role="menu">
+        <li><a href="{{ contest.format_uri('admin-review-nominees') }}">Review Nominees</a></li>
+        <li><a href="{{ contest.format_uri('admin-review-scores') }}">Review Scores</a></li>
+      </ul>
+    </li>
+  {%- endif %}
+  {%- if contest.is_judge() %}
+    <li><a class="pp-nav-item pp-nav-important" href="{{ contest.format_uri('judging') }}">Judging</a>
   {%- endif %}
 {%- endblock %}
 
