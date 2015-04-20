@@ -17,10 +17,10 @@ ppc.init()
 _MANAGER = fes.Manager(ppc.app())
 
 
-@_MANAGER.command
-def clear_all_sessions():
-    """Logs out all users - clears all user session state from db."""
-    db.get_engine(ppc.app()).execute('DELETE FROM beaker_cache')
+# @_MANAGER.command
+# def clear_all_sessions():
+#     """Logs out all users - clears all user session state from db."""
+#     db.get_engine(ppc.app()).execute('DELETE FROM beaker_cache')
 
 
 @_MANAGER.command
