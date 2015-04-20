@@ -196,6 +196,40 @@ def refresh_founder_avatars():
     print('refreshed {} founder avatars'.format(count))
 
 
+@_MANAGER.option('-u', '--user', help='User biv_id or email')
+def remove_admin(user):
+    """Remove the User model to an Admin model."""
+    user_biv_id = _lookup_user(user).biv_id
+    admin = pam.Admin.query.select_from(pam.BivAccess).filter(
+        pam.BivAccess.source_biv_id == user_biv_id,
+        pam.BivAccess.target_biv_id == pam.Admin.biv_id
+    ).one()
+    db.session.delete(
+        pam.BivAccess.query.filter(
+            pam.BivAccess.source_biv_id == user_biv_id,
+            pam.BivAccess.target_biv_id == admin.biv_id
+        ).one()
+    )
+    db.session.delete(admin)
+
+
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-u', '--user', help='User biv_id or email')
+def remove_judge(contest, user):
+    """Link the User model to a Judge model."""
+    user_biv_id = _lookup_user(user).biv_id
+    judge = pcm.Judge.query.select_from(pam.BivAccess).filter(
+        pam.BivAccess.source_biv_id == user_biv_id,
+        pam.BivAccess.target_biv_id == pcm.Judge.biv_id
+    ).one()
+    db.session.delete(
+        pam.BivAccess.query.filter(
+            pam.BivAccess.source_biv_id == contest,
+            pam.BivAccess.target_biv_id == judge.biv_id
+        ).one()
+    )
+
+
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
 @_MANAGER.option('-s', '--name', help='Sponsor name')
 def remove_sponsor(contest, name):
