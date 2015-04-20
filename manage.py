@@ -77,19 +77,19 @@ def add_admin(user):
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 def add_judge(contest, user):
     """Link the User model to a Judge model."""
-    contest_model = pem.Contest().query.filter_by(biv_id=contest).one()
     user_model = _lookup_user(user)
     judge = pcm.Judge.query.select_from(pam.BivAccess).filter(
         pam.BivAccess.source_biv_id == user_model.biv_id,
+        pam.BivAccess.target_biv_id == pcm.Judge.biv_id
     ).first()
     judge_id = None
 
     if judge:
         judge_id = judge.biv_id
     else:
-        judge_id = _add_model(pem.Judge())
+        judge_id = _add_model(pcm.Judge())
         _add_owner(user_model.biv_id, judge_id)
-    _add_owner(contest_model.biv_id, judge_id)
+    _add_owner(contest, judge_id)
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
