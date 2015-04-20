@@ -143,11 +143,6 @@ $(function() {
       var superscript = 'th'
       if (rank && rank_superscript[rank])
         superscript = rank_superscript[rank];
-      v = rank
-          ? (
-            '<span class="pp-rank">' + rank
-              + '<sup>' + superscript + '</sup></span>'
-          ) : '&nbsp;'
       btn.html(
         rank
           ? (
