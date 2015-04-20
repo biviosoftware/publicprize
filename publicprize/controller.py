@@ -164,6 +164,9 @@ def _route_403(_):
 @_app.errorhandler(404)
 def _route_404(_):
     """Not found page."""
+    # # This is useful when debugging "not found" pages with no stack trace
+    # import traceback
+    # traceback.print_exc()
     return _route(biv.URI_FOR_ERROR + '/' + 'not-found')
 
 
