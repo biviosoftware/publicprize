@@ -31,7 +31,7 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
         self._visit_uri(base_url + '/new-test-judge')
         self._follow_link(CONTEST_NAME)
         self._follow_link('Judging')
-        self._verify_text('Select your 10')
+        self._verify_text('rank the top 10')
         nominees = self._parse_nominees_from_buttons()
         print(nominees)
         self.client.post(
