@@ -7,6 +7,7 @@
 
 import flask
 import json
+import sqlalchemy.orm
 
 from . import form as pnf
 from . import model as pnm
@@ -19,6 +20,39 @@ _template = common.Template('nextup')
 
 class NUContest(ppc.Task):
     """Next Up Contest actions"""
+
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
+    def action_admin_review_judges(biv_obj):
+        """Admin review judges"""
+        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
+        judges = pam.User.query.select_from(
+            pam.BivAccess, access_alias, pcm.Judge).filter(
+                pam.BivAccess.source_biv_id == pam.User.biv_id,
+                pam.BivAccess.target_biv_id == pcm.Judge.biv_id,
+                access_alias.source_biv_id == biv_obj.biv_id,
+                access_alias.target_biv_id == pcm.Judge.biv_id,
+            ).all()
+        rank_count = {}
+        for judge in judges:
+            rank_count[judge.biv_id] = {}
+            nominees = pnm.Nominee.query.select_from(
+                pam.BivAccess, pnm.JudgeRank).filter(
+                    pam.BivAccess.source_biv_id == biv_obj.biv_id,
+                    pam.BivAccess.target_biv_id == pnm.Nominee.biv_id,
+                    pnm.JudgeRank.nominee_biv_id == pnm.Nominee.biv_id,
+                    pnm.JudgeRank.judge_biv_id == judge.biv_id,
+                ).all()
+            for nominee in nominees:
+                if not rank_count[judge.biv_id].get(nominee.category):
+                    rank_count[judge.biv_id][nominee.category] = 0;
+                rank_count[judge.biv_id][nominee.category] += 1
+        return _template.render_template(
+            biv_obj,
+            'admin-review-judges',
+            judges=judges,
+            rank_count=rank_count,
+        )
 
     @common.decorator_login_required
     @common.decorator_user_is_admin
@@ -219,4 +253,3 @@ def _voted_social_kwargs(nominee):
         'nominee_tweet': "I just voted for " + nominee.display_name,
         'nextup_icon_url': _nextup_icon_url()
     }
-
