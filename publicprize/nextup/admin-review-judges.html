@@ -1,0 +1,42 @@
+{% extends base_template %}
+{%- import "layout/macros.html" as macros %}
+
+{%- block css %}
+  {{- super() }}
+  <link href="/static/css/bootstrap-sortable-1.9.0.css" rel="stylesheet">
+{%- endblock %}
+
+{%- block subtitle %}Admin Review Judges{%- endblock %}
+{%- block sponsor_list %}{% endblock %}
+{% block contest_content_class %}col-sm-offset-1 col-sm-10{% endblock %}
+{%- block contest_content %}
+  <h1>Judges</h1>
+  <div class="row pp-tab-page">
+  <table class="table table-hover sortable">
+    <thead>
+    <tr>
+      <th data-defaultsort="asc">Name</th>
+      <th>Email</th>
+      <th>Pint Count</th>
+      <th>Pitcher Count</th>
+    </tr>
+    </thead>
+    <tbody>
+    {%- for judge in judges %}
+      <tr>
+        <td>{{ judge.display_name }}</td>
+        <td>{{ judge.user_email }}</td>
+        <td class="pp-amount-cell">{{ rank_count[judge.biv_id]['pint'] }}</td>
+        <td class="pp-amount-cell">{{ rank_count[judge.biv_id]['pitcher'] }}</td>
+      </tr>
+    {%- endfor %}
+    </tbody>
+  </table>
+  </div>
+{%- endblock %}
+
+{%- block scripts %}
+  {{- super() }}
+  <script src="/static/js/bootstrap-sortable/moment-2.3.1.min.js"></script>
+  <script src="/static/js/bootstrap-sortable/bootstrap-sortable-1.9.0.js"></script>
+{%- endblock %}
