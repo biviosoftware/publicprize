@@ -163,7 +163,7 @@ class Contestant(flask_wtf.Form):
             self.slideshow_url.errors = [
                 'SlideShare URL invalid or unavailable.']
             return None
-        match = re.search(r'slideshow/embed_code/(\d+)', html)
+        match = re.search(r'/slideshare-app/ss/(\d+)', html)
         if match:
             return match.group(1)
         self.slideshow_url.errors = [
