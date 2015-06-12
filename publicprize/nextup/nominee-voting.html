@@ -42,24 +42,6 @@
         <p>Winners will be announced on this website on June 15th.</p>
       </div>
     <div class="pp-bottom-border hidden-xs"></div>
-    <a id="vote"></a>
-    <div class="pp-media-body">
-    <h1>Vote For a Pint and a Pitcher</h1>
-    <p>
-    You may cast your vote for one <strong>Pint</strong> and
-    one <strong>Pitcher</strong>. You can change your vote
-    at any time. Voting ends on <b>June 10, 2015</b>.
-    </p>
-    </div>
-    {{ pint_pitcher_tabs('vote') }}
-    <div class="pp-tab-page">
-      {%- for nominee in contest.get_public_nominees(category=category) %}
-        <div class="lead">
-          <a class="btn {{ vote_button_class(nominee) }} pp-vote-button" href="{{ nominee.format_uri('user-vote') }}"><span class="glyphicon glyphicon-triangle-top"></span><br/>{{ nominee.get_vote_count() }}</a>
-          <a href="{{ nominee.url }}" target="_blank">{{ nominee.display_name }}</a>
-        </div>
-      {%- endfor %}
-    </div>
   </div>
  {{- macros.signin_modal('pp_vote_modal', 'Sign in to vote') }}
 
