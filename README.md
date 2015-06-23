@@ -1,39 +1,54 @@
-Public Prize
-============
+### Public Prize
 
-###### Setting up a dev environment.
+#### Setting up a dev environment (Fedora/CentOS)
 
-First [install Python3 with pyenv](//github.com/biviosoftware/utilities/blob/master/Environment.md), then:
+Assumes you are running on a fresh Fedora:
+
+##### Initialize postgres
 
 ```bash
-pip install -e .
+su -
+yum install -y postgresql-devel postgresql-server
+postgresql-setup initdb
+perl -pi.bak -e 's{\b(peer|ident)$}{password}' /var/lib/pgsql/data/pg_hba.conf
+systemctl start postgresql
+echo "ALTER USER postgres PASSWORD 'postpass'" | su - postgres -c 'psql template1'
+```
+
+##### Install home-env
+
+https://github.com/biviosoftware/home-env
+
+```bash
+curl -s -L https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh | bash
+```
+
+Exit your shell and restart.
+
+##### Install Python and publicprize env:
+
+```bash
+cd ~/src/biviosoftware
+gcl publicprize
+cd publicprize
+bivio_pyenv_3
+bivio_pyenv_local
 ```
 
 This will create an "editable version" of this repository with pip so
 that pytest can find the files.
 
-To update `requirements.txt`, do:
-
-pip freeze | grep -v -- '^-e ' > requirements.txt
-
-###### Create test db
+#### Create test db
 
 Run this to create a test db:
 
 ```bash
+cd ~/src/biviosoftware/publicprize
 python manage.py create_test_db
 ```
 
 Subsequent runs of this command will produce
 `role "ppuser" already exists`, which you can ignore.
-
-Postgresql should already be running.
-
-You may need to run as root:
-
-```bash
-echo "ALTER USER postgres PASSWORD 'postpass';COMMIT" | su - postgres -c 'psql template1'
-```
 
 ###### Environment Variables
 

@@ -125,7 +125,7 @@ def create_db():
         ['psql', '--host=' + c['host'], '--user=postgres', 'template1'],
         env=e,
         stdin=subprocess.PIPE)
-    s = u"ALTER USER {user} WITH PASSWORD '{password}'; COMMIT;".format(**c)
+    s = u"ALTER USER {user} WITH PASSWORD '{password}'".format(**c)
     enc = locale.getlocale()[1]
     loc = locale.setlocale(locale.LC_ALL)
     p.communicate(input=bytes(s, enc))
