@@ -12,6 +12,7 @@ from . import oauth
 from .. import controller
 from ..auth import model as pam
 from ..evc import model as pem
+from ..evc2015 import model as pe15
 from ..nextup import model as pnm
 
 class General(controller.Task):
@@ -56,6 +57,7 @@ class General(controller.Task):
     def action_home(biv_obj):
         return flask.render_template(
             "general/home.html",
+            evc15_contest=pe15.E15Contest.query.first(),
             evc_contest=pem.Contest.query.first(),
             nextup_contest=pnm.NUContest.query.first(),
         )
@@ -79,7 +81,9 @@ class General(controller.Task):
 
     def action_logout(biv_obj):
         """Logout"""
-        return oauth.logout()
+        oauth.logout()
+        flask.flash('You have successfully logged out.')
+        return flask.redirect('/')
 
     def action_not_found(biv_obj):
         """Not found page"""
