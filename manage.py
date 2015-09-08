@@ -19,6 +19,7 @@ import publicprize.biv as biv
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
 import publicprize.evc.model as pem
+import publicprize.evc2015.model as pe15
 import publicprize.nextup.model as pnm
 import re
 import subprocess
@@ -62,7 +63,6 @@ class RunServerWithBetterLogger(flask_script.commands.Server):
 
 _MANAGER = fes.Manager(ppc.app())
 _MANAGER.add_command('runserver', RunServerWithBetterLogger())
-
 
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 def add_admin(user):
@@ -264,9 +264,9 @@ def replace_founder_avatar(user, input_file):
     elif re.search(r'^\d+$', user):
         if pam.User.query.filter_by(biv_id=user).first():
             users = [pam.User.query.filter_by(biv_id=user).one()]
-        elif pem.Founder.query.filter_by(biv_id=user).first():
+        elif pcm.Founder.query.filter_by(biv_id=user).first():
             _update_founder_avatar(
-                pem.Founder.query.filter_by(biv_id=user).one(),
+                pcm.Founder.query.filter_by(biv_id=user).one(),
                 image
             )
             return
@@ -387,13 +387,31 @@ def _create_database(is_production=False, is_prompt_forced=False):
                         is_under_review=False
                         )))
 
+    for contest in data['E15Contest']:
+        contest_id = _add_model(
+            pe15.E15Contest(
+                display_name=contest['display_name'],
+                end_date=datetime.datetime.strptime(
+                    contest['end_date'], '%m/%d/%Y').date(),
+                )
+            )
+        if 'Alias' in contest:
+            _add_model(pam.BivAlias(
+                biv_id=contest_id,
+                alias_name=contest['Alias']['name']
+            ))
+
+        for sponsor in contest['Sponsor']:
+            add_sponsor(contest_id, sponsor['display_name'],
+                        sponsor['website'], sponsor['logo_filename'])
+
     db.session.commit()
 
 
 # TODO(pjm): normalize up binary fields, combine with _create_contest()
 def _create_founder(founder):
     """Creates a SQLAlchemy model Founder with optional avatar file"""
-    model = pem.Founder(
+    model = pcm.Founder(
         display_name=founder['display_name'],
         founder_desc=founder['founder_desc']
     )
@@ -406,14 +424,14 @@ def _create_founder(founder):
 
 def _founders_for_user(user, without_avatars=None):
     """Returns the Founder models associated with the User model."""
-    query = pem.Founder.query.select_from(
+    query = pcm.Founder.query.select_from(
         pam.BivAccess
     ).filter(
         pam.BivAccess.source_biv_id == user.biv_id,
-        pam.BivAccess.target_biv_id == pem.Founder.biv_id,
+        pam.BivAccess.target_biv_id == pcm.Founder.biv_id,
     )
     if without_avatars:
-        query = query.filter(pem.Founder.founder_avatar == None)  # noqa
+        query = query.filter(pcm.Founder.founder_avatar == None)  # noqa
     return query.all()
 
 
