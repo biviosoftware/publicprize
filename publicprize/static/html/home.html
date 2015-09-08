@@ -1,0 +1,77 @@
+<div class="pp-jumbo-bg"></div>
+<div class="container" style="min-height: 380px">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="pp-logo">
+      </div>
+      <div class="pp-jumbo-text">
+        <h1>Doing Well while Doing Good!</h1>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-7">
+      <br>
+      <div class="lead" style="display: inline">
+        Show the world that <strong>America’s Startup Capital</strong> also leads the <strong>Social Entrepreneurship</strong> wave! This year the Esprit Venture Challenge will search for the most innovative new company creating positive social impact as well as profits. And new for this event: student-led businesses will be eligible to enter and win prizes. This is THE event you cannot miss!
+      </div>
+      <a href="#/about">Read more</a>
+      <hr>
+      <p><span class="lead">Show how Boulder’s startups are doing good while doing well!</span></p>
+      Do you know a company that is
+      <p><ul>
+          <li>Principally focused on delivering social benefit?</li>
+          <li>Aiming to achieve a sustainable ROI?</li>
+          <li>Less than two years old?</li>
+      </ul></p>
+      <p>If so, they could be eligible to enter the 2015 Esprit Venture Challenge and win a valuable prize!</p>
+      <p>Now in its second year, the Esprit Venture Challenge, part of the Boulder Chamber Esprit NewCo. signature event, is showing the world that <strong>America’s Startup Capital</strong> is also a leader in <strong>social entrepreneurship</strong>!</p>
+      <p>If you think you know a company that qualifies, have them fill out the entry form below and take part in this exciting challenge. They’ll meet other cutting-edge startups, mingle with the Who’s Who of Boulder’s leaders, and have fun at a premier business event.<p>
+      <!-- TODO(pjm): need date -->
+      <p><strong>Don’t delay. Deadline is XXXXX for entry!</strong></p>
+      <!-- TODO(pjm): register link -->
+      <p><strong>And don’t forget to register to attend the event. It’s Boulder’s premier event focused on entrepreneurs!</strong></p>
+
+      <div class="pp-form" data-ng-hide="home.userState.isLoggedIn()">
+        Log in to nominate a company.
+      </div>
+      <div class="pp-form" data-ng-show="home.userState.isLoggedIn()">
+        <form name="form">
+          <h2>Nominate a Company</h2>
+          <div data-ng-repeat="f in home.formFields">
+            <div class="form-group" data-ng-switch="f.type">
+              <span data-ng-show="home.hasError(f.name)" class="pp-form-error text-danger">{{ home.getError(f.name) }}</span>
+              <div data-ng-show="home.hasError(f.name)" class="clearfix"></div>
+              <div data-ng-switch-when="CSRFTokenField"></div>
+              <textarea data-ng-switch-when="TextAreaField" class="form-control" rows="5" id="{{ f.name }}" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]"></textarea>
+              <input data-ng-switch-default class="form-control" type="text" value="" placeholder="{{ f.label }}" id="{{ f.name }}" data-ng-model="home.formData[f.name]">
+            </div>
+          </div>
+          <div class="pull-left" style="margin-bottom: 2ex">
+            <button type="button" id="addFounderButton" data-ng-click="home.addFounder()" class="btn btn-default btn-sm">
+              <span class="glyphicon glyphicon-plus"></span> Add another founder
+            </button>
+          </div>
+          <div class="pull-right">
+            <button class="pp-big-button btn btn-primary btn-lg" data-ng-click="home.saveForm()" type="submit">Submit Entry</button>
+          </div>
+          <div class="clearfix"></div>
+        </form>
+      </div>
+      <div>&nbsp;</div>
+    </div>
+    <div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">
+      <h1>Sponsors</h1>
+      <div class="row">
+        <div  data-ng-repeat="sponsor in home.sponsors" class="col-sm-12 col-xs-6">
+          <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar pp-sponsor-images">
+            <a href="{{ sponsor.website }}" target="_blank">
+              <img style="width: 100%; max-width: 120px" data-ng-src="{{ '/' + sponsor.biv_id + '/sponsor_logo' }}" alt="{{ sponsor.display_name }}" /></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
