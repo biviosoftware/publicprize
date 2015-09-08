@@ -9,7 +9,7 @@ import flask_script as fes
 from publicprize.controller import db
 import publicprize.auth.model as pam
 import publicprize.controller as ppc
-import publicprize.nextup.model as pnm
+import publicprize.evc2015.model as pe15
 
 
 # Needs to be explicit
@@ -17,20 +17,37 @@ ppc.init()
 _MANAGER = fes.Manager(ppc.app())
 
 
-# @_MANAGER.command
-# def clear_all_sessions():
-#     """Logs out all users - clears all user session state from db."""
-#     db.get_engine(ppc.app()).execute('DELETE FROM beaker_cache')
+@_MANAGER.command
+def upgrade_common_vote():
+    engine = db.get_engine(ppc.app())
+    engine.execute('ALTER TABLE nu_vote DROP CONSTRAINT nu_vote_nominee_fkey')
+    engine.execute('ALTER TABLE nu_vote RENAME TO vote')
+    engine.execute('ALTER SEQUENCE nuvote_s RENAME TO vote_s')
+    engine.execute('ALTER TABLE vote RENAME COLUMN nominee TO nominee_biv_id')
 
 
 @_MANAGER.command
-def upgrade_judge_rank_table():
-    pnm.JudgeRank.__table__.create(bind=db.get_engine(ppc.app()))
-
+def upgrade_e15_data():
+    old_contest = pam.BivAlias.query.filter_by(
+        alias_name='esprit-venture-challenge'
+    ).first()
+    old_contest.alias_name = 'esprit-venture-challenge-2014'
+    db.session.add(old_contest)
+    contest = pe15.E15Contest(
+        display_name='Exprit Venture Challenge',
+        end_date='2015-11-07',
+    )
+    db.session.add(contest)
+    db.session.flush()
+    db.session.add(pam.BivAlias(
+        biv_id=contest.biv_id,
+        alias_name='esprit-venture-challenge',
+    ))
 
 @_MANAGER.command
-def upgrade_numodel_table():
-    _add_column(pnm.NUContest, pnm.NUContest.end_date, "'2015-05-08'")
+def upgrade_e15_tables():
+    pe15.E15Contest.__table__.create(bind=db.get_engine(ppc.app()))
+    pe15.E15Nominee.__table__.create(bind=db.get_engine(ppc.app()))
 
 
 def _add_column(model, column, default_value=None):
