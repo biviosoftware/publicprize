@@ -9,7 +9,7 @@ import os.path
 import re
 import unittest
 
-from bs4 import BeautifulSoup
+#from bs4 import BeautifulSoup
 
 import publicprize.controller as ppc
 import publicprize.debug
@@ -60,27 +60,27 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
         self._visit_uri('/_10299/')
         self._verify_text('Page Not Found')
 
-    def test_submit_website_conf_entries(self):
-        self._visit_uri('/')
-        self._follow_link(CONTEST_NAME)
-        conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
-        #TODO(mda): the current_uri tracking doesn't notice redirects
-        nominate_website_uri = self.current_uri + '/nominate'
-        submitted_websites_uri = self.current_uri + '/nominees'
-        for data_variation in conf_websites_gen:
-            url_and_name = data_variation['websites'].split('-')
-            self._visit_uri(nominate_website_uri)
-            self._submit_form({
-                'url': url_and_name[0],
-                'company_name': url_and_name[1],
-                'submitter_name':'x'
-            })
-            self._verify_text('Thanks for Nominating')
-            self._visit_uri(submitted_websites_uri)
-            self._verify_text(url_and_name[1], "website '{}' not at {}".format(
-                url_and_name[1], self.current_uri))
-            #TODO(mda): get current time
-            #TODO(mda): check the database directly
+    # def test_submit_website_conf_entries(self):
+    #     self._visit_uri('/')
+    #     self._follow_link(CONTEST_NAME)
+    #     conf_websites_gen = ParseData(wd.WEBSITE_SUBMISSION_FIELDS).get_data_variations('conf')
+    #     #TODO(mda): the current_uri tracking doesn't notice redirects
+    #     nominate_website_uri = self.current_uri + '/nominate'
+    #     submitted_websites_uri = self.current_uri + '/nominees'
+    #     for data_variation in conf_websites_gen:
+    #         url_and_name = data_variation['websites'].split('-')
+    #         self._visit_uri(nominate_website_uri)
+    #         self._submit_form({
+    #             'url': url_and_name[0],
+    #             'company_name': url_and_name[1],
+    #             'submitter_name':'x'
+    #         })
+    #         self._verify_text('Thanks for Nominating')
+    #         self._visit_uri(submitted_websites_uri)
+    #         self._verify_text(url_and_name[1], "website '{}' not at {}".format(
+    #             url_and_name[1], self.current_uri))
+    #         #TODO(mda): get current time
+    #         #TODO(mda): check the database directly
 
     def test_submit_website_dev_entries(self):
         self._visit_uri('/')
