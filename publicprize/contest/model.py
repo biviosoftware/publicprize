@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" The singleton model which handles global tasks.
+""" Common contest models.
 
     :copyright: Copyright (c) 2014 Bivio Software, Inc.  All Rights Reserved.
     :license: Apache, see LICENSE for more details.
@@ -21,6 +21,7 @@ class ContestBase(common.ModelWithDates):
     """Contest base class. Contains the contest end_date field for calculating
     the remaining time left."""
 
+    display_name = db.Column(db.String(100), nullable=False)
     end_date = db.Column(db.Date, nullable=False)
 
     def days_remaining(self):
@@ -90,6 +91,27 @@ class ContestBase(common.ModelWithDates):
         return end_of_day - datetime.datetime.now(tz)
 
 
+class Founder(db.Model, common.ModelWithDates):
+    """founder database model.
+
+    Fields:
+        biv_id: primary ID
+        display_name: donor full name
+        fouder_desc: founder's short bio
+        founder_avatar: avatar image blob
+        avatar_type: image type (gif, png, jpeg)
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('founder_s', start=1004, increment=1000),
+        primary_key=True
+    )
+    display_name = db.Column(db.String(100), nullable=False)
+    founder_desc = db.Column(db.String)
+    founder_avatar = db.Column(db.LargeBinary)
+    avatar_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='avatar_type'))
+
+
 class Judge(db.Model, common.ModelWithDates):
     """judge database model.
 
@@ -124,6 +146,29 @@ class Judge(db.Model, common.ModelWithDates):
         return flask.redirect('/')
 
 
+class JudgeRank(db.Model, common.ModelWithDates):
+    """Judge's top 10 ranks."""
+    MAX_RANKS = 10
+
+    judge_biv_id = db.Column(db.Numeric(18), primary_key=True)
+    nominee_biv_id = db.Column(db.Numeric(18), primary_key=True)
+    judge_rank = db.Column(db.Numeric(2))
+
+
+class NomineeBase(common.ModelWithDates):
+    """nominee base class.
+    """
+    display_name = db.Column(db.String(100), nullable=False)
+    url = db.Column(db.String(100), nullable=False)
+    is_public = db.Column(db.Boolean, nullable=False)
+
+    def get_vote_count(self):
+        """Returns the vote count for this Nominee"""
+        return Vote.query.filter(
+            Vote.nominee_biv_id == self.biv_id
+        ).count()
+
+
 class Sponsor(db.Model, common.ModelWithDates):
     """sponsor database model.
 
@@ -156,5 +201,21 @@ class Sponsor(db.Model, common.ModelWithDates):
         return sponsors
 
 
+class Vote(db.Model, common.ModelWithDates):
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('vote_s', start=1014, increment=1000),
+        primary_key=True
+    )
+    user = db.Column(
+        db.Numeric(18),
+        db.ForeignKey('user_t.biv_id'),
+        nullable=False
+    )
+    nominee_biv_id = db.Column(db.Numeric(18), nullable=False)
+
+
+Founder.BIV_MARKER = biv.register_marker(4, Founder)
 Sponsor.BIV_MARKER = biv.register_marker(8, Sponsor)
 Judge.BIV_MARKER = biv.register_marker(9, Judge)
+Vote.BIV_MARKER = biv.register_marker(14, Vote)
