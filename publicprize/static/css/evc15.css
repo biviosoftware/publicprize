@@ -1,0 +1,79 @@
+/*
+ * EVC 2015 style
+ */
+
+body {
+  color: #222;
+  background-color: #eeeeee;
+  font-size: 16px;
+}
+.navbar {
+  margin-bottom: 0;
+}
+.navbar-default {
+  border: 0;
+}
+
+.pp-jumbo-bg {
+  background: url("/static/img/evc15-background-1572x375-3.jpg") no-repeat scroll center center rgba(0, 0, 0, 0);
+  height: 380px;
+  z-index: -1;
+  margin-bottom: -380px;
+  background-size: cover;
+}
+.pp-jumbo-text {
+  padding-left: 15px;
+  margin-bottom: 15px;
+}
+div.pp-jumbo-text h1 {
+  font-size: 42px;
+  font-family: 'Lato', sans-serif;
+  font-weight: 300;
+  color: #fff;
+  text-shadow: 1px 1px 5px #000;
+}
+.pp-logo {
+  /*  margin-left: 15px; */
+  background: url("/static/img/evc15-logo.gif");
+  display: inline-block;
+  width: 398px;
+  height: 296px;
+  border-left: 5px solid #d5d5d5;
+  border-right: 5px solid #d5d5d5;
+  border-bottom: 5px solid #d5d5d5;
+}
+
+@media (max-width: 767px) {
+  body {
+    font-size: 14px;
+  }
+  .pp-logo {
+    background: url("/static/img/evc15-logo-sm.gif");
+    width: 298px;
+    height: 215px;
+  }
+  div.pp-jumbo-text h1 {
+    font-size: 36px;
+  }
+}
+
+.pp-sidebar-module-inset {
+  padding: 0;
+  border: 8px solid white;
+  background-color: white;
+}
+.pp-bottom-border {
+  border-bottom: 1px solid #ddd;
+}
+.pp-bottom-border-sidebar {
+  border-bottom: 1px solid #ddd;
+  margin-left: -15px;
+}
+.pp-sponsor-images {
+  text-align: center;
+}
+
+.pp-form {
+  background-color: white;
+  margin-left: 0;
+}
