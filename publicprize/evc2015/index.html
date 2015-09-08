@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html data-ng-app="EVC2015App" data-ng-controller="NavController as nav">
+  <head lang="en">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <link rel="icon" href="/static/img/favicon.png">
+    <title data-ng-bind="nav.pageTitle()">Esprit Venture Challenge - Public Prize</title>
+    <link href='https://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+    <link href="/static/css/bootstrap-3.3.2.min.css" rel="stylesheet">
+    <link href="/static/css/pp.css?{{ version }}" rel="stylesheet">
+    <link href="/static/css/evc15.css?{{ version }}" rel="stylesheet">
+    <!--[if IE 10]>
+      <script src="/static/js/msie/ie10-viewport-bug-workaround.js"></script>
+    <![endif]-->
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="/static/js/msie/html5shiv.min.js"></script>
+      <script src="/static/js/msie/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="pp-nav-logo" href="/pub/home"><img src="/static/img/logo.gif" alt="PUBLIC PRIZE"></a>
+        </div>
+	<div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right" data-nav-links=""></ul>
+        </div>
+      </div>
+    </nav>
+    <div data-ng-view autoscroll="true"></div>
+    <div class="pp-footer">
+      <div class="container">
+        <div class="row">
+          <div class="pull-left">
+            <span class="pp-footer-item"><a href="/pub/terms">Terms of Use</a></span>
+            <span class="pp-footer-item"><a href="/pub/privacy">Privacy Policy</a></span>
+            <span class="pp-footer-item"><a href="mailto:support@publicprize.com">Support</a></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div data-login-modal="signupModal" data-login-text="Sign up"></div>
+    <div data-login-modal="loginModal" data-login-text="Log in"></div>
+    <script src="/static/js/jquery/jquery-1.11.1.min.js"></script>
+    <script src="/static/js/angular/angular-1.4.2.min.js"></script>
+    <script src="/static/js/angular/angular-route-1.4.2.min.js"></script>
+    <script src="/static/js/bootstrap/bootstrap-3.3.2.min.js"></script>
+    <script src="/static/js/modernizr-touch-2.8.3.min.js"></script>
+    <script src="/static/js/spin-2.3.2.js"></script>
+    <script>
+      var PUBLIC_PRIZE_APP_VERSION = '{{ version }}';
+    </script>
+    <script src="/static/js/pp-angular-app.js?{{ version }}"></script>
+    <script src="/static/js/indiClick.js"></script>
+  </body>
+</html>
