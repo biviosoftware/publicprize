@@ -5,7 +5,6 @@
     :license: Apache, see LICENSE for more details.
 """
 
-import io
 import random
 
 import functools
@@ -73,13 +72,6 @@ class Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'judging',
-        )
-
-    def action_logo(biv_obj):
-        """Contestant logo image"""
-        return flask.send_file(
-            io.BytesIO(biv_obj.contest_logo),
-            'image/{}'.format(biv_obj.logo_type)
         )
 
     def action_new_test_judge(biv_obj):
@@ -188,14 +180,4 @@ class Contestant(ppc.Task):
             contestant=biv_obj,
             contestant_url=biv_obj.format_absolute_uri(),
             contestant_tweet="I just backed " + biv_obj.display_name
-        )
-
-
-class Founder(ppc.Task):
-    """Founder actions"""
-    def action_founder_avatar(biv_obj):
-        """Founder avatar image"""
-        return flask.send_file(
-            io.BytesIO(biv_obj.founder_avatar),
-            'image/{}'.format(biv_obj.avatar_type)
         )
