@@ -77,11 +77,9 @@ def authorize_complete(oauth_type):
 
 
 def logout():
-    """Clear the login state from the session and redirect to root."""
+    """Clear the login state from the session."""
     _clear_session()
-    flask.flash('You have successfully logged out.')
-    return flask.redirect('/')
-
+    return
 
 def _avatar_url_from_info(oauth_type, info):
     """Returns a URL for the user avatar, depending on oauth_type"""
@@ -102,7 +100,7 @@ def _change_linkedin_query(uri, headers, body):
         else:
             uri += '?oauth2_access_token=' + auth
     return uri, headers, body
-        
+
 def _clear_session(clear_oauth_type=False):
     """Clear the login state from the session"""
     flask.session['user.is_logged_in'] = False
