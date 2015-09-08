@@ -1,4 +1,60 @@
 {
+  "E15Contest": [
+    {
+      "display_name": "Exprit Venture Challenge",
+      "end_date": "11/07/2015",
+      "Alias": {
+        "name": "esprit-venture-challenge"
+      },
+      "Sponsor": [
+        {
+	  "display_name": "Bivio Software",
+	  "website": "http://www.bivio.biz",
+	  "logo_filename": "data/bdsc/bivio.gif"
+	},
+        {
+	  "display_name": "Market Creation Group",
+	  "website": "http://marketcreationgroup.com",
+	  "logo_filename": "data/bdsc/mcg.gif"
+	},
+        {
+          "display_name": "DevelopIntelligence",
+          "website": "http://www.developintelligence.com",
+          "logo_filename": "data/bdsc/DevelopIntelligence.gif"
+        },
+        {
+          "display_name":  "NetFactor",
+          "website": "http://www.netfactor.com/",
+          "logo_filename": "data/bdsc/netfactor.gif"
+        },
+        {
+          "display_name": "PaySimple",
+          "website": "http://www.paysimple.com",
+          "logo_filename": "data/bdsc/paysimple_logo.gif"
+        },
+        {
+          "display_name": "Rebit",
+          "website": "http://www.rebit.com/",
+          "logo_filename": "data/bdsc/rebit.gif"
+        },
+        {
+          "display_name": "Sendgrid",
+          "website": "http://www.sendgrid.com/",
+          "logo_filename": "data/bdsc/sendgrid.gif"
+        },
+        {
+          "display_name": "Survey Gizmo",
+          "website": "http://www.surveygizmo.com",
+          "logo_filename": "data/bdsc/surveygizmo.gif"
+        },
+        {
+          "display_name": "TrackVia",
+          "website": "http://www.trackvia.com",
+          "logo_filename": "data/bdsc/trackvia.gif"
+        }
+      ]
+    }
+  ],
   "NUContest": [
     {
       "display_name": "Next Up",
@@ -230,7 +286,7 @@
       "logo_filename": "data/esprit-logo.gif",
       "end_date": "10/21/2015",
       "Alias": {
-        "name": "esprit-venture-challenge"
+        "name": "esprit-venture-challenge-2014"
       },
 
       "Sponsor": [
