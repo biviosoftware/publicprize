@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" contest models: NUContest, Nominee, Nominator, NUVote
+""" contest models: NUContest, Nominee, Nominator
 
     :copyright: Copyright (c) 2015 Bivio Software, Inc.  All Rights Reserved.
     :license: Apache, see LICENSE for more details.
@@ -14,15 +14,6 @@ from .. import controller as ppc
 from ..auth import model as pam
 from ..contest import model as pcm
 from ..controller import db
-
-class JudgeRank(db.Model, common.ModelWithDates):
-    """Judge's top 10 ranks."""
-    MAX_RANKS = 10
-
-    judge_biv_id = db.Column(db.Numeric(18), primary_key=True)
-    nominee_biv_id = db.Column(db.Numeric(18), primary_key=True)
-    judge_rank = db.Column(db.Numeric(2))
-
 
 class NUContest(db.Model, pcm.ContestBase):
     biv_id = db.Column(
@@ -65,10 +56,10 @@ class NUContest(db.Model, pcm.ContestBase):
         ).all()
 
     def get_judge_ranks(self, nominee):
-        ranks = JudgeRank.query.select_from(pam.BivAccess, Nominee).filter(
+        ranks = pcm.JudgeRank.query.select_from(pam.BivAccess, Nominee).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == nominee.biv_id,
-            JudgeRank.nominee_biv_id == nominee.biv_id
+            pcm.JudgeRank.nominee_biv_id == nominee.biv_id
         ).all()
         res = []
         for rank in ranks:
@@ -95,16 +86,16 @@ class NUContest(db.Model, pcm.ContestBase):
 
     def get_judge_ranks_for_auth_user(self, category):
         """Returns the JudgeRank models for the current user."""
-        return JudgeRank.query.select_from(pam.BivAccess, Nominee).filter(
+        return pcm.JudgeRank.query.select_from(pam.BivAccess, Nominee).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == Nominee.biv_id,
-            JudgeRank.judge_biv_id == flask.session['user.biv_id'],
-            Nominee.biv_id == JudgeRank.nominee_biv_id,
+            pcm.JudgeRank.judge_biv_id == flask.session['user.biv_id'],
+            Nominee.biv_id == pcm.JudgeRank.nominee_biv_id,
             Nominee.category == category
         ).all()
 
     def get_vote_for_auth_user(self, category):
-        """Returns the NUVote model for the current user or None."""
+        """Returns the Vote model for the current user or None."""
         if not flask.session.get('user.is_logged_in'):
             return None
         votes = self._votes_for_auth_user(category)
@@ -123,21 +114,21 @@ class NUContest(db.Model, pcm.ContestBase):
     def _score_ranks(self, ranks):
         score = 0
         for rank in ranks:
-            score += int(JudgeRank.MAX_RANKS) - rank + 1
+            score += int(pcm.JudgeRank.MAX_RANKS) - rank + 1
         return score
 
     def _votes_for_auth_user(self, category):
-        return NUVote.query.select_from(pam.BivAccess, Nominee).filter(
+        return pcm.Vote.query.select_from(pam.BivAccess, Nominee).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
-            pam.BivAccess.target_biv_id == NUVote.biv_id,
-            Nominee.biv_id == NUVote.nominee
+            pam.BivAccess.target_biv_id == pcm.Vote.biv_id,
+            Nominee.biv_id == pcm.Vote.nominee_biv_id
         ).filter(
-            NUVote.user == flask.session['user.biv_id'],
+            pcm.Vote.user == flask.session['user.biv_id'],
             Nominee.category == category
-        ).order_by(NUVote.modified_date_time).all()
+        ).order_by(pcm.Vote.modified_date_time).all()
 
 
-class Nominee(db.Model, common.ModelWithDates):
+class Nominee(db.Model, pcm.NomineeBase):
     """nominated website database model.
 
     Fields:
@@ -152,9 +143,6 @@ class Nominee(db.Model, common.ModelWithDates):
         db.Sequence('nominee_s', start=1011, increment=1000),
         primary_key=True
     )
-    display_name = db.Column(db.String(100), nullable=False)
-    url = db.Column(db.String(100), nullable=False)
-    is_public = db.Column(db.Boolean, nullable=False)
     is_under_review = db.Column(db.Boolean, nullable=False)
     category = db.Column(
         db.Enum('unknown', 'pint', 'pitcher', name='nominee_category'),
@@ -167,12 +155,6 @@ class Nominee(db.Model, common.ModelWithDates):
             pam.BivAccess.source_biv_id == NUContest.biv_id,
             pam.BivAccess.target_biv_id == self.biv_id
         ).one()
-
-    def get_vote_count(self):
-        """Returns the vote count for this Nominee"""
-        return NUVote.query.filter(
-            NUVote.nominee == self.biv_id
-        ).count()
 
 
 class Nominator(db.Model, common.ModelWithDates):
@@ -201,31 +183,6 @@ class Nominator(db.Model, common.ModelWithDates):
     browser_string = db.Column(db.String(200))
 
 
-class NUVote(db.Model, common.ModelWithDates):
-    biv_id = db.Column(
-        db.Numeric(18),
-        db.Sequence('nuvote_s', start=1014, increment=1000),
-        primary_key=True
-    )
-    user = db.Column(
-        db.Numeric(18),
-        db.ForeignKey('user_t.biv_id'),
-        nullable=False
-    )
-    nominee = db.Column(
-        db.Numeric(18),
-        db.ForeignKey('nominee.biv_id'),
-        nullable=False
-    )
-
-    def get_nominee(self):
-        """Returns the Nominee for this vote"""
-        return Nominee.query.filter(
-            Nominee.biv_id == self.nominee
-        ).one()
-
-
 Nominee.BIV_MARKER = biv.register_marker(11, Nominee)
 Nominator.BIV_MARKER = biv.register_marker(12, Nominator)
 NUContest.BIV_MARKER = biv.register_marker(13, NUContest)
-NUVote.BIV_MARKER = biv.register_marker(14, NUVote)
