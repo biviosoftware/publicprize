@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" contest models: Contest, Contestant, Donor, and Founder
+""" contest models: Contest, Contestant, and Donor
 
     :copyright: Copyright (c) 2014 Bivio Software, Inc.  All Rights Reserved.
     :license: Apache, see LICENSE for more details.
@@ -35,7 +35,6 @@ class Contest(db.Model, pcm.ContestBase):
         db.Sequence('contest_s', start=1002, increment=1000),
         primary_key=True
     )
-    display_name = db.Column(db.String(100), nullable=False)
     tag_line = db.Column(db.String(500))
     # TODO(pjm): move logo and founder_avatar to separate model BivImage
     contest_logo = db.Column(db.LargeBinary)
@@ -176,9 +175,9 @@ class Contestant(db.Model, common.ModelWithDates):
 
     def get_founders(self):
         """Return a list of Founder models for this Contestant"""
-        return Founder.query.select_from(pam.BivAccess).filter(
+        return pcm.Founder.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
-            pam.BivAccess.target_biv_id == Founder.biv_id
+            pam.BivAccess.target_biv_id == pcm.Founder.biv_id
         ).all()
 
     def get_completed_judge_scores(self):
@@ -256,10 +255,10 @@ class Contestant(db.Model, common.ModelWithDates):
         if not flask.session.get('user.is_logged_in'):
             return False
         access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
-        if Founder.query.select_from(pam.BivAccess, access_alias).filter(
-            Founder.biv_id == pam.BivAccess.target_biv_id,
+        if pcm.Founder.query.select_from(pam.BivAccess, access_alias).filter(
+            pcm.Founder.biv_id == pam.BivAccess.target_biv_id,
             pam.BivAccess.source_biv_id == flask.session['user.biv_id'],
-            Founder.biv_id == access_alias.target_biv_id,
+            pcm.Founder.biv_id == access_alias.target_biv_id,
             access_alias.source_biv_id == self.biv_id
         ).first():
             return True
@@ -345,27 +344,6 @@ class Donor(db.Model, common.ModelWithDates):
         return None
 
 
-class Founder(db.Model, common.ModelWithDates):
-    """founder database model.
-
-    Fields:
-        biv_id: primary ID
-        display_name: donor full name
-        fouder_desc: founder's short bio
-        founder_avatar: avatar image blob
-        avatar_type: image type (gif, png, jpeg)
-    """
-    biv_id = db.Column(
-        db.Numeric(18),
-        db.Sequence('founder_s', start=1004, increment=1000),
-        primary_key=True
-    )
-    display_name = db.Column(db.String(100), nullable=False)
-    founder_desc = db.Column(db.String)
-    founder_avatar = db.Column(db.LargeBinary)
-    avatar_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='avatar_type'))
-
-
 class JudgeScore(db.Model, common.ModelWithDates):
     """judge_score database model.
 
@@ -419,4 +397,3 @@ class JudgeScore(db.Model, common.ModelWithDates):
 Contest.BIV_MARKER = biv.register_marker(2, Contest)
 Contestant.BIV_MARKER = biv.register_marker(3, Contestant)
 Donor.BIV_MARKER = biv.register_marker(7, Donor)
-Founder.BIV_MARKER = biv.register_marker(4, Founder)
