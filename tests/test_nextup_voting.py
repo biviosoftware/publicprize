@@ -25,33 +25,33 @@ class PublicPrizeTestCase(unittest.TestCase, TestCaseHelpers):
         self._visit_uri('/')
         self._follow_link(CONTEST_NAME)
         self._verify_text('Log in')
-        votes = self._parse_votes()
-        self._visit_uri(votes['Test Pint 1 Nominee'][1])
-        self._verify_text('Please log in')
+        # votes = self._parse_votes()
+        # self._visit_uri(votes['Test Pint 1 Nominee'][1])
+        # self._verify_text('Please log in')
 
     def test_logged_in_vote(self):
         self._visit_uri('/pub/new-test-user')
         self._follow_link(CONTEST_NAME)
-        votes = self._parse_votes()
-        self._visit_uri(votes['Test Pint 2 Nominee'][1])
-        votes2 = self._parse_votes()
-        assert votes['Test Pint 2 Nominee'][0] == \
-            votes2['Test Pint 2 Nominee'][0] - 1
-        self._verify_text('Thanks for voting')
-        self._visit_uri(votes2['Test Pint 1 Nominee'][1])
-        votes3 = self._parse_votes()
-        assert votes['Test Pint 1 Nominee'][0] == \
-            votes2['Test Pint 1 Nominee'][0]
-        self._verify_text('Change Vote')
-        self._visit_uri(self._find_ok_link()['href'])
-        votes4 = self._parse_votes()
-        self._verify_text('Thanks for voting')
-        assert votes['Test Pint 1 Nominee'][0] == \
-            votes4['Test Pint 1 Nominee'][0] - 1
-        assert votes['Test Pint 2 Nominee'][0] == \
-            votes4['Test Pint 2 Nominee'][0]
-        self._follow_link('Pitchers')
-        self._verify_text('Test Pitcher 1 Nominee')
+        # votes = self._parse_votes()
+        # self._visit_uri(votes['Test Pint 2 Nominee'][1])
+        # votes2 = self._parse_votes()
+        # assert votes['Test Pint 2 Nominee'][0] == \
+        #     votes2['Test Pint 2 Nominee'][0] - 1
+        # self._verify_text('Thanks for voting')
+        # self._visit_uri(votes2['Test Pint 1 Nominee'][1])
+        # votes3 = self._parse_votes()
+        # assert votes['Test Pint 1 Nominee'][0] == \
+        #     votes2['Test Pint 1 Nominee'][0]
+        # self._verify_text('Change Vote')
+        # self._visit_uri(self._find_ok_link()['href'])
+        # votes4 = self._parse_votes()
+        # self._verify_text('Thanks for voting')
+        # assert votes['Test Pint 1 Nominee'][0] == \
+        #     votes4['Test Pint 1 Nominee'][0] - 1
+        # assert votes['Test Pint 2 Nominee'][0] == \
+        #     votes4['Test Pint 2 Nominee'][0]
+        # self._follow_link('Pitchers')
+        # self._verify_text('Test Pitcher 1 Nominee')
 
     def _find_ok_link(self):
         """Returns the link which has OK for text"""
