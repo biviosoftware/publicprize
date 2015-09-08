@@ -26,6 +26,7 @@ py>=1.4
 pytest>=2.6
 pytz>=2014.6
 requests>=2.4
+simplejson>=3.8
 six>=1.7
 tox>=1.8
 uWSGI>=2.0
