@@ -161,9 +161,6 @@ class TestCaseHelpers(object):
         - self.client is expected to be app.test_client()
     """
 
-    def __init__(self):
-        self.client = None
-
     def _follow_link(self, link_text):
         url = None
         # exact match
@@ -184,7 +181,7 @@ class TestCaseHelpers(object):
 
     def _set_current_page(self, response):
         self.current_response = response
-        self.current_page = BeautifulSoup(response.data)
+        self.current_page = BeautifulSoup(response.data, 'html.parser')
 
     def _strip_anchor(self, url):
         if not url:
