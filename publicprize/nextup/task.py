@@ -37,11 +37,11 @@ class NUContest(ppc.Task):
         for judge in judges:
             rank_count[judge.biv_id] = {}
             nominees = pnm.Nominee.query.select_from(
-                pam.BivAccess, pnm.JudgeRank).filter(
+                pam.BivAccess, pcm.JudgeRank).filter(
                     pam.BivAccess.source_biv_id == biv_obj.biv_id,
                     pam.BivAccess.target_biv_id == pnm.Nominee.biv_id,
-                    pnm.JudgeRank.nominee_biv_id == pnm.Nominee.biv_id,
-                    pnm.JudgeRank.judge_biv_id == judge.biv_id,
+                    pcm.JudgeRank.nominee_biv_id == pnm.Nominee.biv_id,
+                    pcm.JudgeRank.judge_biv_id == judge.biv_id,
                 ).all()
             for nominee in nominees:
                 if not rank_count[judge.biv_id].get(nominee.category):
@@ -88,7 +88,7 @@ class NUContest(ppc.Task):
     def action_judging(biv_obj):
         """Rank the nominees (1st to 10th)"""
         category = NUContest._get_category()
-        ranks = [None] * pnm.JudgeRank.MAX_RANKS
+        ranks = [None] * pcm.JudgeRank.MAX_RANKS
         ranks.insert(0, category)
         for judge_rank in biv_obj.get_judge_ranks_for_auth_user(category):
             ranks[int(judge_rank.judge_rank)] = str(judge_rank.nominee_biv_id)
@@ -97,7 +97,7 @@ class NUContest(ppc.Task):
             'judging',
             category=category,
             ranks=json.dumps(ranks),
-            max_ranks=pnm.JudgeRank.MAX_RANKS
+            max_ranks=pcm.JudgeRank.MAX_RANKS
         )
 
     @common.decorator_login_required
@@ -198,9 +198,9 @@ class Nominee(ppc.Task):
                 return flask.redirect(biv_obj.format_uri(
                         'override-vote',
                         anchor='vote'))
-        vote = pnm.NUVote(
+        vote = pcm.Vote(
             user=flask.session['user.biv_id'],
-            nominee=biv_obj.biv_id
+            nominee_biv_id=biv_obj.biv_id
         )
         ppc.db.session.add(vote)
         ppc.db.session.flush()
