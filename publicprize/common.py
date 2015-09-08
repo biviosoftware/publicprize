@@ -5,6 +5,7 @@
     :license: Apache, see LICENSE for more details.
 """
 
+import decimal
 import flask
 import functools
 import inspect
@@ -125,6 +126,24 @@ class Model(object):
         if anchor:
             uri += '#' + anchor
         return uri
+
+    def _asdict(self):
+        """Called by flask.jsonify to serialize the model."""
+        # simplejson must be install for this to get called
+        res = {}
+        for key in self.__mapper__.c.keys():
+            v = getattr(self, key)
+            #TODO(pjm): ugly
+            if re.search(key, 'biv_id'):
+                v = biv.Id(v).to_biv_uri()
+            elif isinstance(v, decimal.Decimal):
+                v = str(v)
+            elif isinstance(v, biv.Id):
+                v = biv_id.to_biv_uri()
+            elif isinstance(v, bytes):
+                continue
+            res[key] = v
+        return res
 
     def __repr__(self):
         try:
