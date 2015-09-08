@@ -10,11 +10,24 @@ import flask
 
 from .. import controller
 
+
+class Founder(controller.Task):
+    """Founder actions"""
+    def action_founder_avatar(biv_obj):
+        """Founder avatar image"""
+        return _send_image_data(biv_obj, 'founder_avatar', 'avatar_type')
+
+
 class Sponsor(controller.Task):
     """Sponsor actions"""
     def action_sponsor_logo(biv_obj):
         """Sponsor logo image"""
-        return flask.send_file(
-            io.BytesIO(biv_obj.sponsor_logo),
-            'image/{}'.format(biv_obj.logo_type)
-        )
+        return _send_image_data(biv_obj, 'sponsor_logo', 'logo_type')
+
+
+def _send_image_data(biv_obj, data, data_type):
+    # see SEND_FILE_MAX_AGE_DEFAULT config value
+    return flask.send_file(
+        io.BytesIO(getattr(biv_obj, data)),
+        'image/{}'.format(getattr(biv_obj, data_type))
+    )
