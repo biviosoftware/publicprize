@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <link rel="icon" href="/static/img/favicon.png">
+    <link rel="icon" href="/static/img/favicon.png?{{ version }}">
     <title data-ng-bind="nav.pageTitle()">Esprit Venture Challenge - Public Prize</title>
     <link href='https://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
     <link href="/static/css/bootstrap-3.3.2.min.css" rel="stylesheet">
@@ -36,6 +36,7 @@
         </div>
       </div>
     </nav>
+    <div data-alert-box="" style="background-color: #fff"></div>
     <div data-ng-view autoscroll="true"></div>
     <div class="pp-footer">
       <div class="container">
