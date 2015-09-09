@@ -28,7 +28,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20150908',
+            version='20150908-1',
         )
 
     def action_nominee_form_metadata(biv_obj):
@@ -39,6 +39,7 @@ class E15Contest(ppc.Task):
                 'name': field.name,
                 'type': field.type,
                 'label': field.label.text,
+                'helpText': form.help_text(field.name),
             })
         return flask.jsonify(form_metadata=res)
 
