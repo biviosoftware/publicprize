@@ -14,5 +14,11 @@
       <li><h3><a href="{{ contest.format_uri() }}">{{ contest.display_name }}</a></h3></li>
     {%- endfor %}
   </ul>
+  <h1>Esprit Venture 2015</h1>
+  <ul>
+    {%- for contest in evc15_contests %}
+      <li><h3><a href="{{ contest.format_uri() }}">{{ contest.display_name }}</a></h3></li>
+    {%- endfor %}
+  </ul>
 </div>
 {%- endblock %}
