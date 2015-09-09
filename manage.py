@@ -307,9 +307,6 @@ def _create_contest(contest):
             contest['end_date'], '%m/%d/%Y').date(),
         is_scoring_completed=False
     )
-    if 'logo_filename' in contest:
-        model.contest_logo = _read_image_from_file(contest['logo_filename'])
-        model.logo_type = imghdr.what(None, model.contest_logo)
     return model
 
 
