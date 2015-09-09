@@ -108,8 +108,21 @@ class Founder(db.Model, common.ModelWithDates):
     )
     display_name = db.Column(db.String(100), nullable=False)
     founder_desc = db.Column(db.String)
+    image_biv_id = db.Column(db.Numeric(18))
+    #TODO(pjm): remove these fields after next release
     founder_avatar = db.Column(db.LargeBinary)
     avatar_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='avatar_type'))
+
+
+class Image(db.Model, common.Model):
+    """Image file"""
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('image_s', start=1004, increment=1000),
+        primary_key=True
+    )
+    image_data = db.Column(db.LargeBinary)
+    image_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='image_type'))
 
 
 class Judge(db.Model, common.ModelWithDates):
@@ -176,8 +189,6 @@ class Sponsor(db.Model, common.ModelWithDates):
         biv_id: primary ID
         display_name: sponsor name
         website: sponsor website
-        sponsor_logo: logo image blob
-        logo_type: image type (gif, png, jpeg)
     """
     biv_id = db.Column(
         db.Numeric(18),
@@ -186,6 +197,8 @@ class Sponsor(db.Model, common.ModelWithDates):
     )
     display_name = db.Column(db.String(100), nullable=False)
     website = db.Column(db.String(100))
+    image_biv_id = db.Column(db.Numeric(18))
+    #TODO(pjm): remove these fields after next release
     sponsor_logo = db.Column(db.LargeBinary)
     logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
 
@@ -219,3 +232,4 @@ Founder.BIV_MARKER = biv.register_marker(4, Founder)
 Sponsor.BIV_MARKER = biv.register_marker(8, Sponsor)
 Judge.BIV_MARKER = biv.register_marker(9, Judge)
 Vote.BIV_MARKER = biv.register_marker(14, Vote)
+Image.BIV_MARKER = biv.register_marker(17, Image)
