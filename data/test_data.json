@@ -283,7 +283,6 @@
     {
       "display_name": "Esprit Venture Challenge",
       "tag_line": "",
-      "logo_filename": "data/esprit-logo.gif",
       "end_date": "10/21/2015",
       "Alias": {
         "name": "esprit-venture-challenge-2014"
@@ -419,7 +418,6 @@
     {
       "display_name": "Esprit Venture Challenge - Expired",
       "tag_line": "Join us October 23, 2014",
-      "logo_filename": "data/esprit-logo.gif",
       "end_date": "10/19/2014",
       "Alias": {
         "name": "esprit-venture-challenge-expired"
