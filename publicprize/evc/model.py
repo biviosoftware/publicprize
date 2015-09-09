@@ -26,8 +26,6 @@ class Contest(db.Model, pcm.ContestBase):
         biv_id: primary ID
         display_name: name of the contest
         tag_line: sub-name of the contest
-        contest_logo: image blob
-        logo_type: image type (gif, png, jpeg)
         is_scoring_completed: True if the contestant can view their scores
     """
     biv_id = db.Column(
@@ -36,9 +34,6 @@ class Contest(db.Model, pcm.ContestBase):
         primary_key=True
     )
     tag_line = db.Column(db.String(500))
-    # TODO(pjm): move logo and founder_avatar to separate model BivImage
-    contest_logo = db.Column(db.LargeBinary)
-    logo_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='logo_type'))
     is_scoring_completed = db.Column(db.Boolean, nullable=False)
 
     def contestant_count(self):
