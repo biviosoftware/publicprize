@@ -18,6 +18,12 @@ from .. import controller as ppc
 from ..auth import model as pam
 from ..contest import model as pcm
 
+HELP_TEXT = {
+    'nominee_desc': 'An explanation that tells the world how it addresses a social need, how it fulfills Boulder’s values in that regard, and how it will be sustainable financially. That is, how it uses business techniques to find solutions for social problems (e.g., homelessness, youth unemployment, ex-convict social programs, drug and alcohol programs etc.)',
+    'youtube_url': 'A video that tells that story to a general audience (think "Kickstarter")',
+}
+
+
 class Nominate(flask_wtf.Form):
     """Accept a new nominee."""
 
@@ -62,6 +68,9 @@ class Nominate(flask_wtf.Form):
         return {
             'errors': res,
         }
+
+    def help_text(self, field):
+        return HELP_TEXT.get(field)
 
     def validate(self):
         """Performs superclass wtforms validation followed by url
