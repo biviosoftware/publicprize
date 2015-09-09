@@ -14,6 +14,11 @@ body {
   border: 0;
 }
 
+/* fix for chrome layout bug */
+div.input-group {
+  width: 100%;
+}
+
 .pp-jumbo-bg {
   background: url("/static/img/evc15-background-1572x375-3.jpg") no-repeat scroll center center rgba(0, 0, 0, 0);
   height: 380px;
