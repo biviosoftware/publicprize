@@ -39,7 +39,7 @@
       <div class="pp-form" data-ng-show="home.userState.isLoggedIn()">
         <form name="form">
           <h2>Nominate a Company</h2>
-          <p>The Esprit Venture Challenge is for seed-stage businesses: startups with <em>less than two years</em> in operation. This year, they must have <em>social entrepreneurship as their principal business purpose</em>, along with a clear model for achieving a sustainable return on investment.</p>
+          <p>The Esprit Venture Challenge is for seed-stage businesses: startups with <em>less than two years</em> in operation. This year, they must have <em><u>social entrepreneurship</u> <span class="pp-tooltip" title="" data-toggle="tooltip" data-original-title="A social enterprise is a venture whose PRIMARY objective is benefitting society, rather than generating a return for shareholders. A social enterprise embraces the need to make money in order to be sustainable, rather than rely on grants or donations to fund its survival."><span class="glyphicon glyphicon-info-sign text-primary"></span></span> as their principal business purpose</em>, along with a clear model for achieving a sustainable return on investment.</p>
           <div data-ng-repeat="f in home.formFields">
             <div class="form-group">
               <div data-ng-show="f.visible && f.helpText" data-form-field-with-help="f" data-controller="home"></div>
@@ -65,7 +65,7 @@
         <div  data-ng-repeat="sponsor in home.sponsors" class="col-sm-12 col-xs-6">
           <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar pp-sponsor-images">
             <a href="{{ sponsor.website }}" target="_blank">
-              <img style="width: 100%; max-width: 120px" data-ng-src="{{ '/' + sponsor.biv_id + '/sponsor_logo' }}" alt="{{ sponsor.display_name }}" /></a>
+              <img style="padding: 30px 0; width: 100%; max-width: 150px" data-ng-src="{{ '/' + sponsor.biv_id + '/sponsor_logo' }}" alt="{{ sponsor.display_name }}" /></a>
           </div>
         </div>
       </div>
