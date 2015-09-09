@@ -62,11 +62,14 @@
     <div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">
       <h1>Sponsors</h1>
       <div class="row">
-        <div  data-ng-repeat="sponsor in home.sponsors" class="col-sm-12 col-xs-6">
-          <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar pp-sponsor-images">
-            <a href="{{ sponsor.website }}" target="_blank">
-              <img style="padding: 30px 0; width: 100%; max-width: 150px" data-ng-src="{{ '/' + sponsor.biv_id + '/sponsor_logo' }}" alt="{{ sponsor.display_name }}" /></a>
+        <div data-ng-repeat="sponsor in home.sponsors">
+          <div class="col-sm-12 col-xs-6">
+            <div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar pp-sponsor-images">
+              <a href="{{ sponsor.website }}" target="_blank">
+                <img style="padding: 30px 0; width: 100%; max-width: 150px" data-ng-src="{{ '/' + sponsor.biv_id + '/sponsor_logo' }}" alt="{{ sponsor.display_name }}" /></a>
+            </div>
           </div>
+          <div data-ng-class="{clearfix: $index %2}"></div>
         </div>
       </div>
     </div>
