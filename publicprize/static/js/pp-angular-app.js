@@ -33,7 +33,7 @@ app.factory('serverRequest', function($http, $location) {
     return self;
 });
 
-app.factory('userState', function(serverRequest) {
+app.factory('userState', function(serverRequest, $rootScope) {
     var self = this;
     self.state = {};
 
@@ -55,7 +55,10 @@ app.factory('userState', function(serverRequest) {
         return self.state.isJudge ? true : false;
     };
     self.logout = function() {
-        serverRequest.sendRequest('/logout', updateUserState);
+        serverRequest.sendRequest('/logout', function(data) {
+            updateUserState(data);
+            $rootScope.$broadcast('pp.alert', 'You have successfully logged out.');
+        });
     };
     self.updateState = function() {
         serverRequest.sendRequest('/user-state', updateUserState);
@@ -91,23 +94,30 @@ app.controller('HomeController', function(serverRequest, userState, $location) {
     self.formErrors = {};
     self.founderCount = 1;
     self.sponsors = [];
-    hideFounders();
     loadFormMetadata();
     loadSponsors();
 
     function hideFounders() {
-        //TODO(pjm): timeout is a hack
-        setTimeout(
-            function() {
-                var fields = ['founder2_name', 'founder2_desc', 'founder3_name', 'founder3_desc']
-                for (var i = 0; i < fields.length; i++)
-                    $('#' + fields[i]).hide();
-            }, 100);
     }
 
     function loadFormMetadata() {
+        var hidden = {
+            founder2_name: true,
+            founder2_desc: true,
+            founder3_name: true,
+            founder3_desc: true,
+        };
         serverRequest.sendRequest('/nominee-form-metadata', function(data) {
             self.formFields = data.form_metadata;
+            for (var i = 0; i < self.formFields.length; i++)
+                self.formFields[i].visible = hidden[self.formFields[i].name] ? false : true;
+            //TODO(pjm): timeout is a hack
+            setTimeout(
+                function() {
+                    $('.pp-tooltip').tooltip({
+                        'container': 'body'
+                    })
+                }, 100);
         });
     }
 
@@ -119,8 +129,12 @@ app.controller('HomeController', function(serverRequest, userState, $location) {
 
     self.addFounder = function() {
         self.founderCount++;
-        $('#founder' + self.founderCount + '_name').fadeIn();
-        $('#founder' + self.founderCount + '_desc').fadeIn();
+        for (var i = 0; i < self.formFields.length; i++) {
+            var search = 'founder' + self.founderCount;
+            if (self.formFields[i].name.indexOf(search) >= 0) {
+                self.formFields[i].visible = true;
+            }
+        }
         if (self.founderCount >= MAX_FOUNDERS)
             $('#addFounderButton').fadeOut();
     };
@@ -184,8 +198,7 @@ app.directive('loginModal', function() {
 
 app.directive('navLinks', function(userState) {
     return {
-        scope: {
-        },
+        scope: {},
         template: [
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href>Sign up</a></li>',
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href>Log in</a></li>',
@@ -194,5 +207,66 @@ app.directive('navLinks', function(userState) {
         controller: function($scope) {
             $scope.userState = userState;
         },
+    };
+});
+
+app.directive('alertBox', function($rootScope) {
+    return {
+        scope: {},
+        controller: function($scope) {
+            $rootScope.$on('pp.alert', function(alert, message) {
+                $scope.message = message;
+            });
+        },
+        template: [
+            '<div class="container">',
+              '<div class="row">',
+                '<div class="alert alert-success alert-dismissible" data-ng-show="message">',
+                  '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>',
+	          '<strong>{{ message }}</strong>',
+	        '</div>',
+              '</div>',
+            '</div>',
+        ].join(''),
+    };
+});
+
+//TODO(pjm): really ugly, combine formField with formFieldWithHelp
+app.directive('formField', function() {
+    return {
+        scope: {
+            f: '=formField',
+            home: '=controller',
+        },
+        template: [
+            '<div data-ng-switch="f.type">',
+              '<span data-ng-show="home.hasError(f.name)" class="pp-form-error text-danger">{{ home.getError(f.name) }}</span>',
+              '<div data-ng-show="home.hasError(f.name)" class="clearfix"></div>',
+              '<div data-ng-switch-when="CSRFTokenField"></div>',
+              '<textarea data-ng-switch-when="TextAreaField" class="form-control" rows="5" id="{{ f.name }}" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]"></textarea>',
+              '<input data-ng-switch-default class="form-control" type="text" value="" placeholder="{{ f.label }}" id="{{ f.name }}" data-ng-model="home.formData[f.name]">',
+            '</div>',
+        ].join(''),
+    };
+});
+
+app.directive('formFieldWithHelp', function() {
+    return {
+        scope: {
+            f: '=formFieldWithHelp',
+            home: '=controller',
+        },
+        template: [
+            '<div data-ng-switch="f.type">',
+              '<span data-ng-show="home.hasError(f.name)" class="pp-form-error text-danger">{{ home.getError(f.name) }}</span>',
+              '<div data-ng-show="home.hasError(f.name)" class="clearfix"></div>',
+              '<div class="input-group">',
+                '<div data-ng-switch-when="CSRFTokenField"></div>',
+                '<textarea data-ng-switch-when="TextAreaField" class="form-control" rows="5" id="{{ f.name }}" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]"></textarea>',
+                '<input data-ng-switch-default class="form-control" type="text" value="" placeholder="{{ f.label }}" id="{{ f.name }}" data-ng-model="home.formData[f.name]">',
+                '<span class="input-group-addon"><span class= "pp-tooltip" data-toggle="tooltip" title="{{ f.helpText }}"><span class="glyphicon glyphicon-info-sign text-primary"></span></span></span>',
+              '</div>',
+            '</div>',
+        ].join(''),
     };
 });
