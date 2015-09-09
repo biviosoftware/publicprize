@@ -26,6 +26,7 @@ class General(controller.Task):
             "general/index.html",
             evc_contests=pem.Contest.query.all(),
             nextup_contests=pnm.NUContest.query.all(),
+            evc15_contests=pe15.E15Contest.query.all(),
         )
 
     def action_facebook_login(biv_obj):
