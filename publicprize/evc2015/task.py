@@ -69,7 +69,7 @@ class E15Contest(ppc.Task):
         return flask.jsonify(pef.Nominate().execute(biv_obj))
 
     def action_sponsors(biv_obj):
-        return flask.jsonify(sponsors=biv_obj.get_sponsors(randomize=False))
+        return flask.jsonify(sponsors=biv_obj.get_sponsors(randomize=True))
 
     def action_user_state(biv_obj):
         return flask.jsonify(user_state={
