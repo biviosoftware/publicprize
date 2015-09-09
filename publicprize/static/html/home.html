@@ -29,24 +29,21 @@
       <p>If so, they could be eligible to enter the 2015 Esprit Venture Challenge and win a valuable prize!</p>
       <p>Now in its second year, the Esprit Venture Challenge, part of the Boulder Chamber Esprit NewCo. signature event, is showing the world that <strong>America’s Startup Capital</strong> is also a leader in <strong>social entrepreneurship</strong>!</p>
       <p>If you think you know a company that qualifies, have them fill out the entry form below and take part in this exciting challenge. They’ll meet other cutting-edge startups, mingle with the Who’s Who of Boulder’s leaders, and have fun at a premier business event.<p>
-      <!-- TODO(pjm): need date -->
-      <p><strong>Don’t delay. Deadline is XXXXX for entry!</strong></p>
+      <p><strong>Don’t delay. Deadline is 10/10/2015 for entry!</strong></p>
       <!-- TODO(pjm): register link -->
       <p><strong>And don’t forget to register to attend the event. It’s Boulder’s premier event focused on entrepreneurs!</strong></p>
 
       <div class="pp-form" data-ng-hide="home.userState.isLoggedIn()">
-        Log in to nominate a company.
+        <a href data-target="#loginModal" data-toggle="modal" rel="nofollow">Log in with LinkedIn to nominate a company.</a>
       </div>
       <div class="pp-form" data-ng-show="home.userState.isLoggedIn()">
         <form name="form">
           <h2>Nominate a Company</h2>
+          <p>The Esprit Venture Challenge is for seed-stage businesses: startups with <em>less than two years</em> in operation. This year, they must have <em>social entrepreneurship as their principal business purpose</em>, along with a clear model for achieving a sustainable return on investment.</p>
           <div data-ng-repeat="f in home.formFields">
-            <div class="form-group" data-ng-switch="f.type">
-              <span data-ng-show="home.hasError(f.name)" class="pp-form-error text-danger">{{ home.getError(f.name) }}</span>
-              <div data-ng-show="home.hasError(f.name)" class="clearfix"></div>
-              <div data-ng-switch-when="CSRFTokenField"></div>
-              <textarea data-ng-switch-when="TextAreaField" class="form-control" rows="5" id="{{ f.name }}" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]"></textarea>
-              <input data-ng-switch-default class="form-control" type="text" value="" placeholder="{{ f.label }}" id="{{ f.name }}" data-ng-model="home.formData[f.name]">
+            <div class="form-group">
+              <div data-ng-show="f.visible && f.helpText" data-form-field-with-help="f" data-controller="home"></div>
+              <div data-ng-show="f.visible && ! f.helpText" data-form-field="f" data-controller="home"></div>
             </div>
           </div>
           <div class="pull-left" style="margin-bottom: 2ex">
