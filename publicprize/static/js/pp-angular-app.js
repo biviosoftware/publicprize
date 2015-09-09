@@ -1,6 +1,6 @@
 // Copyright (c) 2015 bivio Software, Inc.  All rights reserved.
 'use strict';
-var app = angular.module('EVC2015App', ['ngRoute']);
+var app = angular.module('EVC2015App', ['ngRoute', 'ngAnimate']);
 
 app.config(function($routeProvider) {
     $routeProvider
@@ -148,9 +148,13 @@ app.controller('HomeController', function(serverRequest, userState, $location) {
     }
 
     self.saveForm = function() {
+        var ladda = Ladda.create(document.querySelector('button.ladda-button'));
+        ladda.start();
+
         serverRequest.sendRequest(
             '/nominee-form-submit',
             function(data) {
+                ladda.stop();
                 if (data.errors) {
                     self.formErrors = data.errors;
                     return;
@@ -159,6 +163,7 @@ app.controller('HomeController', function(serverRequest, userState, $location) {
             },
             self.formData)
             .error(function(data, status) {
+                ladda.stop();
                 if (status == 403)
                     self.formErrors.display_name = 'Log in to nominate a company';
             });
@@ -221,7 +226,7 @@ app.directive('alertBox', function($rootScope) {
         template: [
             '<div class="container">',
               '<div class="row">',
-                '<div class="alert alert-success alert-dismissible" data-ng-show="message">',
+                '<div class="alert alert-success alert-dismissible" data-ng-show="message" data-ng-class="{slideDown: message}">',
                   '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>',
 	          '<strong>{{ message }}</strong>',
 	        '</div>',
@@ -231,6 +236,22 @@ app.directive('alertBox', function($rootScope) {
     };
 });
 
+function formFieldTemplate(includeHelp) {
+    return [
+        '<div data-ng-switch="f.type">',
+          '<span data-ng-show="home.hasError(f.name)" class="pp-form-error text-danger">{{ home.getError(f.name) }}</span>',
+          '<div data-ng-show="home.hasError(f.name)" class="clearfix"></div>',
+            (includeHelp ? '<div class="input-group">' : ''),
+              '<div data-ng-switch-when="CSRFTokenField"></div>',
+              '<textarea data-ng-switch-when="TextAreaField" class="form-control" data-ng-class="{slideDown: f.visible}" rows="5" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]"></textarea>',
+              '<input data-ng-switch-default class="form-control" type="text" value="" data-ng-class="{slideDown: f.visible}" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]">',
+              (includeHelp ? '<span class="input-group-addon"><span class= "pp-tooltip" data-toggle="tooltip" title="{{ f.helpText }}"><span class="glyphicon glyphicon-info-sign text-primary"></span></span></span>' : ''),
+            (includeHelp ? '</div>' : ''),
+          '</div>',
+        '</div>',
+    ].join('');
+}
+
 //TODO(pjm): really ugly, combine formField with formFieldWithHelp
 app.directive('formField', function() {
     return {
@@ -238,15 +259,7 @@ app.directive('formField', function() {
             f: '=formField',
             home: '=controller',
         },
-        template: [
-            '<div data-ng-switch="f.type">',
-              '<span data-ng-show="home.hasError(f.name)" class="pp-form-error text-danger">{{ home.getError(f.name) }}</span>',
-              '<div data-ng-show="home.hasError(f.name)" class="clearfix"></div>',
-              '<div data-ng-switch-when="CSRFTokenField"></div>',
-              '<textarea data-ng-switch-when="TextAreaField" class="form-control" rows="5" id="{{ f.name }}" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]"></textarea>',
-              '<input data-ng-switch-default class="form-control" type="text" value="" placeholder="{{ f.label }}" id="{{ f.name }}" data-ng-model="home.formData[f.name]">',
-            '</div>',
-        ].join(''),
+        template: formFieldTemplate(false),
     };
 });
 
@@ -256,17 +269,17 @@ app.directive('formFieldWithHelp', function() {
             f: '=formFieldWithHelp',
             home: '=controller',
         },
-        template: [
-            '<div data-ng-switch="f.type">',
-              '<span data-ng-show="home.hasError(f.name)" class="pp-form-error text-danger">{{ home.getError(f.name) }}</span>',
-              '<div data-ng-show="home.hasError(f.name)" class="clearfix"></div>',
-              '<div class="input-group">',
-                '<div data-ng-switch-when="CSRFTokenField"></div>',
-                '<textarea data-ng-switch-when="TextAreaField" class="form-control" rows="5" id="{{ f.name }}" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]"></textarea>',
-                '<input data-ng-switch-default class="form-control" type="text" value="" placeholder="{{ f.label }}" id="{{ f.name }}" data-ng-model="home.formData[f.name]">',
-                '<span class="input-group-addon"><span class= "pp-tooltip" data-toggle="tooltip" title="{{ f.helpText }}"><span class="glyphicon glyphicon-info-sign text-primary"></span></span></span>',
-              '</div>',
-            '</div>',
-        ].join(''),
+        template: formFieldTemplate(true),
     };
+});
+
+app.animation('.slideDown', function() {
+    return {
+        addClass: function(element, className, done) {
+            if (className == 'slideDown') {
+                $(element).hide();
+                $(element).slideDown(done);
+            }
+        },
+    }
 });
