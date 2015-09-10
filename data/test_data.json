@@ -8,11 +8,6 @@
       },
       "Sponsor": [
         {
-	  "display_name": "Bivio Software",
-	  "website": "http://www.bivio.biz",
-	  "logo_filename": "data/evc15/bivio-150.gif"
-	},
-        {
 	  "display_name": "Elevations Credit Union",
           "website": "https://www.elevationscu.com/",
 	  "logo_filename": "data/evc15/elevations-150.gif"
@@ -51,7 +46,12 @@
           "display_name": "Boulder Daily Camera",
           "website": "http://www.dailycamera.com/",
           "logo_filename": "data/evc15/camera-150.jpg"
-        }
+        },
+        {
+	  "display_name": "Bivio Software",
+	  "website": "http://www.bivio.biz",
+	  "logo_filename": "data/evc15/bivio-150.gif"
+	}
       ]
     }
   ],
