@@ -30,4 +30,4 @@ simplejson>=3.8
 six>=1.7
 tox>=1.8
 uWSGI>=2.0
-git+https://github.com/radiasoft/pykern.git@master#egg=pykern
+pykern
