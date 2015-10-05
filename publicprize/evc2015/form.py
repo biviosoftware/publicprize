@@ -78,7 +78,7 @@ class Nominate(flask_wtf.Form):
         super(Nominate, self).validate()
         self._validate_youtube()
         self._validate_website()
-        common.log_form_errors(self)
+        common.log_form_errors(self, True)
         return not self.errors
 
     #TODO(pjm): copied from evc
@@ -156,7 +156,7 @@ class Nominate(flask_wtf.Form):
         if self.url.errors:
             return
         if self.url.data:
-            if not common.get_url_content(self.url.data):
+            if not common.get_url_content(self.url.data, want_decode=False):
                 self.url.errors = ['Website invalid or unavailable.']
 
     #TODO(pjm): copied from evc
