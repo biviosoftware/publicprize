@@ -245,12 +245,12 @@ def get_url_request(url):
     return opener.open(url, None, 30)
 
 
-def log_form_errors(form):
+def log_form_errors(form, is_json=False):
     """Put any form errors in logs as warning"""
     if form.errors:
         ppc.app().logger.warn({
-            'data': flask.request.form,
-            'errors': form.errors
+            'data': flask.request.get_json() if is_json else flask.request.form,
+            'errors': form.errors,
         })
 
 
