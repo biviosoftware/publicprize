@@ -79,7 +79,7 @@ class Contest(ppc.Task):
         return pcm.Judge.new_test_judge(biv_obj)
 
     def action_rules(biv_obj):
-        return flask.redirect('/static/pdf/rules.pdf')
+        return flask.redirect('/static/pdf/20150914-evc-rules.pdf')
 
     @common.decorator_login_required
     def action_submit_contestant(biv_obj):

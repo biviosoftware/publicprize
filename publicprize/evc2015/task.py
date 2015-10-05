@@ -28,7 +28,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20150910',
+            version='20150914',
         )
 
     def action_nominee_form_metadata(biv_obj):
@@ -67,6 +67,9 @@ class E15Contest(ppc.Task):
         if not flask.session.get('user.is_logged_in'):
             werkzeug.exceptions.abort(403)
         return flask.jsonify(pef.Nominate().execute(biv_obj))
+
+    def action_rules(biv_obj):
+        return flask.redirect('/static/pdf/20150914-evc-rules.pdf')
 
     def action_sponsors(biv_obj):
         return flask.jsonify(sponsors=biv_obj.get_sponsors())
