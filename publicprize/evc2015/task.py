@@ -5,9 +5,10 @@
     :license: Apache, see LICENSE for more details.
 """
 
+import datetime
 import flask
 import json
-import time
+import pytz
 import werkzeug.exceptions
 
 from . import form as pef
@@ -23,6 +24,18 @@ _template = common.Template('evc2015')
 
 class E15Contest(ppc.Task):
     """Contest actions"""
+
+    def action_contest_info(biv_obj):
+        tz = pytz.timezone('US/Mountain')
+        end_of_day = tz.localize(
+            datetime.datetime(
+                2015, 10, 14,
+                23, 59, 59))
+        seconds_remaining = (end_of_day - datetime.datetime.now(tz)).total_seconds()
+        return flask.jsonify({
+            'allowNominations': seconds_remaining > 0,
+        })
+
     def action_index(biv_obj):
         """Returns angular app home"""
         return _template.render_template(
@@ -57,7 +70,7 @@ class E15Contest(ppc.Task):
         ).first_or_404()
         nominee = pem.E15Nominee.query.filter_by(
             biv_id=nominee_biv_id,
-        ).first_or_404();
+        ).first_or_404()
         return flask.jsonify(nominee={
             'display_name': nominee.display_name,
         })
