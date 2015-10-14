@@ -41,7 +41,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20150914',
+            version='20151014',
         )
 
     def action_nominee_form_metadata(biv_obj):
