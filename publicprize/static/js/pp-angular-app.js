@@ -94,10 +94,16 @@ app.controller('HomeController', function(serverRequest, userState, $location) {
     self.formErrors = {};
     self.founderCount = 1;
     self.sponsors = [];
+    self.contestInfo = {};
+
+    loadContestInfo();
     loadFormMetadata();
     loadSponsors();
 
-    function hideFounders() {
+    function loadContestInfo() {
+        serverRequest.sendRequest('/contest-info', function(data) {
+            self.contestInfo = data;
+        });
     }
 
     function loadFormMetadata() {
@@ -137,6 +143,10 @@ app.controller('HomeController', function(serverRequest, userState, $location) {
         }
         if (self.founderCount >= MAX_FOUNDERS)
             $('#addFounderButton').fadeOut();
+    };
+
+    self.allowNominations = function() {
+        return self.contestInfo['allowNominations'] ? true : false;
     };
 
     self.getError = function(name) {
