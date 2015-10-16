@@ -15,6 +15,10 @@ app.config(function($routeProvider) {
             controller: 'NomineeController as nominee',
             templateUrl: '/static/html/nominate-thank-you.html?' + PUBLIC_PRIZE_APP_VERSION,
         })
+        .when('/admin-review-nominees', {
+            controller: 'AdminReviewController as adminReview',
+            templateUrl: '/static/html/admin-review-nominees.html?' + PUBLIC_PRIZE_APP_VERSION,
+        })
         .otherwise({
             redirectTo: '/home',
         });
@@ -187,6 +191,33 @@ app.controller('NavController', function () {
     };
 });
 
+app.controller('AdminReviewController', function(serverRequest, $sce) {
+    var self = this;
+    self.nominees = [];
+    self.selectedNominee = {};
+    serverRequest.sendRequest('/admin-review-nominees', function(data) {
+        self.nominees = data.nominees;
+    });
+
+    function stopPlaying() {
+        $('#videoPlayer').off('hidden.bs.modal', stopPlaying);
+        $('#videoPlayer iframe')[0].contentWindow.postMessage('{"event":"command","func":"stopVideo","args":""}', '*');
+    }
+
+    self.selectNominee = function(nominee) {
+        self.selectedNominee = nominee;
+        $('#videoPlayer').modal('show');
+        $('#videoPlayer').on('hidden.bs.modal', stopPlaying);
+    };
+
+    self.videoURL = function() {
+        if (! self.selectedNominee.url)
+            return;
+        var url = '//www.youtube.com/embed/' + self.selectedNominee.youtube_code + '?autoplay=1&enablejsapi=1';
+        return $sce.trustAsResourceUrl(url);
+    };
+});
+
 app.directive('loginModal', function() {
     return {
         scope: {
@@ -217,6 +248,7 @@ app.directive('navLinks', function(userState) {
         template: [
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href>Sign up</a></li>',
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href>Log in</a></li>',
+            '<li data-ng-show="userState.isAdmin()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a><ul class="dropdown-menu" role="menu"><li><a href="#/admin-review-nominees">Review Nominees</a></li></ul></li>',
             '<li data-ng-show="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-ng-click="userState.logout()" href>Log out</a></li>',
         ].join(''),
         controller: function($scope) {
