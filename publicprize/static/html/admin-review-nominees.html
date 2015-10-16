@@ -1,23 +1,33 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-12">
-
       <div class="pp-form">
         <h1>Review Nominees</h1>
         <div data-ng-repeat="nominee in adminReview.nominees">
-          <h3>{{ nominee.display_name }} <small><a data-ng-href="{{ nominee.url }}">{{ nominee.url }}</a></small></h3>
           <div>
-            <div class="pull-right" style="position: relative; margin: 1ex;">
-              <a href data-ng-click="adminReview.selectNominee(nominee)">
-                <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
-                <img class="pp-video-play" alt="Play" src="/static/img/play.png">
-              </a>
+            <div class="pull-right">
+              <div class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href>{{ nominee.is_public ? '' : 'Not'}} Public <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                  <li data-ng-class="{active: nominee.is_public}"><a href data-ng-click="adminReview.setPublic(nominee, true)">Public</a></li>
+                  <li data-ng-class="{active: ! nominee.is_public}"><a href data-ng-click="adminReview.setPublic(nominee, false)">Not Public</a></li>
+                </ul>
+              </div>
             </div>
-            {{ nominee.nominee_desc }}
-            <div>
-              <h4>Founders</h4>
-              <div class="pp-founder-bio" data-ng-repeat="founder in nominee.founders">
-                <em>{{ founder.display_name }}:</em> {{ founder.founder_desc }}
+            <h3>{{ nominee.display_name }} <small><a data-ng-href="{{ nominee.url }}">{{ nominee.url }}</a></small></h3>
+            <div data-ng-show="nominee.is_public">
+              <div class="pull-right" style="position: relative; margin: 1ex;">
+                <a href data-ng-click="adminReview.selectNominee(nominee)">
+                  <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
+                  <img class="pp-video-play" alt="Play" src="/static/img/play.png">
+                </a>
+              </div>
+              {{ nominee.nominee_desc }}
+              <div>
+                <h4>Founders</h4>
+                <div class="pp-founder-bio" data-ng-repeat="founder in nominee.founders">
+                  <em>{{ founder.display_name }}:</em> {{ founder.founder_desc }}
+                </div>
               </div>
             </div>
           </div>
