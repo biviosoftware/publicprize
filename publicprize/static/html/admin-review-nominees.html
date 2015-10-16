@@ -1,0 +1,47 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+
+      <div class="pp-form">
+        <h1>Review Nominees</h1>
+        <div data-ng-repeat="nominee in adminReview.nominees">
+          <h3>{{ nominee.display_name }} <small><a data-ng-href="{{ nominee.url }}">{{ nominee.url }}</a></small></h3>
+          <div>
+            <div class="pull-right" style="position: relative; margin: 1ex;">
+              <a href data-ng-click="adminReview.selectNominee(nominee)">
+                <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
+                <img class="pp-video-play" alt="Play" src="/static/img/play.png">
+              </a>
+            </div>
+            {{ nominee.nominee_desc }}
+            <div>
+              <h4>Founders</h4>
+              <div class="pp-founder-bio" data-ng-repeat="founder in nominee.founders">
+                <em>{{ founder.display_name }}:</em> {{ founder.founder_desc }}
+              </div>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+          <hr>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="videoPlayer" tabindex="-1" role="dialog">',
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+        <h4 class="modal-title">{{ adminReview.selectedNominee.display_name }}</h4>
+      </div>
+      <div class="modal-body">
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe style="width: 100%;" class="embed-responsive-item" data-ng-if="adminReview.selectedNominee.youtube_code"
+            data-ng-src="{{ adminReview.videoURL() }}" allowfullscreen></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
