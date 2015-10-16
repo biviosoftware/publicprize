@@ -28,6 +28,19 @@ class E15Contest(ppc.Task):
 
     @common.decorator_login_required
     @common.decorator_user_is_admin
+    def action_admin_set_nominee_visibility(biv_obj):
+        data = flask.request.get_json()
+        nominee_biv_id = data['biv_id']
+        is_public = data['is_public']
+        nominee = pem.E15Nominee.query.filter_by(
+            biv_id=nominee_biv_id,
+        ).first_or_404()
+        nominee.is_public = is_public
+        ppc.db.session.add(nominee)
+        return '{}'
+
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
     def action_admin_review_nominees(biv_obj):
         nominees = pem.E15Nominee.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == biv_obj.biv_id,
@@ -42,6 +55,7 @@ class E15Contest(ppc.Task):
                 'url': nominee.url,
                 'youtube_code': nominee.youtube_code,
                 'nominee_desc': nominee.nominee_desc,
+                'is_public': nominee.is_public,
                 'founders': E15Contest._founder_info_for_nominee(nominee),
             })
         return flask.jsonify({
@@ -64,7 +78,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151014',
+            version='20151016',
         )
 
     def action_nominee_form_metadata(biv_obj):
