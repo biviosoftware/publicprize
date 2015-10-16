@@ -18,6 +18,7 @@ from . import model as pnm
 from .. import common
 from .. import controller as ppc
 from ..auth import model as pam
+from ..contest import model as pcm
 
 class Judge(flask_wtf.Form):
     """Posted form for saving judge ranking."""
@@ -29,10 +30,10 @@ class Judge(flask_wtf.Form):
             ranks = json.loads(self.ranks.data)
             # first item is the category
             contest.delete_judge_ranks_for_auth_user(ranks[0])
-            for i in range(1, pnm.JudgeRank.MAX_RANKS + 1):
+            for i in range(1, pcm.JudgeRank.MAX_RANKS + 1):
                 if len(ranks) > i and ranks[i]:
                     ppc.db.session.add(
-                        pnm.JudgeRank(
+                        pcm.JudgeRank(
                             judge_biv_id=flask.session['user.biv_id'],
                             nominee_biv_id=ranks[i],
                             judge_rank=i)
