@@ -210,6 +210,18 @@ app.controller('AdminReviewController', function(serverRequest, $sce) {
         $('#videoPlayer').on('hidden.bs.modal', stopPlaying);
     };
 
+    self.setPublic = function(nominee, isPublic) {
+        serverRequest.sendRequest(
+            '/admin-set-nominee-visibility',
+            function() {
+                nominee.is_public = isPublic;
+            },
+            {
+                biv_id: nominee.biv_id,
+                is_public: isPublic,
+            });
+    };
+
     self.videoURL = function() {
         if (! self.selectedNominee.url)
             return;
