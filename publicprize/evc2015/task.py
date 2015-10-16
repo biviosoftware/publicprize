@@ -18,12 +18,35 @@ from .. import common
 from .. import controller as ppc
 from ..auth import model as pam
 from ..general import oauth
+from ..contest import model as pcm
 
 _template = common.Template('evc2015')
 
 
 class E15Contest(ppc.Task):
     """Contest actions"""
+
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
+    def action_admin_review_nominees(biv_obj):
+        nominees = pem.E15Nominee.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == biv_obj.biv_id,
+            pam.BivAccess.target_biv_id == pem.E15Nominee.biv_id
+        ).all()
+        nominees = sorted(nominees, key=lambda nominee: nominee.display_name)
+        res = []
+        for nominee in nominees:
+            res.append({
+                'biv_id': nominee.biv_id,
+                'display_name': nominee.display_name,
+                'url': nominee.url,
+                'youtube_code': nominee.youtube_code,
+                'nominee_desc': nominee.nominee_desc,
+                'founders': E15Contest._founder_info_for_nominee(nominee),
+            })
+        return flask.jsonify({
+            'nominees': res,
+        })
 
     def action_contest_info(biv_obj):
         tz = pytz.timezone('US/Mountain')
@@ -96,3 +119,17 @@ class E15Contest(ppc.Task):
 
     def get_template():
         return _template
+
+    def _founder_info_for_nominee(nominee):
+        founders = pcm.Founder.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == nominee.biv_id,
+            pam.BivAccess.target_biv_id == pcm.Founder.biv_id
+        ).all()
+        res = []
+        for founder in founders:
+            res.append({
+                'biv_id': founder.biv_id,
+                'display_name': founder.display_name,
+                'founder_desc': founder.founder_desc,
+            })
+        return res
