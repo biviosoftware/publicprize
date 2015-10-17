@@ -49,6 +49,7 @@ class E15Contest(ppc.Task):
         nominees = sorted(nominees, key=lambda nominee: nominee.display_name)
         res = []
         for nominee in nominees:
+            submitter = E15Contest._nominee_submitter(nominee)
             res.append({
                 'biv_id': nominee.biv_id,
                 'display_name': nominee.display_name,
@@ -57,6 +58,8 @@ class E15Contest(ppc.Task):
                 'nominee_desc': nominee.nominee_desc,
                 'is_public': nominee.is_public,
                 'founders': E15Contest._founder_info_for_nominee(nominee),
+                'submitter_display_name': submitter.display_name,
+                'submitter_email': submitter.user_email,
             })
         return flask.jsonify({
             'nominees': res,
@@ -147,3 +150,9 @@ class E15Contest(ppc.Task):
                 'founder_desc': founder.founder_desc,
             })
         return res
+
+    def _nominee_submitter(nominee):
+        return  pam.User.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == pam.User.biv_id,
+            pam.BivAccess.target_biv_id == nominee.biv_id,
+        ).first_or_404()
