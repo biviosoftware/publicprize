@@ -15,6 +15,7 @@
               </div>
             </div>
             <h3>{{ nominee.display_name }} <small><a data-ng-href="{{ nominee.url }}">{{ nominee.url }}</a></small></h3>
+            <div><small>Submitted by <a data-ng-href="mailto:{{nominee.submitter_email}}">{{ nominee.submitter_display_name }}</a></small></div>
             <div data-ng-show="nominee.is_public">
               <div class="pull-right" style="position: relative; margin: 1ex;">
                 <a href data-ng-click="adminReview.selectNominee(nominee)">
