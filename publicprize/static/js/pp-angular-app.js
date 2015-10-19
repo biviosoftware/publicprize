@@ -68,6 +68,7 @@ app.factory('userState', function(serverRequest, $rootScope) {
     var self = this;
     self.state = {
         initializing: true,
+        randomValue: Math.random(),
     };
 
     function updateUserState(data) {
@@ -76,7 +77,7 @@ app.factory('userState', function(serverRequest, $rootScope) {
             isLoggedIn: data.user_state.is_logged_in,
             isAdmin: data.user_state.is_admin,
             isJudge: data.user_state.is_judge,
-            randomValue: data.user_state.random_value,
+            randomValue: self.state.randomValue,
         };
     }
 
