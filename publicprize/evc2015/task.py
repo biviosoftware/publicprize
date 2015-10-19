@@ -83,7 +83,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151019-6',
+            version='20151019-7',
         )
 
     def action_logout(biv_obj):
