@@ -17,11 +17,11 @@
                     data-ng-src="{{ nominee.videoURL() }}" allowfullscreen></iframe>
           </div>
         </div>
-        {{ nominee.info.nominee_desc }}
+        <div class="pp-nominee-text">{{ nominee.info.nominee_desc }}</div>
         <div>
           <h4>Founders</h4>
           <div class="pp-founder-bio" data-ng-repeat="founder in nominee.info.founders">
-            <em>{{ founder.display_name }}:</em> {{ founder.founder_desc }}
+            <em>{{ founder.display_name }}:</em> <span class="pp-nominee-text">{{ founder.founder_desc }}</span>
           </div>
         </div>
         <div>
