@@ -269,7 +269,7 @@ def safe_unicode(str):
 def summary_text(text):
     """Returns the first few sentences of the supplied text."""
     match = re.search(
-        r'^(.*?\s[a-z)]{3,}\.\s.*?\s[a-z)]{3,}[.!]+\s)',
+        r'^(.*?\s[a-z)]{3,}[.!?]+\s.*?\s[a-z)]{3,}[.!?]+\s)',
         text,
         re.DOTALL
     )
