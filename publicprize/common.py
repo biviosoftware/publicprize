@@ -264,3 +264,15 @@ def normalize_url(url):
 def safe_unicode(str):
     """Strip non-ascii characters out of a unicode string."""
     return str.encode("ascii", "replace").decode("utf-8")
+
+
+def summary_text(text):
+    """Returns the first few sentences of the supplied text."""
+    match = re.search(
+        r'^(.*?\s[a-z)]{3,}\.\s.*?\s[a-z)]{3,}\.\s)',
+        text,
+        re.DOTALL
+    )
+    if match:
+        return match.group(1)
+    return text
