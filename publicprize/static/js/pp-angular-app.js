@@ -4,7 +4,15 @@ var app = angular.module('EVC2015App', ['ngRoute', 'ngAnimate']);
 
 app.config(function($routeProvider) {
     $routeProvider
-        .when('/home', {
+        .when('/contestants', {
+            controller: 'NomineeListController as nomineeList',
+            templateUrl: '/static/html/nominees.html?' + PUBLIC_PRIZE_APP_VERSION,
+        })
+        .when('/:nominee_biv_id/contestant', {
+            controller: 'NomineeController as nominee',
+            templateUrl: '/static/html/nominee.html?' + PUBLIC_PRIZE_APP_VERSION,
+        })
+        .when('/submit-nominee', {
             controller: 'HomeController as home',
             templateUrl: '/static/html/home.html?' + PUBLIC_PRIZE_APP_VERSION,
         })
@@ -19,8 +27,9 @@ app.config(function($routeProvider) {
             controller: 'AdminReviewController as adminReview',
             templateUrl: '/static/html/admin-review-nominees.html?' + PUBLIC_PRIZE_APP_VERSION,
         })
+
         .otherwise({
-            redirectTo: '/home',
+            redirectTo: '/contestants',
         });
 });
 
@@ -37,18 +46,43 @@ app.factory('serverRequest', function($http, $location) {
     return self;
 });
 
+app.factory('contestState', function(serverRequest) {
+    var self = this;
+    self.contestInfo = {
+        allowNominations: false,
+        contestantCount: 0,
+    };
+    serverRequest.sendRequest('/contest-info', function(data) {
+        self.contestInfo = data;
+    });
+    self.allowNominations = function() {
+        return self.contestInfo.allowNominations;
+    };
+    self.contestantCount = function() {
+        return self.contestInfo.contestantCount;
+    };
+    return self;
+});
+
 app.factory('userState', function(serverRequest, $rootScope) {
     var self = this;
-    self.state = {};
+    self.state = {
+        initializing: true,
+    };
 
     function updateUserState(data) {
         self.state = {
+            initializing: false,
             isLoggedIn: data.user_state.is_logged_in,
             isAdmin: data.user_state.is_admin,
             isJudge: data.user_state.is_judge,
+            randomValue: data.user_state.random_value,
         };
     }
 
+    self.isInitializing = function() {
+        return self.state.initializing;
+    }
     self.isLoggedIn = function() {
         return self.state.isLoggedIn ? true : false;
     };
@@ -71,9 +105,10 @@ app.factory('userState', function(serverRequest, $rootScope) {
     return self;
 });
 
-app.controller('NomineeController', function(serverRequest, $route) {
+app.controller('NomineeController', function(serverRequest, $route, $sce) {
     var self = this;
     var nominee_biv_id = $route.current.params.nominee_biv_id;
+    var autoplay = $route.current.params.autoplay ? true : false;
     self.info = {};
     loadNominee();
 
@@ -87,9 +122,37 @@ app.controller('NomineeController', function(serverRequest, $route) {
                 nominee_biv_id: nominee_biv_id,
             });
     }
+
+    self.videoURL = function() {
+        if (! self.info.url)
+            return;
+        var url = '//www.youtube.com/embed/' + self.info.youtube_code
+            + (autoplay ? '?autoplay=1' : '');
+        return $sce.trustAsResourceUrl(url);
+    };
 });
 
-app.controller('HomeController', function(serverRequest, userState, $location) {
+app.controller('NomineeListController', function(serverRequest, userState, $location) {
+    var self = this;
+    self.nominees = [];
+    console.log("here: ", userState.state);
+    serverRequest.sendRequest(
+        '/public-nominee-list',
+        function(data) {
+            self.nominees = data.nominees;
+        },
+        {
+            random_value: userState.state.randomValue,
+        });
+
+    self.selectNominee = function(nominee, autoplay) {
+        $location.path('/' + nominee.biv_id  + '/contestant');
+        if (autoplay)
+            $location.search('autoplay', 1);
+    };
+});
+
+app.controller('HomeController', function(serverRequest, userState, contestState, $location) {
     var MAX_FOUNDERS = 3;
     var self = this;
     self.userState = userState;
@@ -97,18 +160,7 @@ app.controller('HomeController', function(serverRequest, userState, $location) {
     self.formFields = [];
     self.formErrors = {};
     self.founderCount = 1;
-    self.sponsors = [];
-    self.contestInfo = {};
-
-    loadContestInfo();
     loadFormMetadata();
-    loadSponsors();
-
-    function loadContestInfo() {
-        serverRequest.sendRequest('/contest-info', function(data) {
-            self.contestInfo = data;
-        });
-    }
 
     function loadFormMetadata() {
         var hidden = {
@@ -131,12 +183,6 @@ app.controller('HomeController', function(serverRequest, userState, $location) {
         });
     }
 
-    function loadSponsors() {
-        serverRequest.sendRequest('/sponsors', function(data) {
-            self.sponsors = data.sponsors;
-        });
-    }
-
     self.addFounder = function() {
         self.founderCount++;
         for (var i = 0; i < self.formFields.length; i++) {
@@ -150,7 +196,7 @@ app.controller('HomeController', function(serverRequest, userState, $location) {
     };
 
     self.allowNominations = function() {
-        return self.contestInfo['allowNominations'] ? true : false;
+        return contestState.allowNominations();
     };
 
     self.getError = function(name) {
@@ -258,10 +304,12 @@ app.directive('navLinks', function(userState) {
     return {
         scope: {},
         template: [
+            '<ul class="nav navbar-nav navbar-right" data-ng-hide="userState.isInitializing()" data-ng-cloak="">',
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href>Sign up</a></li>',
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href>Log in</a></li>',
             '<li data-ng-show="userState.isAdmin()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a><ul class="dropdown-menu" role="menu"><li><a href="#/admin-review-nominees">Review Nominees</a></li></ul></li>',
             '<li data-ng-show="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-ng-click="userState.logout()" href>Log out</a></li>',
+            '</ul>',
         ].join(''),
         controller: function($scope) {
             $scope.userState = userState;
@@ -306,7 +354,6 @@ function formFieldTemplate(includeHelp) {
     ].join('');
 }
 
-//TODO(pjm): really ugly, combine formField with formFieldWithHelp
 app.directive('formField', function() {
     return {
         scope: {
@@ -324,6 +371,52 @@ app.directive('formFieldWithHelp', function() {
             home: '=controller',
         },
         template: formFieldTemplate(true),
+    };
+});
+
+app.directive('sponsorList', function() {
+    return {
+        scope: {},
+        template: [
+            '<div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">',
+            '<h1>Sponsors</h1>',
+            '<div class="row">',
+              '<div data-ng-repeat="sponsor in sponsors">',
+                '<div class="col-sm-12 col-xs-6">',
+                  '<div class="pp-sidebar-module pp-sidebar-module-inset pp-sponsor-sidebar pp-sponsor-images">',
+                    '<a href="{{ sponsor.website }}" target="_blank">',
+                    '<img style="padding: 30px 0; width: 100%; max-width: 150px" data-ng-src="{{ \'/\' + sponsor.biv_id + \'/sponsor_logo\' }}"lt="{{ sponsor.display_name }}" /></a>',
+                  '</div>',
+                '</div>',
+                '<div data-ng-class="{clearfix: $index %2}"></div>',
+              '</div>',
+            '</div>',
+            '</div>',
+        ].join(''),
+        controller: function($scope, serverRequest) {
+            $scope.sponsors = [];
+            serverRequest.sendRequest('/sponsors', function(data) {
+                $scope.sponsors = data.sponsors;
+            });
+        },
+    };
+});
+
+app.directive('sectionNav', function() {
+    return {
+        scope: {},
+        template: [
+            '<br />',
+            '<ul class="nav nav-justified">',
+              '<li><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestantCount() }}</span></a></li>',
+              '<li><a class="btn btn-default" href="#/about">About</a></li>',
+            '</ul>',
+        ].join(''),
+        controller: function($scope, contestState) {
+            $scope.contestantCount = function() {
+                return contestState.contestantCount();
+            };
+        },
     };
 });
 
