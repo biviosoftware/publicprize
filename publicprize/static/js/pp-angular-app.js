@@ -124,6 +124,14 @@ app.controller('NomineeController', function(serverRequest, $route, $sce) {
             });
     }
 
+    self.formatURL = function() {
+        var url = self.info.url;
+        if (! url.match(/\:\/\//))
+            url = 'http://' + url;
+        console.log("url = ", url);
+        return url;
+    };
+
     self.videoURL = function() {
         if (! self.info.url)
             return;
