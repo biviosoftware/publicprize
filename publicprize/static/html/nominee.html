@@ -1,0 +1,34 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <a href="#/home"><div class="pp-logo"></div></a>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-7">
+      <div data-section-nav=""></div>
+      <div class="pp-form">
+        <h3>{{ nominee.info.display_name }} <small><a data-ng-href="{{ nominee.info.url }}">{{ nominee.info.url }}</a></small></h3>
+        <div style="position: relative; margin: 1ex;">
+          <div class="embed-responsive embed-responsive-16by9">
+            <iframe style="width: 100%;" class="embed-responsive-item" data-ng-if="nominee.info.youtube_code"
+                    data-ng-src="{{ nominee.videoURL() }}" allowfullscreen></iframe>
+          </div>
+        </div>
+        {{ nominee.info.nominee_desc }}
+        <div>
+          <h4>Founders</h4>
+          <div class="pp-founder-bio" data-ng-repeat="founder in nominee.info.founders">
+            <em>{{ founder.display_name }}:</em> {{ founder.founder_desc }}
+          </div>
+        </div>
+        <div>
+          <a class="pp-learn-more text-center btn btn-primary btn-lg" href="#/home">Return to the Contestants List</a>
+        </div>
+      </div>
+    </div>
+    <div data-sponsor-list=""></div>
+  </div>
+</div>
