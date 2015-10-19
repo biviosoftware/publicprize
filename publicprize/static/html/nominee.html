@@ -10,7 +10,7 @@
     <div class="col-sm-7">
       <div data-section-nav=""></div>
       <div class="pp-form">
-        <h3>{{ nominee.info.display_name }} <small><a data-ng-href="{{ nominee.info.url }}">{{ nominee.info.url }}</a></small></h3>
+        <h3>{{ nominee.info.display_name }} <small data-ng-if="nominee.info.url"><a target="_blank" data-ng-href="{{ nominee.formatURL() }}">{{ nominee.info.url }}</a></small></h3>
         <div style="position: relative; margin: 1ex;">
           <div class="embed-responsive embed-responsive-16by9">
             <iframe style="width: 100%;" class="embed-responsive-item" data-ng-if="nominee.info.youtube_code"
