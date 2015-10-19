@@ -83,7 +83,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151019-4',
+            version='20151019-5',
         )
 
     def action_logout(biv_obj):
@@ -155,7 +155,6 @@ class E15Contest(ppc.Task):
             'is_logged_in': True if flask.session.get('user.is_logged_in') else False,
             'is_admin': pam.Admin.is_admin(),
             'is_judge': biv_obj.is_judge(),
-            'random_value': random.random(),
         })
 
     def get_template():
