@@ -135,7 +135,6 @@ app.controller('NomineeController', function(serverRequest, $route, $sce) {
 app.controller('NomineeListController', function(serverRequest, userState, $location) {
     var self = this;
     self.nominees = [];
-    console.log("here: ", userState.state);
     serverRequest.sendRequest(
         '/public-nominee-list',
         function(data) {
