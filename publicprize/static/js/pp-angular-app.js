@@ -128,7 +128,6 @@ app.controller('NomineeController', function(serverRequest, $route, $sce) {
         var url = self.info.url;
         if (! url.match(/\:\/\//))
             url = 'http://' + url;
-        console.log("url = ", url);
         return url;
     };
 
