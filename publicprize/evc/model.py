@@ -229,15 +229,7 @@ class Contestant(db.Model, common.ModelWithDates):
 
     def get_summary(self):
         """Returns an excerpt for the Contestant.contestant_desc."""
-        summary = self.contestant_desc
-        match = re.search(
-            r'^(.*?\s[a-z)]{3,}\.\s.*?\s[a-z)]{3,}\.\s)',
-            summary,
-            re.DOTALL
-        )
-        if match:
-            return match.group(1)
-        return summary
+        return common.summary_text(self.contestant_desc)
 
     def get_website(self):
         """Returns the contestant website, prepending http:// if necessary."""
