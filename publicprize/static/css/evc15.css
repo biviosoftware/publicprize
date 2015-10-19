@@ -95,3 +95,6 @@ div.pp-jumbo-text h1 {
 .pp-nominee-summary-box {
   cursor: pointer;
 }
+.pp-nominee-text {
+  white-space: pre-line;
+}
