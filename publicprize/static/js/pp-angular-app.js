@@ -27,7 +27,10 @@ app.config(function($routeProvider) {
             controller: 'AdminReviewController as adminReview',
             templateUrl: '/static/html/admin-review-nominees.html?' + PUBLIC_PRIZE_APP_VERSION,
         })
-
+        .when('/judging', {
+            controller: 'JudgingController as judging',
+            templateUrl: '/static/html/judging.html?' + PUBLIC_PRIZE_APP_VERSION,
+        })
         .otherwise({
             redirectTo: '/contestants',
         });
@@ -77,13 +80,17 @@ app.factory('userState', function(serverRequest, $rootScope) {
             isLoggedIn: data.user_state.is_logged_in,
             isAdmin: data.user_state.is_admin,
             isJudge: data.user_state.is_judge,
+            displayName: data.user_state.display_name,
             randomValue: self.state.randomValue,
         };
     }
 
+    self.displayName = function() {
+        return self.isLoggedIn() ? self.state.displayName : '';
+    };
     self.isInitializing = function() {
         return self.state.initializing;
-    }
+    };
     self.isLoggedIn = function() {
         return self.state.isLoggedIn ? true : false;
     };
@@ -106,7 +113,7 @@ app.factory('userState', function(serverRequest, $rootScope) {
     return self;
 });
 
-app.controller('NomineeController', function(serverRequest, $route, $sce) {
+app.controller('NomineeController', function(serverRequest, userState, $route, $sce) {
     var self = this;
     var nominee_biv_id = $route.current.params.nominee_biv_id;
     var autoplay = $route.current.params.autoplay ? true : false;
@@ -130,7 +137,9 @@ app.controller('NomineeController', function(serverRequest, $route, $sce) {
             url = 'http://' + url;
         return url;
     };
-
+    self.isJudge = function() {
+        return userState.isJudge();
+    };
     self.videoURL = function() {
         if (! self.info.url)
             return;
@@ -244,6 +253,191 @@ app.controller('NavController', function () {
     };
 });
 
+app.controller('JudgingController', function(serverRequest) {
+    var self = this;
+    var rankSuperscript = {
+        1: 'st',
+        2: 'nd',
+        3: 'rd',
+    };
+    self.MAX_RANKS = 5;
+    self.ranks = [
+        {
+            value: 0,
+            text: 'Remove Rank',
+        },
+        {
+            value: 1,
+            text: '1st',
+        },
+        {
+            value: 2,
+            text: '2nd',
+        },
+        {
+            value: 3,
+            text: '3rd',
+        },
+        {
+            value: 4,
+            text: '4th',
+        },
+        {
+            value: 5,
+            text: '5th',
+        },
+    ];
+    self.nominees = [];
+    serverRequest.sendRequest(
+        '/judging',
+        function(data) {
+            self.nominees = data.judging;
+        });
+
+    function bumpDown(nominee) {
+        var nextNominee = nomineeForRank(nominee.rank + 1);
+        if (nextNominee)
+            bumpDown(nextNominee);
+        nominee.rank++;
+    }
+
+    function bumpUp(nominee) {
+        var prevNominee = nomineeForRank(nominee.rank - 1);
+        if (prevNominee)
+            bumpUp(prevNominee);
+        nominee.rank--;
+    }
+
+    function isMobile() {
+        return 'ontouchstart' in document.documentElement;
+    }
+
+    function nextRank() {
+        for (var r = 1; r <= self.MAX_RANKS; r++) {
+            if (! nomineeForRank(r))
+                return r;
+        }
+        return null;
+    }
+
+    function nomineeForRank(rank) {
+        for (var i = 0; i < self.nominees.length; i++) {
+            if (self.nominees[i].rank && self.nominees[i].rank == rank)
+                return self.nominees[i];
+        }
+        return null;
+    }
+
+    function rankingCompleted() {
+        var rankedCount = 0;
+        for (var i = 0; i < self.nominees.length; i++) {
+            if (self.nominees[i].rank)
+                rankedCount++;
+        }
+        return rankedCount >= self.MAX_RANKS;
+    }
+
+    function saveValues() {
+        serverRequest.sendRequest(
+            '/judge-ranking',
+            updateAutosaveMessage,
+            {
+                nominees: self.nominees,
+            })
+            .error(function() {
+                self.autoSaveMessage = 'There was a problem recording your ranking. Please contact support@publicprize.com';
+            });
+    }
+
+    function updateAutosaveMessage() {
+        var d = new Date();
+        self.autoSaveMessage = (rankingCompleted()
+            ? 'Thank you for participating in this contest! '
+            : '')
+            + 'Autosaved at ' + d.toLocaleTimeString();
+    }
+
+    self.hoverNominee = function(nominee, $event) {
+        if (isMobile())
+            return;
+        if (! nominee.rank)
+            nominee.hoverRank = nextRank();
+    };
+
+    self.endHoverNominee = function(nominee, $event) {
+        if (isMobile())
+            return;
+        nominee.hoverRank = null;
+    };
+
+    self.hasComment = function(nominee) {
+        return nominee.comment ? true : false;
+    }
+
+    self.isDisabled = function(nominee) {
+        if (nominee.rank)
+            return false;
+        return rankingCompleted();
+    };
+
+    self.nomineeURL = function(nominee) {
+        return '#/' + nominee.biv_id  + '/contestant';
+    };
+
+    self.selectNominee = function(nominee, $event) {
+        if (nominee.rank)
+            return;
+        nominee.hoverRank = null;
+        nominee.rank = nextRank();
+        // hide the dropdown menu
+        $($event.currentTarget).dropdown('toggle');
+        saveValues();
+    };
+
+    self.saveComment = function() {
+        self.commentNominee.comment = self.comment;
+        $('#commentEditor').modal('hide');
+        saveValues();
+    };
+
+    self.selectRank = function(nominee, rank) {
+        if (! rank.value) {
+            nominee.rank = null;
+            saveValues();
+            return;
+        }
+        if (nominee.rank == rank.value)
+            return;
+        var n = nomineeForRank(rank.value);
+        if (n) {
+            var old_rank = nominee.rank;
+            nominee.rank = null;
+            if (old_rank > rank.value)
+                bumpDown(n);
+            else
+                bumpUp(n);
+        }
+        nominee.rank = rank.value;
+        saveValues();
+    };
+
+    self.showComment = function(nominee) {
+        self.commentNominee = nominee;
+        self.comment = nominee.comment;
+        $('#commentEditor').modal({
+            backdrop: 'static',
+            show: true,
+        });
+    };
+
+    self.superscript = function(rank) {
+        if (! rank)
+            return ''
+        return rankSuperscript[rank] || 'th';
+    };
+
+});
+
 app.controller('AdminReviewController', function(serverRequest, $sce) {
     var self = this;
     self.nominees = [];
@@ -315,6 +509,7 @@ app.directive('navLinks', function(userState) {
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href>Sign up</a></li>',
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href>Log in</a></li>',
             '<li data-ng-show="userState.isAdmin()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a><ul class="dropdown-menu" role="menu"><li><a href="#/admin-review-nominees">Review Nominees</a></li></ul></li>',
+            '<li data-ng-show="userState.isJudge()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href="#/judging" data-toggle="dropdown">Judging</a></li>',
             '<li data-ng-show="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-ng-click="userState.logout()" href>Log out</a></li>',
             '</ul>',
         ].join(''),
