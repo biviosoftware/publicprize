@@ -25,7 +25,8 @@
           </div>
         </div>
         <div>
-          <a class="pp-learn-more text-center btn btn-primary btn-lg" href="#/home">Return to the Contestants List</a>
+          <a data-ng-show="nominee.isJudge()" class="pp-learn-more text-center btn btn-primary btn-lg" href="#/judging">Return to the Judging List</a>
+          <a data-ng-hide="nominee.isJudge()" class="pp-learn-more text-center btn btn-primary btn-lg" href="#/home">Return to the Contestant List</a>
         </div>
       </div>
     </div>
