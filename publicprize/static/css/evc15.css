@@ -99,6 +99,9 @@ div.pp-jumbo-text h1 {
   white-space: pre-line;
 }
 
+.pp-rank-row {
+  display: table;
+}
 .pp-rank-btn, .nav-pills > li > a.pp-rank-btn {
   min-width: 4em;
   min-height:: 4em;
@@ -106,11 +109,14 @@ div.pp-jumbo-text h1 {
   padding: 0;
   margin: 5px;
   border-radius: 2em;
+  display: table-cell;
 }
 .pp-nominee-name {
   font-weight: 300;
   font-size: 21px;
   vertical-align: middle;
+  display: table-cell;
+  padding-left: 0.5ex;
 }
 .pp-rank {
   font-size: 16px;
@@ -127,7 +133,7 @@ div.pp-jumbo-text h1 {
   color: #fcb03c;
 }
 .pp-comment-icon {
-  margin-top: 1em;
+  margin-top: -0.5ex;
   vertical-align: top;
   display: inline-block;
 }
