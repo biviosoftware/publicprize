@@ -19,68 +19,8 @@ _MANAGER = fes.Manager(ppc.app())
 
 
 @_MANAGER.command
-def upgrade_common_vote():
-    engine = db.get_engine(ppc.app())
-    engine.execute('ALTER TABLE nu_vote DROP CONSTRAINT nu_vote_nominee_fkey')
-    engine.execute('ALTER TABLE nu_vote RENAME TO vote')
-    engine.execute('ALTER SEQUENCE nuvote_s RENAME TO vote_s')
-    engine.execute('ALTER TABLE vote RENAME COLUMN nominee TO nominee_biv_id')
-
-
-@_MANAGER.command
-def upgrade_e15_tables():
-    pe15.E15Contest.__table__.create(bind=db.get_engine(ppc.app()))
-    pe15.E15Nominee.__table__.create(bind=db.get_engine(ppc.app()))
-
-
-@_MANAGER.command
-def upgrade_e15_data():
-    old_contest = pam.BivAlias.query.filter_by(
-        alias_name='esprit-venture-challenge'
-    ).first()
-    old_contest.alias_name = 'esprit-venture-challenge-2014'
-    db.session.add(old_contest)
-    contest = pe15.E15Contest(
-        display_name='Exprit Venture Challenge',
-        end_date='2015-11-07',
-    )
-    db.session.add(contest)
-    db.session.flush()
-    db.session.add(pam.BivAlias(
-        biv_id=contest.biv_id,
-        alias_name='esprit-venture-challenge',
-    ))
-
-
-@_MANAGER.command
-def upgrade_image_schema():
-    engine = db.get_engine(ppc.app())
-    engine.execute('ALTER TABLE contest DROP COLUMN contest_logo')
-    engine.execute('ALTER TABLE contest DROP COLUMN logo_type')
-    pcm.Image.__table__.create(bind=engine)
-    _add_column(pcm.Founder, pcm.Founder.image_biv_id)
-    _add_column(pcm.Sponsor, pcm.Sponsor.image_biv_id)
-    for sponsor in pcm.Sponsor.query.all():
-        print('sponsor ', sponsor.biv_id, ' ', sponsor.display_name)
-        image = pcm.Image(
-            image_data=sponsor.sponsor_logo,
-            image_type=sponsor.logo_type,
-        )
-        db.session.add(image)
-        db.session.flush()
-        sponsor.image_biv_id = image.biv_id
-        db.session.add(sponsor)
-
-    for founder in pcm.Founder.query.all():
-        print('founder ', founder.biv_id, ' ', founder.display_name)
-        image = pcm.Image(
-            image_data=founder.founder_avatar,
-            image_type=founder.avatar_type,
-        )
-        db.session.add(image)
-        db.session.flush()
-        founder.image_biv_id = image.biv_id
-        db.session.add(founder)
+def upgrade_judge_comment_table():
+    pcm.JudgeComment.__table__.create(bind=db.get_engine(ppc.app()))
 
 
 def _add_column(model, column, default_value=None):
