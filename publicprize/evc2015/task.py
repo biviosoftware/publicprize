@@ -83,7 +83,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151020',
+            version='20151021',
         )
 
     @common.decorator_login_required
