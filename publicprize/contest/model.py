@@ -168,6 +168,12 @@ class JudgeRank(db.Model, common.ModelWithDates):
     judge_rank = db.Column(db.Numeric(2))
 
 
+class JudgeComment(db.Model, common.ModelWithDates):
+    judge_biv_id = db.Column(db.Numeric(18), primary_key=True)
+    nominee_biv_id = db.Column(db.Numeric(18), primary_key=True)
+    judge_comment = db.Column(db.String)
+
+
 class NomineeBase(common.ModelWithDates):
     """nominee base class.
     """
