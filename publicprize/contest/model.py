@@ -68,6 +68,7 @@ class ContestBase(common.ModelWithDates):
         access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
         if Judge.query.select_from(pam.BivAccess, access_alias).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == Judge.biv_id,
             pam.BivAccess.target_biv_id == access_alias.target_biv_id,
             access_alias.source_biv_id == flask.session['user.biv_id']
         ).first():
