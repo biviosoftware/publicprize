@@ -98,3 +98,36 @@ div.pp-jumbo-text h1 {
 .pp-nominee-text {
   white-space: pre-line;
 }
+
+.pp-rank-btn, .nav-pills > li > a.pp-rank-btn {
+  min-width: 4em;
+  min-height:: 4em;
+  line-height: 4em;
+  padding: 0;
+  margin: 5px;
+  border-radius: 2em;
+}
+.pp-nominee-name {
+  font-weight: 300;
+  font-size: 21px;
+  vertical-align: middle;
+}
+.pp-rank {
+  font-size: 16px;
+  line-height: 16px;
+}
+.pp-rank-btn:focus,
+.pp-rank-btn:active:focus, .pp-rank-btn.active:focus,
+.pp-rank-btn.focus,
+.pp-rank-btn.focus:active, .pp-rank-btn.active.focus {
+  outline: none;
+}
+
+.pp-has-comment {
+  color: #fcb03c;
+}
+.pp-comment-icon {
+  margin-top: 1em;
+  vertical-align: top;
+  display: inline-block;
+}
