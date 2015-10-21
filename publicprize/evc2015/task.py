@@ -83,12 +83,66 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151019-7',
+            version='20151020',
         )
+
+    @common.decorator_login_required
+    @common.decorator_user_is_judge
+    def action_judge_ranking(biv_obj):
+        data = json.loads(flask.request.data.decode('unicode-escape'))
+        nominees = E15Contest._public_nominees(biv_obj)
+        ranks, comments = E15Contest._judge_ranks_and_comments_for_nominees(flask.session.get('user.biv_id'), nominees)
+
+        for biv_id in ranks:
+            ppc.db.session.delete(ranks[biv_id])
+
+        for biv_id in comments:
+            ppc.db.session.delete(comments[biv_id])
+
+        for nominee in data['nominees']:
+            if 'rank' in nominee and nominee['rank']:
+                ppc.db.session.add(
+                    pcm.JudgeRank(
+                        judge_biv_id=flask.session['user.biv_id'],
+                        nominee_biv_id=biv.URI(nominee['biv_id']).biv_id,
+                        judge_rank=nominee['rank'])
+                )
+            if 'comment' in nominee and nominee['comment']:
+                ppc.db.session.add(
+                    pcm.JudgeComment(
+                        judge_biv_id=flask.session['user.biv_id'],
+                        nominee_biv_id=biv.URI(nominee['biv_id']).biv_id,
+                        judge_comment=nominee['comment'])
+                )
+        return ''
+
+    @common.decorator_login_required
+    @common.decorator_user_is_judge
+    def action_judging(biv_obj):
+        nominees = E15Contest._public_nominees(biv_obj)
+        random.Random(flask.session.get('user.display_name')).shuffle(nominees)
+        ranks, comments = E15Contest._judge_ranks_and_comments_for_nominees(flask.session.get('user.biv_id'), nominees)
+
+        res = []
+        for nominee in nominees:
+            biv_id = str(nominee.biv_id)
+            res.append({
+                'biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
+                'display_name': nominee.display_name,
+                'rank': ranks[biv_id].judge_rank if biv_id in ranks else None,
+                'comment': comments[biv_id].judge_comment if biv_id in comments else None,
+            })
+        return flask.jsonify({
+            'judging': res,
+        })
 
     def action_logout(biv_obj):
         oauth.logout()
         return E15Contest.action_user_state(biv_obj)
+
+    def action_new_test_judge(biv_obj):
+        """Creates a new test user and judge models and log in."""
+        return pcm.Judge.new_test_judge(biv_obj)
 
     def action_nominee_form_metadata(biv_obj):
         form = pef.Nominate()
@@ -151,10 +205,12 @@ class E15Contest(ppc.Task):
         return flask.jsonify(sponsors=biv_obj.get_sponsors())
 
     def action_user_state(biv_obj):
+        logged_in = True if flask.session.get('user.is_logged_in') else False
         return flask.jsonify(user_state={
-            'is_logged_in': True if flask.session.get('user.is_logged_in') else False,
+            'is_logged_in': logged_in,
             'is_admin': pam.Admin.is_admin(),
             'is_judge': biv_obj.is_judge(),
+            'display_name': flask.session.get('user.display_name') if logged_in else '',
         })
 
     def get_template():
@@ -179,6 +235,28 @@ class E15Contest(ppc.Task):
             pam.BivAccess.source_biv_id == pam.User.biv_id,
             pam.BivAccess.target_biv_id == nominee.biv_id,
         ).first_or_404()
+
+    def _judge_ranks_and_comments_for_nominees(user_id, nominees):
+        nominee_ids = []
+        for nominee in nominees:
+            nominee_ids.append(nominee.biv_id)
+
+        ranks = {}
+        for rank in (pcm.JudgeRank.query.filter(
+                pcm.JudgeRank.nominee_biv_id.in_(nominee_ids)
+        ).filter_by(
+                judge_biv_id=user_id,
+        ).all()):
+            ranks[str(rank.nominee_biv_id)] = rank
+
+        comments = {}
+        for comment in (pcm.JudgeComment.query.filter(
+                pcm.JudgeComment.nominee_biv_id.in_(nominee_ids)
+        ).filter_by(
+                judge_biv_id=user_id,
+        ).all()):
+            comments[str(comment.nominee_biv_id)] = comment
+        return (ranks, comments)
 
     def _public_nominees(contest):
         return pem.E15Nominee.query.select_from(pam.BivAccess).filter(
