@@ -73,6 +73,8 @@ class NUContest(ppc.Task):
 
     def action_index(biv_obj):
         """Contest home, redirect to nominate or vote depending on state"""
+        if biv_obj.is_expired():
+            return NUContest.action_results(biv_obj)
         return NUContest.action_vote(biv_obj)
 
     def action_nominate(biv_obj):
@@ -87,6 +89,8 @@ class NUContest(ppc.Task):
     @common.decorator_user_is_judge
     def action_judging(biv_obj):
         """Rank the nominees (1st to 10th)"""
+        if biv_obj.is_expired():
+            return NUContest.action_results(biv_obj)
         category = NUContest._get_category()
         ranks = [None] * pcm.JudgeRank.MAX_RANKS
         ranks.insert(0, category)
@@ -110,8 +114,17 @@ class NUContest(ppc.Task):
         """Creates a new test user and judge models and log in."""
         return pcm.Judge.new_test_judge(biv_obj)
 
+    def action_results(biv_obj):
+        """Contest results"""
+        return _template.render_template(
+            biv_obj,
+            'results',
+        )
+
     def action_vote(biv_obj):
         """Vote for a nominee"""
+        if biv_obj.is_expired():
+            return NUContest.action_results(biv_obj)
         category = NUContest._get_category()
         return _template.render_template(
             biv_obj,
@@ -157,14 +170,18 @@ class Nominee(ppc.Task):
     @common.decorator_login_required
     def action_override_vote(biv_obj):
         """Change vote confirmation"""
+        vote = biv_obj.get_contest().get_vote_for_auth_user(biv_obj.category)
+        old_nominee = pnm.Nominee.query.filter_by(
+            biv_id=vote.nominee_biv_id,
+        ).one()
         return _template.render_template(
             biv_obj.get_contest(),
             'voting-override',
             sub_base_template=_template.base_template('nominee-voting'),
             nominee=biv_obj,
             category=biv_obj.category,
-            user_vote=biv_obj.get_contest().get_vote_for_auth_user(
-                biv_obj.category)
+            user_vote=vote,
+            old_nominee=old_nominee,
         )
 
     @common.decorator_login_required
@@ -188,7 +205,7 @@ class Nominee(ppc.Task):
             if flask.request.args.get('override'):
                 biv_obj.get_contest().delete_votes_for_auth_user(
                     biv_obj.category)
-            elif vote.nominee == biv_obj.biv_id:
+            elif vote.nominee_biv_id == biv_obj.biv_id:
                 return flask.redirect(biv_obj.get_contest().format_uri(
                         'vote',
                         query={ 'category': biv_obj.category },
