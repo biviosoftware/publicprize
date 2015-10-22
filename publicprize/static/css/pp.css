@@ -60,8 +60,9 @@ table.sortable div.mozilla span.sign {
   font-size: 24px;
   font-weight: 500;
 }
-.pp-nav-important {
+nav.navbar div.navbar-collapse li.dropdown a.pp-nav-important {
   background-color: #FCE00C;
+  color: #068587;
 }
 
 .pp-modal-header {
