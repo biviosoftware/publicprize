@@ -27,6 +27,10 @@ app.config(function($routeProvider) {
             controller: 'AdminReviewController as adminReview',
             templateUrl: '/static/html/admin-review-nominees.html?' + PUBLIC_PRIZE_APP_VERSION,
         })
+        .when('/admin-review-judges', {
+            controller: 'AdminJudgesController as adminJudges',
+            templateUrl: '/static/html/admin-review-judges.html?' + PUBLIC_PRIZE_APP_VERSION,
+        })
         .when('/judging', {
             controller: 'JudgingController as judging',
             templateUrl: '/static/html/judging.html?' + PUBLIC_PRIZE_APP_VERSION,
@@ -477,6 +481,14 @@ app.controller('AdminReviewController', function(serverRequest, $sce) {
     };
 });
 
+app.controller('AdminJudgesController', function(serverRequest) {
+    var self = this;
+    self.judges = []
+    serverRequest.sendRequest('/admin-review-judges', function(data) {
+        self.judges = data.judges;
+    });
+});
+
 app.directive('loginModal', function() {
     return {
         scope: {
@@ -508,7 +520,12 @@ app.directive('navLinks', function(userState) {
             '<ul class="nav navbar-nav navbar-right" data-ng-hide="userState.isInitializing()" data-ng-cloak="">',
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href>Sign up</a></li>',
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href>Log in</a></li>',
-            '<li data-ng-show="userState.isAdmin()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a><ul class="dropdown-menu" role="menu"><li><a href="#/admin-review-nominees">Review Nominees</a></li></ul></li>',
+            '<li data-ng-show="userState.isAdmin()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a>',
+              '<ul class="dropdown-menu" role="menu">',
+                '<li><a href="#/admin-review-nominees">Review Nominees</a></li>',
+                '<li><a href="#/admin-review-judges">Review Judges</a></li>',
+              '</ul>',
+            '</li>',
             '<li data-ng-show="userState.isJudge()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href="#/judging" data-toggle="dropdown">Judging</a></li>',
             '<li data-ng-show="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-ng-click="userState.logout()" href>Log out</a></li>',
             '</ul>',
