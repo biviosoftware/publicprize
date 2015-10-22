@@ -29,6 +29,30 @@ class E15Contest(ppc.Task):
 
     @common.decorator_login_required
     @common.decorator_user_is_admin
+    def action_admin_review_judges(biv_obj):
+        users = pcm.Judge.judge_users_for_contest(biv_obj)
+        nominee_ids = {}
+        for nominee in E15Contest._public_nominees(biv_obj):
+            nominee_ids[nominee.biv_id] = True
+        res = []
+
+        for user in users:
+            count = 0
+            for rank in pcm.JudgeRank.judge_ranks_for_user(user.biv_id):
+                if rank.nominee_biv_id in nominee_ids:
+                    count += 1
+            res.append({
+                'display_name': user.display_name,
+                'user_email': user.user_email,
+                'rank_count': count,
+            })
+        res = sorted(res, key=lambda user: user['display_name'])
+        return flask.jsonify({
+            'judges': res,
+        })
+
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
     def action_admin_review_nominees(biv_obj):
         nominees = pem.E15Nominee.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == biv_obj.biv_id,
@@ -83,7 +107,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151021',
+            version='20151021-1',
         )
 
     @common.decorator_login_required
