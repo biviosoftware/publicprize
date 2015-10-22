@@ -37,7 +37,7 @@ class ContestBase(common.ModelWithDates):
 
     def get_sponsors(self, randomize=False):
         """Return a list of Sponsor models for this Contest"""
-        return Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize);
+        return Sponsor.get_sponsors_for_biv_id(self.biv_id, randomize)
 
     def get_timezone(self):
         """Returns the timezone used by this contest."""
@@ -142,6 +142,16 @@ class Judge(db.Model, common.ModelWithDates):
     judge_company = db.Column(db.String(100))
     judge_title = db.Column(db.String(100))
 
+    def judge_users_for_contest(contest):
+        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
+        return pam.User.query.select_from(
+            pam.BivAccess, access_alias, Judge).filter(
+                pam.BivAccess.source_biv_id == pam.User.biv_id,
+                pam.BivAccess.target_biv_id == Judge.biv_id,
+                access_alias.source_biv_id == contest.biv_id,
+                access_alias.target_biv_id == Judge.biv_id,
+            ).all()
+
     def new_test_judge(contest):
         """Creates a new test user and judge models and log in."""
         # will raise an exception unless TEST_USER is configured
@@ -167,6 +177,11 @@ class JudgeRank(db.Model, common.ModelWithDates):
     judge_biv_id = db.Column(db.Numeric(18), primary_key=True)
     nominee_biv_id = db.Column(db.Numeric(18), primary_key=True)
     judge_rank = db.Column(db.Numeric(2))
+
+    def judge_ranks_for_user(user_biv_id):
+        return JudgeRank.query.filter_by(
+            judge_biv_id=user_biv_id,
+        ).all()
 
 
 class JudgeComment(db.Model, common.ModelWithDates):
