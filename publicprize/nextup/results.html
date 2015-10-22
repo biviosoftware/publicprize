@@ -1,0 +1,102 @@
+{% extends base_template %}
+{%- import "layout/macros.html" as macros %}
+
+{%- block subtitle %}Who's Next Up?{%- endblock %}
+
+{%- block contest_content_class %}pp-nominees{%- endblock %}
+
+{%- macro vote_button_class(nominee) %}
+  {%- if user_vote and user_vote.nominee == nominee.biv_id -%}
+    btn-primary disabled
+  {%- else -%}
+    btn-default
+  {%- endif %}
+{%- endmacro %}
+
+{%- block jumbo_header %}
+  <div class="pp-jumbo-bg"></div>
+  <div class="container">
+    <div class="row">
+      <div class="pp-nextup-logo">
+        <img src="/static/img/nextup-logo.jpg" alt="Next Up">
+      </div>
+      <div class="pp-jumbo-text">
+        <h1>Who Will Be The Next Tech Startup Success Story?</h1>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{%- block contest_content %}
+  <div class="col-sm-1 hidden-xs">
+    <img style="width:100%" src="/static/img/nextuparrow-87x80.png"
+    alt="Arrow">
+  </div>
+  <div class="col-sm-7">
+      <div class="lead">
+      Next Up is an awards platform recognizing emerging technology
+      companies most likely to be the next great success story of the
+      Denver/Boulder technology scene.
+      </div>
+      <div class="pp-media-body">
+        <p>The People’s Choice Winners from the Pint Category are:</p>
+        <ol>
+          <li><a href="http://www.indexed.io">Indexed I/O</a></li>
+          <li><a href="https://www.3phealth.com">3PHealth</a></li>
+          <li><a href="http://www.playerlync.com">PlayerLync</a></li>
+        </ol>
+        <p>The People’s Choice Winners from the Pitchers Category are:</p>
+        <ol>
+          <li><a href="http://www.wowza.com/">Wowza Media Systems</a></li>
+          <li><a href="http://www.trackvia.com/">TrackVia</a></li>
+          <li><a href="http://www.datuhealth.com/">Dātu Health</a></li>
+        </ol>
+        <p>The Judges’ Choice Winners from the Pints Category are:</p>
+        <ol>
+          <li><a href="https://www.teamsnap.com/">TeamSnap</a></li>
+          <li><a href="https://www.collectiveip.com/">Collective IP</a></li>
+          <li><a href="http://p2bi.com/">P2Binvestor</a></li>
+        </ol>
+        <p>The Judges’ Choice Winners from the Pitchers Category are:</p>
+        <ol>
+          <li><a href="https://www.logrhythm.com/">LogRhythm</a></li>
+          <li><a href="http://www.wowza.com/">Wowza Media Systems</a></li>
+          <li><a href="http://www.solidfire.com/">SolidFire</a></li>
+        </ol>
+        <p>Special thanks to our judges:</p>
+        <ul style="list-style-type: none; margin-left: 0; padding-left: 1em">
+          <li><a href="http://www.cooley.com/schwabca">Charles Schwab</a>, Special Counsel, <a href="http://www.cooley.com">Cooley LLP</a></li>
+          <li><a href="http://www.biodesix.com/about-us/leadership-team/#david">David Brunel</a>, CEO, <a href="http://www.biodesix.com">Biodesix</a> and Chairman at <a href="http://www.xyleme.com/">Xyleme<a/> and <a href="http://www.anark.com/">Anark</a></li>
+          <li><a href="http://www.accessvp.com/team/david-gold/">David Gold</a>, Managing Director, <a href="http://www.accessvp.com">Access Venture Partners</a></li>
+          <li><a href="https://www.linkedin.com/in/emilyroden">Emily Roden</a>, Vice Consul Technology, <a href="https://www.gov.uk/government/organisations/uk-trade-investment">UK Trade &amp; Investment</a></li>
+          <li><a href="https://www.linkedin.com/in/jimfranklin08">Jim Franklin</a>, Investor and Advisor to numerous startups</li>
+          <li><a href="http://www.johnives.com/about/">John Ives</a>, Managing Director, <a href="http://www.johnives.com">Tahoma Ventures</a></li>
+          <li><a href="http://sagelawgroup.com/people/katy-reamon">Katy Reamon</a>, Partner, <a href="http://sagelawgroup.com/people/katy-reamon">Sage Law Group, LLC</a></li>
+          <li><a href="http://www.developintelligence.com/instructors/kelby-zorgdrager">Kelby Zorgdrager</a>, CEO/Founder, <a href="http://www.developintelligence.com">DevelopIntelligence LLC</a></li>
+          <li><a href="https://www.linkedin.com/pub/paul-weiman/17/7a6/446">Paul Weiman</a>, Principal, <a href="http://www.claconnect.com/">CliftonLarsonAllen</a></li>
+          <li><a href="https://www.linkedin.com/in/peteradams">Peter Adams</a>, Managing Director, <a href="http://www.rockiesventureclub.org">Rockies Venture Club</a></li>
+        </ul>
+      </div>
+    <div class="pp-bottom-border hidden-xs"></div>
+  </div>
+ {{- macros.signin_modal('pp_vote_modal', 'Sign in to vote') }}
+
+{%- endblock %}
+
+{%- block scripts %}
+  {{- super() }}
+  {%- if not session.get('user.is_logged_in') %}
+    <script>
+$(function() {
+  $('.pp-vote-button').click(function() {
+    var next = $(this).attr('href');
+    $('#pp_vote_modal .pp-login-link').each(function(index, value) {
+      value.href = value.href.replace(/\?.*/, '') + '?next=' + next;
+    });
+    $('#pp_vote_modal').modal('show');
+    return false;
+  });
+});
+    </script>
+  {%- endif %}
+{%- endblock %}
