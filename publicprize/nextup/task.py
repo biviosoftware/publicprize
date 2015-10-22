@@ -25,14 +25,7 @@ class NUContest(ppc.Task):
     @common.decorator_user_is_admin
     def action_admin_review_judges(biv_obj):
         """Admin review judges"""
-        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
-        judges = pam.User.query.select_from(
-            pam.BivAccess, access_alias, pcm.Judge).filter(
-                pam.BivAccess.source_biv_id == pam.User.biv_id,
-                pam.BivAccess.target_biv_id == pcm.Judge.biv_id,
-                access_alias.source_biv_id == biv_obj.biv_id,
-                access_alias.target_biv_id == pcm.Judge.biv_id,
-            ).all()
+        judges = pcm.Judge.judge_users_for_contest(biv_obj)
         rank_count = {}
         for judge in judges:
             rank_count[judge.biv_id] = {}
