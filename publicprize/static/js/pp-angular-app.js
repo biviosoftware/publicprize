@@ -42,9 +42,14 @@ app.config(function($routeProvider) {
 
 app.factory('serverRequest', function($http, $location) {
     var self = this;
-    self.sendRequest = function(url, callback, postData) {
+
+    self.formatFullPath = function(path) {
         var biv = $location.absUrl().match(/\/\/.*?\/(.*?)(#|$)/)[1];
-        return $http.post('/' + biv + url, postData).success(function(data) {
+        return '/' + biv + path;
+    };
+
+    self.sendRequest = function(url, callback, postData) {
+        return $http.post(self.formatFullPath(url), postData).success(function(data) {
             callback(data);
         }).error(function(data, status) {
             console.log(url, ' failed: ', status);
@@ -71,7 +76,7 @@ app.factory('contestState', function(serverRequest) {
     return self;
 });
 
-app.factory('userState', function(serverRequest, $rootScope) {
+app.factory('userState', function(serverRequest, $rootScope, $location) {
     var self = this;
     self.state = {
         initializing: true,
@@ -85,12 +90,19 @@ app.factory('userState', function(serverRequest, $rootScope) {
             isAdmin: data.user_state.is_admin,
             isJudge: data.user_state.is_judge,
             displayName: data.user_state.display_name,
+            vote: data.user_state.user_vote,
             randomValue: self.state.randomValue,
         };
     }
 
     self.displayName = function() {
         return self.isLoggedIn() ? self.state.displayName : '';
+    };
+    self.getVote = function() {
+        return self.state.vote;
+    };
+    self.hasVoted = function() {
+        return self.isLoggedIn() && self.state.vote;
     };
     self.isInitializing = function() {
         return self.state.initializing;
@@ -107,6 +119,7 @@ app.factory('userState', function(serverRequest, $rootScope) {
     self.logout = function() {
         serverRequest.sendRequest('/logout', function(data) {
             updateUserState(data);
+            $location.path('/');
             $rootScope.$broadcast('pp.alert', 'You have successfully logged out.');
         });
     };
@@ -117,11 +130,13 @@ app.factory('userState', function(serverRequest, $rootScope) {
     return self;
 });
 
-app.controller('NomineeController', function(serverRequest, userState, $route, $sce) {
+app.controller('NomineeController', function(serverRequest, userState, $route, $sce, $rootScope, $window) {
     var self = this;
     var nominee_biv_id = $route.current.params.nominee_biv_id;
     var autoplay = $route.current.params.autoplay ? true : false;
+    var voting = $route.current.params.vote ? true: false;
     self.info = {};
+    self.twitterHandle = '';
     loadNominee();
 
     function loadNominee() {
@@ -129,11 +144,30 @@ app.controller('NomineeController', function(serverRequest, userState, $route, $
             '/nominee-info',
             function(data) {
                 self.info = data.nominee;
+                if (voting && userState.isLoggedIn() && ! userState.hasVoted())
+                    $('#voteModal').modal('show');
             },
             {
                 nominee_biv_id: nominee_biv_id,
             });
     }
+
+    function nomineeUrl() {
+        return '/' + self.info.biv_id  + '/contestant';
+    }
+
+    self.fullNomineeUrl = function() {
+        return serverRequest.formatFullPath('#' + nomineeUrl());
+    };
+
+    self.castVote = function() {
+        if (! userState.isLoggedIn()) {
+            self.voteUrl = self.fullNomineeUrl() + '?vote=1';
+            $('#loginAndVoteModal').modal('show');
+            return;
+        }
+        $('#voteModal').modal('show');
+    };
 
     self.formatURL = function() {
         var url = self.info.url;
@@ -141,9 +175,61 @@ app.controller('NomineeController', function(serverRequest, userState, $route, $
             url = 'http://' + url;
         return url;
     };
+
+    self.hasVoted = function() {
+        return userState.hasVoted();
+    };
+
     self.isJudge = function() {
         return userState.isJudge();
     };
+
+    self.saveVote = function() {
+        serverRequest.sendRequest(
+            '/nominee-vote',
+            function() {
+                userState.updateState();
+                $('#voteModal').modal('hide');
+                $('#tweetModal').modal('show');
+                $('#pp-tweet-link').click(function() {
+                    open(this.href, '_blank', 'toolbar=0,status=0,width=480,height=360');
+                    return false;
+                });
+            },
+            {
+                nominee_biv_id: nominee_biv_id,
+            })
+            .error(function() {
+                $('#voteModal').modal('hide');
+                $rootScope.$broadcast(
+                    'pp.alert',
+                    'There was a problem recording your vote. Please contact support@publicprize.com',
+                    'danger');
+            });
+    };
+
+    self.tweetText = function() {
+        return 'I just voted for ' + self.info.display_name + ' in the #EspritVentureChallenge sponsored by @BoulderChamber';
+    };
+
+    self.tweetVote = function() {
+        serverRequest.sendRequest(
+            '/nominee-tweet',
+            function() {
+                userState.updateState();
+                $('#tweetModal').modal('hide');
+            },
+            {
+                twitter_handle: self.twitterHandle,
+                nominee_biv_id: nominee_biv_id,
+            })
+
+    };
+
+    self.userSelection = function() {
+        return nominee_biv_id == userState.getVote();
+    };
+
     self.videoURL = function() {
         if (! self.info.url)
             return;
@@ -165,11 +251,35 @@ app.controller('NomineeListController', function(serverRequest, userState, $loca
             random_value: userState.state.randomValue,
         });
 
+    function nomineeUrl(nominee) {
+        return '/' + nominee.biv_id  + '/contestant';
+    }
+
+    self.castVote = function(nominee) {
+        if (! userState.isLoggedIn()) {
+            self.voteUrl = serverRequest.formatFullPath('#' + nomineeUrl(nominee))
+                + '?vote=1';
+            $('#loginAndVoteModal').modal('show');
+            return;
+        }
+        $location.path(nomineeUrl(nominee));
+        $location.search('vote', 1);
+    };
+
+    self.hasVoted = function() {
+        return userState.hasVoted();
+    };
+
     self.selectNominee = function(nominee, autoplay) {
-        $location.path('/' + nominee.biv_id  + '/contestant');
+        $location.path(nomineeUrl(nominee));
         if (autoplay)
             $location.search('autoplay', 1);
     };
+
+    self.userSelection = function(nominee) {
+        return nominee.biv_id == userState.getVote();
+    };
+
 });
 
 app.controller('HomeController', function(serverRequest, userState, contestState, $location) {
@@ -494,17 +604,18 @@ app.directive('loginModal', function() {
         scope: {
             loginModal: '@',
             loginText: '@',
+            nextUrl: '=',
         },
         template: [
             '<div class="modal fade" id="{{ loginModal }}" tabindex="-1" role="dialog">',
               '<div class="modal-dialog">',
                 '<div class="modal-content">',
-                  '<div class="modal-header">',
+                  '<div class="modal-header pp-modal-header bg-success">',
                     '<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>',
                     '<h4 class="modal-title">{{ loginText }}</h4>',
                   '</div>',
                   '<div class="pp-login-body modal-body pp-social-icon">',
-                    '<a rel="nofollow" href="/pub/linkedin-login" class="btn btn-lg pp-login-link"><img src="/static/img/linkedin39.png" alt="LinkedIn"> using LinkedIn</a>',
+                    '<a rel="nofollow" href="/pub/linkedin-login{{ nextUrl ? (\'?next=\' + nextUrl) : \'\' }}" class="btn btn-lg pp-login-link"><img src="/static/img/linkedin39.png" alt="LinkedIn"> using LinkedIn</a>',
                   '<br />',
                 '</div>',
               '</div>',
@@ -540,14 +651,15 @@ app.directive('alertBox', function($rootScope) {
     return {
         scope: {},
         controller: function($scope) {
-            $rootScope.$on('pp.alert', function(alert, message) {
+            $rootScope.$on('pp.alert', function(alert, message, level) {
                 $scope.message = message;
+                $scope.level = level || 'success';
             });
         },
         template: [
             '<div class="container">',
               '<div class="row">',
-                '<div class="alert alert-success alert-dismissible" data-ng-show="message" data-ng-class="{slideDown: message}">',
+                '<div class="alert alert-{{ level }} alert-dismissible" data-ng-show="message" data-ng-class="{slideDown: message}">',
                   '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>',
 	          '<strong>{{ message }}</strong>',
 	        '</div>',
@@ -595,8 +707,22 @@ app.directive('formFieldWithHelp', function() {
 
 app.directive('sponsorList', function() {
     return {
-        scope: {},
+        scope: {
+            includeCarousel: '=',
+        },
         template: [
+//TODO(pjm): get leader list and link to contestant page
+            // '<div class="col-sm-4" data-ng-show="showCarousel()">',
+            //   '<h3>Contest Leaders</h3>',
+            //   '<div id="pp-carousel" class="carousel slide">',
+            //     '<div class="carousel-inner" role="listbox">',
+            //       '<div data-ng-repeat="leader in leaders" class="item" data-ng-class="{\'active\': $index == 0}">',
+            //         '<img data-ng-src="https://img.youtube.com/vi/{{ leader.youtube_code }}/mqdefault.jpg" alt="{{ leader.display_name }}">',
+            //         '<div class="carousel-caption">{{ leader.display_name }}</div>',
+            //       '</div>',
+            //     '</div>',
+            //   '</div>',
+            // '</div>',
             '<div class="col-sm-3 col-sm-offset-1 col-xs-12 pp-sidebar">',
             '<h1>Sponsors</h1>',
             '<div class="row">',
@@ -614,10 +740,30 @@ app.directive('sponsorList', function() {
         ].join(''),
         controller: function($scope, serverRequest) {
             $scope.sponsors = [];
+            // $scope.leaders = [
+            //     {
+            //         display_name: 'Test item 1',
+            //         youtube_code: '8nHBGFKLHZQ',
+            //     },
+            //     {
+            //         display_name: 'Another Item',
+            //         youtube_code: 'NbuUW9i-mHs',
+            //     },
+            //     {
+            //         display_name: 'Last Item',
+            //         youtube_code: 'MVbeoSPqRs4',
+            //     },
+            // ];
+            // $scope.showCarousel = function() {
+            //     return $scope.leaders.length && $scope.includeCarousel;
+            // }
             serverRequest.sendRequest('/sponsors', function(data) {
                 $scope.sponsors = data.sponsors;
             });
         },
+        link: function(scope, element) {
+            $(element).find('#pp-carousel').carousel({});
+        }
     };
 });
 
@@ -648,4 +794,8 @@ app.animation('.slideDown', function() {
             }
         },
     }
+});
+
+app.filter('urlEncode', function() {
+    return window.encodeURIComponent;
 });
