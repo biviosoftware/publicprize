@@ -14,6 +14,14 @@ body {
   border: 0;
 }
 
+div.carousel-caption {
+  left: 5px;
+  right: inherit;
+  bottom: 0;
+  padding-bottom: 0;
+  max-width: 310px;
+}
+
 /* fix for chrome layout bug */
 div.input-group {
   width: 100%;
@@ -104,7 +112,7 @@ div.pp-jumbo-text h1 {
 }
 .pp-rank-btn, .nav-pills > li > a.pp-rank-btn {
   min-width: 4em;
-  min-height:: 4em;
+  min-height: 4em;
   line-height: 4em;
   padding: 0;
   margin: 5px;
@@ -136,4 +144,8 @@ div.pp-jumbo-text h1 {
   margin-top: -0.5ex;
   vertical-align: top;
   display: inline-block;
+}
+
+.pp-selected-nominee {
+  background-color: #fcf8e3;
 }
