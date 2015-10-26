@@ -227,7 +227,7 @@ class E15Contest(ppc.Task):
             'user_id': flask.session.get('user.biv_id'),
             'nominee': nominee.biv_id,
             'user-agent': flask.request.headers.get('User-Agent'),
-            'route': flask.request.access_route,
+            'route': flask.request.access_route[0][:100],
         }))
         return '{}'
 
