@@ -248,6 +248,7 @@ class Vote(db.Model, common.ModelWithDates):
         nullable=False
     )
     nominee_biv_id = db.Column(db.Numeric(18), nullable=False)
+    twitter_handle = db.Column(db.String(100))
 
 
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
