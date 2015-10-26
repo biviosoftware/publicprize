@@ -107,7 +107,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151021-1',
+            version='20151026',
         )
 
     @common.decorator_login_required
@@ -188,23 +188,48 @@ class E15Contest(ppc.Task):
 
     def action_nominee_info(biv_obj):
         data = json.loads(flask.request.data.decode('unicode-escape'))
-        nominee_biv_id = biv.URI(data['nominee_biv_id']).biv_id
-        # ensure the Nominee is related to this contest
-        pam.BivAccess.query.filter_by(
-            source_biv_id=biv_obj.biv_id,
-            target_biv_id=nominee_biv_id,
-        ).first_or_404()
-        nominee = pem.E15Nominee.query.filter_by(
-            biv_id=nominee_biv_id,
-        ).first_or_404()
+        nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
         return flask.jsonify(nominee={
-            'biv_id': nominee.biv_id,
+            'biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
             'display_name': nominee.display_name,
             'url': nominee.url,
             'youtube_code': nominee.youtube_code,
             'nominee_desc': nominee.nominee_desc,
             'founders': E15Contest._founder_info_for_nominee(nominee),
         })
+
+    @common.decorator_login_required
+    def action_nominee_tweet(biv_obj):
+        data = json.loads(flask.request.data.decode('unicode-escape'))
+        nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
+        twitter_handle = data['twitter_handle']
+        vote = E15Contest._user_vote(biv_obj)
+        if not vote:
+            ppc.app().logger.warn('tweet with no vote: {}'.format(data))
+            return '{}'
+        if vote.twitter_handle and (twitter_handle != vote.twitter_handle):
+            ppc.app().logger.warn('replacing twitter handle from {} to {}'.format(
+                vote.twitter_handle, data))
+        vote.twitter_handle = twitter_handle
+        return '{}'
+
+    @common.decorator_login_required
+    def action_nominee_vote(biv_obj):
+        data = json.loads(flask.request.data.decode('unicode-escape'))
+        nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
+        if E15Contest._user_vote(biv_obj):
+            return '{}'
+        vote = pcm.Vote(
+            user=flask.session.get('user.biv_id'),
+            nominee_biv_id=nominee.biv_id)
+        ppc.db.session.add(vote)
+        ppc.app().logger.warn('user vote: {}'.format({
+            'user_id': flask.session.get('user.biv_id'),
+            'nominee': nominee.biv_id,
+            'user-agent': flask.request.headers.get('User-Agent'),
+            'route': flask.request.access_route,
+        }))
+        return '{}'
 
     def action_public_nominee_list(biv_obj):
         data = json.loads(flask.request.data.decode('unicode-escape'))
@@ -230,7 +255,9 @@ class E15Contest(ppc.Task):
 
     def action_user_state(biv_obj):
         logged_in = True if flask.session.get('user.is_logged_in') else False
+        vote = E15Contest._user_vote(biv_obj)
         return flask.jsonify(user_state={
+            'user_vote': biv.Id(vote.nominee_biv_id).to_biv_uri() if vote else None,
             'is_logged_in': logged_in,
             'is_admin': pam.Admin.is_admin(),
             'is_judge': biv_obj.is_judge(),
@@ -253,6 +280,17 @@ class E15Contest(ppc.Task):
                 'founder_desc': founder.founder_desc,
             })
         return res
+
+    def _lookup_nominee_by_biv_uri(contest, data):
+        nominee_biv_id = biv.URI(data['nominee_biv_id']).biv_id
+        # ensure the Nominee is related to this contest
+        pam.BivAccess.query.filter_by(
+            source_biv_id=contest.biv_id,
+            target_biv_id=nominee_biv_id,
+        ).first_or_404()
+        return pem.E15Nominee.query.filter_by(
+            biv_id=nominee_biv_id,
+        ).first_or_404()
 
     def _nominee_submitter(nominee):
         return  pam.User.query.select_from(pam.BivAccess).filter(
@@ -288,3 +326,21 @@ class E15Contest(ppc.Task):
             pam.BivAccess.target_biv_id == pem.E15Nominee.biv_id,
             pem.E15Nominee.is_public == True,
         ).all()
+
+    def _user_vote(contest):
+        """ Returns the user's vote or None """
+        if not flask.session.get('user.is_logged_in'):
+            return False
+        nominee_ids = {}
+        for nominee in E15Contest._public_nominees(contest):
+            nominee_ids[nominee.biv_id] = True
+        user_vote = None
+
+        for vote in pcm.Vote.query.filter_by(
+                user=flask.session.get('user.biv_id'),
+        ).all():
+            if vote.nominee_biv_id in nominee_ids:
+                if user_vote:
+                    raise Exception('user has multiple votes: {}'.format(flask.session.get('user.biv_id')))
+                user_vote = vote
+        return user_vote
