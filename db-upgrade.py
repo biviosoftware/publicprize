@@ -19,12 +19,9 @@ _MANAGER = fes.Manager(ppc.app())
 
 
 @_MANAGER.command
-def upgrade_vote_table():
-    _add_column(pcm.Vote, pcm.Vote.twitter_handle)
-
-@_MANAGER.command
-def upgrade_judge_comment_table():
-    pcm.JudgeComment.__table__.create(bind=db.get_engine(ppc.app()))
+def upgrade_vote_status():
+    _add_enum_type('vote_status', ['invalid', '1x', '2x'])
+    _add_column(pcm.Vote, pcm.Vote.vote_status, "'1x'")
 
 
 def _add_column(model, column, default_value=None):
