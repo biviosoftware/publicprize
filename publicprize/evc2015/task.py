@@ -27,6 +27,14 @@ _template = common.Template('evc2015')
 class E15Contest(ppc.Task):
     """Contest actions"""
 
+    _SCORE_FOR_RANK = {
+        '1': 10,
+        '2': 5,
+        '3': 2.5,
+        '4': 1.25,
+        '5': 0.625,
+    }
+
     @common.decorator_login_required
     @common.decorator_user_is_admin
     def action_admin_review_judges(biv_obj):
@@ -46,9 +54,8 @@ class E15Contest(ppc.Task):
                 'user_email': user.user_email,
                 'rank_count': count,
             })
-        res = sorted(res, key=lambda user: user['display_name'])
         return flask.jsonify({
-            'judges': res,
+            'judges': sorted(res, key=lambda user: user['display_name'])
         })
 
     @common.decorator_login_required
@@ -73,8 +80,62 @@ class E15Contest(ppc.Task):
                 'submitter_display_name': submitter.display_name,
                 'submitter_email': submitter.user_email,
             })
+
         return flask.jsonify({
             'nominees': res,
+        })
+
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
+    def action_admin_review_scores(biv_obj):
+        res = []
+        total_votes = 0
+        total_rank_scores = 0
+        for nominee in E15Contest._public_nominees(biv_obj):
+            ranks = nominee.get_judge_ranks()
+            votes = nominee.get_votes()
+            vote_score = E15Contest._tally_votes(votes)
+            total_votes += vote_score
+            rank_score = E15Contest._tally_judge_ranks(ranks)
+            total_rank_scores += rank_score
+            res.append({
+                'biv_id': nominee.biv_id,
+                'display_name': nominee.display_name,
+                'judge_ranks': '( {} )'.format(', '.join(map(str, ranks))),
+                'votes': vote_score,
+                'judge_score': rank_score,
+            })
+        for row in res:
+            row['score'] = 40 * row['votes'] / total_votes + 60 * row['judge_score'] / total_rank_scores
+        return flask.jsonify({
+            'scores': sorted(res, key=lambda nominee: nominee['display_name'])
+        })
+
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
+    def action_admin_review_votes(biv_obj):
+        res = []
+        nominee_id_to_name = {}
+        for nominee in E15Contest._public_nominees(biv_obj):
+            nominee_id_to_name[nominee.biv_id] = nominee.display_name
+
+        for vote in pcm.Vote.query.select_from(pam.User).filter(
+                pcm.Vote.nominee_biv_id.in_(nominee_id_to_name.keys()),
+        ).all():
+            user = pam.User.query.filter_by(
+                biv_id=vote.user
+            ).one()
+            res.append({
+                'creation_date_time': vote.creation_date_time,
+                'user_display_name': '{} ({})'.format(user.display_name, user.user_email),
+                'twitter_handle': vote.twitter_handle,
+                'nominee_display_name': nominee_id_to_name[vote.nominee_biv_id],
+                'vote_status': vote.vote_status,
+            })
+        res = sorted(res, key=lambda vote: vote['creation_date_time'])
+        res.reverse()
+        return flask.jsonify({
+            'votes':  res
         })
 
     @common.decorator_login_required
@@ -326,6 +387,21 @@ class E15Contest(ppc.Task):
             pam.BivAccess.target_biv_id == pem.E15Nominee.biv_id,
             pem.E15Nominee.is_public == True,
         ).all()
+
+    def _tally_judge_ranks(ranks):
+        score = 0
+        for rank in ranks:
+            score += E15Contest._SCORE_FOR_RANK[str(rank)]
+        return score
+
+    def _tally_votes(votes):
+        count = 0
+        for vote in votes:
+            if vote.vote_status == '1x':
+                count += 1
+            elif vote.vote_status == '2x':
+                count += 2
+        return count
 
     def _user_vote(contest):
         """ Returns the user's vote or None """
