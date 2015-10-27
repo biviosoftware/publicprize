@@ -1,0 +1,29 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="pp-form">
+        <h1>Votes</h1>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Name</th>
+              <th>Twitter Handle</th>
+              <th>Nominee</th>
+              <th>Vote Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-ng-repeat="vote in adminVotes.votes">
+              <td>{{ vote.creation_date_time }}</td>
+              <td>{{ vote.user_display_name }}</td>
+              <td>{{ vote.twitter_handle }}</td>
+              <td>{{ vote.nominee_display_name }}</td>
+              <td>{{ vote.vote_status }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
