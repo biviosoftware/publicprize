@@ -197,11 +197,25 @@ class NomineeBase(common.ModelWithDates):
     url = db.Column(db.String(100), nullable=False)
     is_public = db.Column(db.Boolean, nullable=False)
 
+    def get_judge_ranks(self):
+        ranks = JudgeRank.query.filter_by(
+            nominee_biv_id=self.biv_id
+        ).all()
+        res = []
+        for rank in ranks:
+            res.append(rank.judge_rank)
+        return res
+
     def get_vote_count(self):
         """Returns the vote count for this Nominee"""
         return Vote.query.filter(
             Vote.nominee_biv_id == self.biv_id
         ).count()
+
+    def get_votes(self):
+        return Vote.query.filter(
+            Vote.nominee_biv_id == self.biv_id
+        ).all()
 
 
 class Sponsor(db.Model, common.ModelWithDates):
@@ -249,6 +263,7 @@ class Vote(db.Model, common.ModelWithDates):
     )
     nominee_biv_id = db.Column(db.Numeric(18), nullable=False)
     twitter_handle = db.Column(db.String(100))
+    vote_status = db.Column(db.Enum('invalid', '1x', '2x', name='vote_status'), nullable=False)
 
 
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
