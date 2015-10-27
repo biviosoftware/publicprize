@@ -31,6 +31,14 @@ app.config(function($routeProvider) {
             controller: 'AdminJudgesController as adminJudges',
             templateUrl: '/static/html/admin-review-judges.html?' + PUBLIC_PRIZE_APP_VERSION,
         })
+        .when('/admin-review-scores', {
+            controller: 'AdminScoresController as adminScores',
+            templateUrl: '/static/html/admin-review-scores.html?' + PUBLIC_PRIZE_APP_VERSION,
+        })
+        .when('/admin-review-votes', {
+            controller: 'AdminVotesController as adminVotes',
+            templateUrl: '/static/html/admin-review-votes.html?' + PUBLIC_PRIZE_APP_VERSION,
+        })
         .when('/judging', {
             controller: 'JudgingController as judging',
             templateUrl: '/static/html/judging.html?' + PUBLIC_PRIZE_APP_VERSION,
@@ -599,6 +607,34 @@ app.controller('AdminJudgesController', function(serverRequest) {
     });
 });
 
+app.controller('AdminScoresController', function(serverRequest) {
+    var self = this;
+    self.scores = [];
+    self.totalVotes = 0;
+    self.totalJudgeRanks = 0;
+    serverRequest.sendRequest('/admin-review-scores', function(data) {
+        self.scores = data.scores;
+        self.totalVotes = 0;
+        self.totalJudgeRanks = 0;
+
+        for (var i = 0; i < self.scores.length; i++) {
+            self.totalVotes += self.scores[i].votes;
+            self.totalJudgeRanks += self.scores[i].judge_score;
+        }
+        self.scores.sort(function(a, b) {
+            return b.score - a.score;
+        });
+    });
+});
+
+app.controller('AdminVotesController', function(serverRequest) {
+    var self = this;
+    self.votes = [];
+    serverRequest.sendRequest('/admin-review-votes', function(data) {
+        self.votes = data.votes;
+    });
+});
+
 app.directive('loginModal', function() {
     return {
         scope: {
@@ -635,6 +671,8 @@ app.directive('navLinks', function(userState) {
               '<ul class="dropdown-menu" role="menu">',
                 '<li><a href="#/admin-review-nominees">Review Nominees</a></li>',
                 '<li><a href="#/admin-review-judges">Review Judges</a></li>',
+                '<li><a href="#/admin-review-scores">Review Scores</a></li>',
+                '<li><a href="#/admin-review-votes">Review Votes</a></li>',
               '</ul>',
             '</li>',
             '<li data-ng-show="userState.isJudge()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href="#/judging" data-toggle="dropdown">Judging</a></li>',
