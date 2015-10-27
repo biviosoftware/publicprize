@@ -39,7 +39,7 @@ class NUContest(db.Model, pcm.ContestBase):
         rows = []
 
         for nominee in self.get_public_nominees(category=category):
-            ranks = self.get_judge_ranks(nominee)
+            ranks = nominee.get_judge_ranks()
             rows.append({
                 'display_name': nominee.display_name,
                 'vote_count': nominee.get_vote_count(),
@@ -54,17 +54,6 @@ class NUContest(db.Model, pcm.ContestBase):
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == Nominee.biv_id
         ).all()
-
-    def get_judge_ranks(self, nominee):
-        ranks = pcm.JudgeRank.query.select_from(pam.BivAccess, Nominee).filter(
-            pam.BivAccess.source_biv_id == self.biv_id,
-            pam.BivAccess.target_biv_id == nominee.biv_id,
-            pcm.JudgeRank.nominee_biv_id == nominee.biv_id
-        ).all()
-        res = []
-        for rank in ranks:
-            res.append(rank.judge_rank)
-        return res
 
     def get_public_nominees(self, randomize=False, category=None):
         """Returns a list of all public websites that haven been nominated
