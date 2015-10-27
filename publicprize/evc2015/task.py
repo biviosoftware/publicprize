@@ -282,7 +282,9 @@ class E15Contest(ppc.Task):
             return '{}'
         vote = pcm.Vote(
             user=flask.session.get('user.biv_id'),
-            nominee_biv_id=nominee.biv_id)
+            nominee_biv_id=nominee.biv_id,
+            vote_status='1x',
+        )
         ppc.db.session.add(vote)
         ppc.app().logger.warn('user vote: {}'.format({
             'user_id': flask.session.get('user.biv_id'),
