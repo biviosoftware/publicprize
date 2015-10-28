@@ -295,9 +295,12 @@ class E15Contest(ppc.Task):
         return '{}'
 
     def action_public_nominee_list(biv_obj):
-        data = json.loads(flask.request.data.decode('unicode-escape'))
         nominees = E15Contest._public_nominees(biv_obj)
-        random.Random(data['random_value']).shuffle(nominees)
+        if flask.request.data:
+            data = json.loads(flask.request.data.decode('unicode-escape'))
+            random.Random(data['random_value']).shuffle(nominees)
+        else:
+            random.shuffle(nominees)
         res = []
         for nominee in nominees:
             res.append({
