@@ -126,6 +126,7 @@ class E15Contest(ppc.Task):
                 biv_id=vote.user
             ).one()
             res.append({
+                'biv_id': vote.biv_id,
                 'creation_date_time': vote.creation_date_time,
                 'user_display_name': '{} ({})'.format(user.display_name, user.user_email),
                 'twitter_handle': vote.twitter_handle,
@@ -149,6 +150,17 @@ class E15Contest(ppc.Task):
         ).first_or_404()
         nominee.is_public = is_public
         ppc.db.session.add(nominee)
+        return '{}'
+
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
+    def action_admin_set_vote_status(biv_obj):
+        data = flask.request.get_json()
+        vote = pcm.Vote.query.filter_by(
+            biv_id=data['biv_id'],
+        ).one()
+        vote.vote_status = data['vote_status']
+        ppc.db.session.add(vote)
         return '{}'
 
     def action_contest_info(biv_obj):
