@@ -19,7 +19,14 @@
               <td>{{ vote.user_display_name }}</td>
               <td>{{ vote.twitter_handle }}</td>
               <td>{{ vote.nominee_display_name }}</td>
-              <td>{{ vote.vote_status }}</td>
+              <td>
+                <div class="dropdown pp-amount-cell">
+                  <a class="dropdown-toggle" data-toggle="dropdown" href>{{ vote.vote_status }}<span class="caret"></span></a>
+                  <ul class="dropdown-menu">
+                    <li data-ng-repeat="voteValue in ['1x', '2x', 'invalid']" data-ng-class="{active: vote.vote_status == voteValue}"><a href data-ng-click="adminVotes.updateVoteStatus(vote, voteValue)">{{ voteValue }}</a></li>
+                  </ul>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
