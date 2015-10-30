@@ -633,6 +633,18 @@ app.controller('AdminVotesController', function(serverRequest) {
     serverRequest.sendRequest('/admin-review-votes', function(data) {
         self.votes = data.votes;
     });
+
+    self.updateVoteStatus = function(vote, voteStatus) {
+        serverRequest.sendRequest(
+            '/admin-set-vote-status',
+            function() {
+                vote.vote_status = voteStatus;
+            },
+            {
+                biv_id: vote.biv_id,
+                vote_status: voteStatus,
+            });
+    };
 });
 
 app.directive('loginModal', function() {
