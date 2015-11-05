@@ -28,6 +28,9 @@ class E15Contest(db.Model, pcm.ContestBase):
         primary_key=True
     )
 
+    def is_judge(self):
+        return False
+
 
 class E15Nominee(db.Model, pcm.NomineeBase):
     """nominatee database model.
