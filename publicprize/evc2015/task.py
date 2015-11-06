@@ -186,7 +186,7 @@ class E15Contest(ppc.Task):
     @common.decorator_login_required
     @common.decorator_user_is_judge
     def action_judge_ranking(biv_obj):
-        data = json.loads(flask.request.data.decode('unicode-escape'))
+        data = flask.request.json
         nominees = E15Contest._public_nominees(biv_obj)
         ranks, comments = E15Contest._judge_ranks_and_comments_for_nominees(flask.session.get('user.biv_id'), nominees)
 
@@ -260,7 +260,7 @@ class E15Contest(ppc.Task):
         return flask.jsonify(pef.Nominate().execute(biv_obj))
 
     def action_nominee_info(biv_obj):
-        data = json.loads(flask.request.data.decode('unicode-escape'))
+        data = flask.request.json
         nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
         return flask.jsonify(nominee={
             'biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
@@ -273,9 +273,11 @@ class E15Contest(ppc.Task):
 
     @common.decorator_login_required
     def action_nominee_tweet(biv_obj):
-        data = json.loads(flask.request.data.decode('unicode-escape'))
+        data = flask.request.json
         nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
-        twitter_handle = data['twitter_handle']
+        #TODO(pjm): move to form which does proper validation
+        # and checkes if valid twitter handle format
+        twitter_handle = data['twitter_handle'][:100]
         vote = E15Contest._user_vote(biv_obj)
         if not vote:
             ppc.app().logger.warn('tweet with no vote: {}'.format(data))
@@ -288,7 +290,7 @@ class E15Contest(ppc.Task):
 
     @common.decorator_login_required
     def action_nominee_vote(biv_obj):
-        data = json.loads(flask.request.data.decode('unicode-escape'))
+        data = flask.request.json
         nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
         if E15Contest._user_vote(biv_obj):
             return '{}'
@@ -309,7 +311,7 @@ class E15Contest(ppc.Task):
     def action_public_nominee_list(biv_obj):
         nominees = E15Contest._public_nominees(biv_obj)
         if flask.request.data:
-            data = json.loads(flask.request.data.decode('unicode-escape'))
+            data = flask.request.json
             random.Random(data['random_value']).shuffle(nominees)
         else:
             random.shuffle(nominees)
