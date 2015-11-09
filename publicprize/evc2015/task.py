@@ -292,7 +292,7 @@ class E15Contest(ppc.Task):
     def action_nominee_vote(biv_obj):
         data = flask.request.json
         nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
-        if E15Contest._user_vote(biv_obj):
+        if biv_obj.is_expired() or E15Contest._user_vote(biv_obj):
             return '{}'
         vote = pcm.Vote(
             user=flask.session.get('user.biv_id'),
@@ -342,6 +342,7 @@ class E15Contest(ppc.Task):
             'is_admin': pam.Admin.is_admin(),
             'is_judge': biv_obj.is_judge(),
             'display_name': flask.session.get('user.display_name') if logged_in else '',
+            'can_vote': not biv_obj.is_expired(),
         })
 
     def get_template():
