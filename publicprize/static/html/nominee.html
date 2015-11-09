@@ -17,7 +17,7 @@
                     data-ng-src="{{ nominee.videoURL() }}" allowfullscreen></iframe>
           </div>
         </div>
-        <a data-ng-if="! nominee.hasVoted()" class="pull-right pp-learn-more btn btn-primary btn-lg" href data-ng-click="nominee.castVote(); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
+        <a data-ng-if="nominee.canVote()" class="pull-right pp-learn-more btn btn-primary btn-lg" href data-ng-click="nominee.castVote(); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
         <div class="pp-nominee-text">{{ nominee.info.nominee_desc }}</div>
         <div>
           <h4>Founders</h4>
@@ -26,7 +26,7 @@
           </div>
         </div>
         <div>
-          <a data-ng-if="! nominee.hasVoted()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nominee.castVote(); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
+          <a data-ng-if="nominee.canVote()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nominee.castVote(); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
           <a data-ng-show="nominee.isJudge()" class="pp-learn-more text-center btn btn-primary btn-lg" href="#/judging">Return to the Judging List</a>
           <a data-ng-hide="nominee.isJudge()" class="pp-learn-more text-center btn btn-primary btn-lg" href="#/home">Return to the Contestant List</a>
         </div>
