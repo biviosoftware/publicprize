@@ -24,7 +24,7 @@
           <div class="pp-nominee-text">{{ nominee.nominee_summary }}</div>
           <div>
             <a class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nomineeList.selectNominee(nominee)">Learn More</a>
-            <a data-ng-if="! nomineeList.hasVoted()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nomineeList.castVote(nominee); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
+            <a data-ng-if="nomineeList.canVote()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nomineeList.castVote(nominee); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
           </div>
           <div class="clearfix"></div>
         </div>
