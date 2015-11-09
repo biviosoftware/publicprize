@@ -100,9 +100,13 @@ app.factory('userState', function(serverRequest, $rootScope, $location) {
             displayName: data.user_state.display_name,
             vote: data.user_state.user_vote,
             randomValue: self.state.randomValue,
+            canVote: data.user_state.can_vote,
         };
     }
 
+    self.canVote = function() {
+        return self.state.canVote ? true : false;
+    };
     self.displayName = function() {
         return self.isLoggedIn() ? self.state.displayName : '';
     };
@@ -263,6 +267,10 @@ app.controller('NomineeListController', function(serverRequest, userState, $loca
         return '/' + nominee.biv_id  + '/contestant';
     }
 
+    self.canVote = function() {
+        return userState.canVote() && ! userState.hasVoted();
+    };
+
     self.castVote = function(nominee) {
         if (! userState.isLoggedIn()) {
             self.voteUrl = serverRequest.formatFullPath('#' + nomineeUrl(nominee))
@@ -272,10 +280,6 @@ app.controller('NomineeListController', function(serverRequest, userState, $loca
         }
         $location.path(nomineeUrl(nominee));
         $location.search('vote', 1);
-    };
-
-    self.hasVoted = function() {
-        return userState.hasVoted();
     };
 
     self.selectNominee = function(nominee, autoplay) {
