@@ -42,6 +42,7 @@ class E15Nominee(db.Model, pcm.NomineeBase):
     )
     youtube_code = db.Column(db.String(500))
     nominee_desc = db.Column(db.String)
+    is_finalist = db.Column(db.Boolean, nullable=False)
 
 
 E15Contest.BIV_MARKER = biv.register_marker(15, E15Contest)
