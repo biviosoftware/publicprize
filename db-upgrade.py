@@ -19,9 +19,8 @@ _MANAGER = fes.Manager(ppc.app())
 
 
 @_MANAGER.command
-def upgrade_vote_status():
-    _add_enum_type('vote_status', ['invalid', '1x', '2x'])
-    _add_column(pcm.Vote, pcm.Vote.vote_status, "'1x'")
+def upgrade_nominee_finalist():
+    _add_column(pe15.E15Nominee, pe15.E15Nominee.is_finalist, False)
 
 
 def _add_column(model, column, default_value=None):
