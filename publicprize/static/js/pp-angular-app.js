@@ -43,8 +43,12 @@ app.config(function($routeProvider) {
             controller: 'JudgingController as judging',
             templateUrl: '/static/html/judging.html?' + PUBLIC_PRIZE_APP_VERSION,
         })
+        .when('/finalists', {
+            controller: 'NomineeListController as nomineeList',
+            templateUrl: '/static/html/finalists.html?' + PUBLIC_PRIZE_APP_VERSION,
+        })
         .otherwise({
-            redirectTo: '/contestants',
+            redirectTo: '/finalists',
         });
 });
 
@@ -71,6 +75,7 @@ app.factory('contestState', function(serverRequest) {
     self.contestInfo = {
         allowNominations: false,
         contestantCount: 0,
+        finalistCount: 0,
     };
     serverRequest.sendRequest('/contest-info', function(data) {
         self.contestInfo = data;
@@ -80,6 +85,9 @@ app.factory('contestState', function(serverRequest) {
     };
     self.contestantCount = function() {
         return self.contestInfo.contestantCount;
+    };
+    self.finalistCount = function() {
+        return self.contestInfo.finalistCount;
     };
     return self;
 });
@@ -253,11 +261,17 @@ app.controller('NomineeController', function(serverRequest, userState, $route, $
 
 app.controller('NomineeListController', function(serverRequest, userState, $location) {
     var self = this;
+    self.finalists = [];
     self.nominees = [];
     serverRequest.sendRequest(
         '/public-nominee-list',
         function(data) {
             self.nominees = data.nominees;
+
+            for (var i = 0; i < self.nominees.length; i++) {
+                if (self.nominees[i].is_finalist)
+                    self.finalists.push(self.nominees[i]);
+            }
         },
         {
             random_value: userState.state.randomValue,
@@ -821,19 +835,26 @@ app.directive('sponsorList', function() {
     };
 });
 
-app.directive('sectionNav', function() {
+app.directive('sectionNav', function($location) {
     return {
         scope: {},
         template: [
             '<br />',
             '<ul class="nav nav-justified">',
-              '<li><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestantCount() }}</span></a></li>',
-              '<li><a class="btn btn-default" href="#/about">About</a></li>',
+              '<li data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ finalistCount() }}</span></a></li>',
+              '<li data-ng-class="{\'pp-active-menu\': isSelected(\'contestants\') }"><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestantCount() }}</span></a></li>',
+              '<li data-ng-class="{\'pp-active-menu\': isSelected(\'about\') }"><a class="btn btn-default" href="#/about">About</a></li>',
             '</ul>',
         ].join(''),
         controller: function($scope, contestState) {
             $scope.contestantCount = function() {
                 return contestState.contestantCount();
+            };
+            $scope.finalistCount = function() {
+                return contestState.finalistCount();
+            };
+            $scope.isSelected = function(path) {
+                return $location.path().indexOf(path) >= 0;
             };
         },
     };
