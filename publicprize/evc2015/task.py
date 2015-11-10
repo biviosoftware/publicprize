@@ -173,6 +173,8 @@ class E15Contest(ppc.Task):
         return flask.jsonify({
             'allowNominations': seconds_remaining > 0,
             'contestantCount': len(E15Contest._public_nominees(biv_obj)),
+            #TODO(pjm): calculate from Nominee.is_finalist
+            'finalistCount': 3,
         })
 
     def action_index(biv_obj):
@@ -180,7 +182,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151030',
+            version='20151110',
         )
 
     @common.decorator_login_required
@@ -322,6 +324,7 @@ class E15Contest(ppc.Task):
                 'display_name': nominee.display_name,
                 'youtube_code': nominee.youtube_code,
                 'nominee_summary': common.summary_text(nominee.nominee_desc),
+                'is_finalist': nominee.is_finalist,
             })
         return flask.jsonify({
             'nominees': res,
