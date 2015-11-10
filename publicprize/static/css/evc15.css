@@ -149,3 +149,7 @@ div.pp-jumbo-text h1 {
 .pp-selected-nominee {
   background-color: #fcf8e3;
 }
+
+li.pp-active-menu a.btn {
+  background-color: #eee;
+}
