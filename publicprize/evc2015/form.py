@@ -116,6 +116,7 @@ class Nominate(flask_wtf.Form):
         self.populate_obj(nominee)
         nominee.youtube_code = self._youtube_code()
         nominee.is_public = False
+        nominee.is_finalist = False
         ppc.db.session.add(nominee)
         ppc.db.session.flush()
         ppc.db.session.add(
