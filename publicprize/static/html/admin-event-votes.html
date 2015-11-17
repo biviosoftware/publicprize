@@ -1,0 +1,19 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <a href="#/home"><div class="pp-logo"></div></a>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-8">
+      <div data-ng-repeat="nominee in eventVote.finalists">
+        <div class="pp-form">
+          <h3>{{ nominee.display_name }}<span class="pull-right">{{ nominee.vote_count }}</span></h3>
+          <div class="clearfix"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

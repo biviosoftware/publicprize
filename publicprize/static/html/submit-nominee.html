@@ -1,0 +1,71 @@
+<div class="pp-jumbo-bg"></div>
+<div class="container" style="min-height: 380px">
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="pp-logo">
+      </div>
+      <div class="pp-jumbo-text">
+        <h1>Doing Well while Doing Good!</h1>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-8">
+      <br>
+      <div class="lead" style="display: inline">
+        <p>Show the world that <strong>America’s Startup Capital</strong> also leads the <strong>Social Entrepreneurship</strong> wave!</p>
+        As a feature of the Boulder Chamber’s annual <a href="http://cm.boulderchamber.com/events/details/esprit-newco-6125">Esprit Entrepreneur</a> event (Boulder’s premier celebration of its dynamic startup and innovation economy), we are searching for the most innovative new company creating positive social impact as well as profits through the Esprit Venture Challenge. And new for this year: student-led businesses will be eligible to enter and win prizes. This is THE startup challenge you cannot miss!
+      </div>
+      <a href="#/about">Read more</a>
+      <hr>
+    <div data-ng-if="submitNominee.allowNominations()">
+      <p><span class="lead">Show how Boulder’s startups are doing good while doing well!</span></p>
+      Do you know a company that is
+      <p><ul>
+          <li>Principally focused on delivering social benefit?</li>
+          <li>Aiming to achieve a sustainable ROI?</li>
+          <li>Less than two years old?</li>
+      </ul></p>
+      <p>If so, they could be eligible to enter the 2015 Esprit Venture Challenge and win a valuable prize, including a $9,000 grant!</p>
+      <p>Now in its second year, the Esprit Venture Challenge is showing the world that <strong>America’s Startup Capital</strong> is also a leader in <strong>social entrepreneurship</strong>!</p>
+      <p>If you think you know a company that qualifies, have them fill out the entry form below and take part in this exciting challenge. They’ll meet other cutting-edge startups, mingle with the Who’s Who of Boulder’s leaders, and have fun at a premier business event.<p>
+      <p><strong>Don’t delay. Entry deadline is 11:59 a.m. MT on October 14, 2015!</strong></p>
+      <!-- TODO(pjm): register link -->
+      <p><strong>And don’t forget to register to attend the event. It’s Boulder’s premier event focused on entrepreneurs!</strong></p>
+
+      <div class="pp-form" data-ng-hide="submitNominee.userState.isLoggedIn()">
+        <a href data-target="#loginModal" data-toggle="modal" rel="nofollow">Log in with LinkedIn to nominate a company.</a>
+      </div>
+      <div class="pp-form" data-ng-show="submitNominee.userState.isLoggedIn()">
+        <form name="form">
+          <h2>Nominate a Company</h2>
+          <p>The Esprit Venture Challenge is for seed-stage businesses: startups with <em>less than two years</em> in operation. This year, they must have <em><u>social entrepreneurship</u> <span class="pp-tooltip" title="" data-toggle="tooltip" data-original-title="A social enterprise is a venture whose PRIMARY objective is benefitting society, rather than generating a return for shareholders. A social enterprise embraces the need to make money in order to be sustainable, rather than rely on grants or donations to fund its survival."><span class="glyphicon glyphicon-info-sign text-primary"></span></span> as their principal business purpose</em>, along with a clear model for achieving a sustainable return on investment.</p>
+          <div data-ng-repeat="f in submitNominee.formFields">
+            <div class="form-group">
+              <div data-ng-show="f.visible && f.helpText" data-form-field-with-help="f" data-controller="submitNominee"></div>
+              <div data-ng-show="f.visible && ! f.helpText" data-form-field="f" data-controller="submitNominee"></div>
+            </div>
+          </div>
+          <div style="margin-bottom: 2ex">
+            <button type="button" id="addFounderButton" data-ng-click="submitNominee.addFounder()" class="btn btn-default btn-sm">
+              <span class="glyphicon glyphicon-plus"></span> Add another founder
+            </button>
+          </div>
+          <div class="pull-left pp-agree-to-terms">By submitting this form, I agree to <a href="/pub/terms" target="_blank">Terms of Use</a> and the <a href="/esprit-venture-challenge/rules" target="_blank">Contest Rules</a>.</div>
+          <div class="clearfix"></div>
+          <div class="pull-right">
+            <button type="submit" data-ng-click="submitNominee.saveForm()" class="pp-big-button btn btn-primary btn-lg ladda-button" data-style="expand-left"><span class="ladda-label">Submit Entry</span></button>
+          </div>
+          <div class="clearfix"></div>
+        </form>
+      </div>
+      <div>&nbsp;</div>
+    </div>
+      <p><span class="lead">About Esprit Entrepreneur</span></p>
+      <p>For the 31st year the Boulder Chamber is proud to present Esprit, the premier celebration of the Entrepreneur in Boulder. This year’s event is an exciting revisioning of the celebration and includes collaboration with NewCo, an up close experience of Boulder’s leading companies and start ups.  The Esprit Celebration will be held on November 18th from 5-8:30PM in the University of Colorado’s newly opened Touchdown Club overlooking the north end zone of Folsom Field. Esprit will feature a networking cocktail reception from 5-6PM followed by a Jeffersonian Dinner during which our guests from all areas of the Boulder Economy will engage in a discussion of the issues of the day.  Learn more here:  <a href="http://cm.boulderchamber.com/events/details/esprit-newco-6125">Esprit Entrepreneur</a></p>
+    </div>
+    <div data-sponsor-list=""></div>
+  </div>
+</div>
