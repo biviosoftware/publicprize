@@ -7,6 +7,7 @@
 
 import datetime
 import flask
+import functools
 import json
 import pytz
 import random
@@ -22,6 +23,17 @@ from ..general import oauth
 from ..contest import model as pcm
 
 _template = common.Template('evc2015')
+
+
+def decorator_user_is_event_voter(func):
+    """Require the current user is an E15EventVoter."""
+    @functools.wraps(func)
+    def decorated_function(*args, **kwargs):
+        """Forbidden unless allowed."""
+        if E15Contest.is_event_voter(args[0]):
+            return func(*args, **kwargs)
+        werkzeug.exceptions.abort(403)
+    return decorated_function
 
 
 class E15Contest(ppc.Task):
@@ -106,7 +118,10 @@ class E15Contest(ppc.Task):
                 'judge_score': rank_score,
             })
         for row in res:
-            row['score'] = 40 * row['votes'] / total_votes + 60 * row['judge_score'] / total_rank_scores
+            if total_votes and total_rank_scores:
+                row['score'] = 40 * row['votes'] / total_votes + 60 * row['judge_score'] / total_rank_scores
+            else:
+                row['score'] = 0
         return flask.jsonify({
             'scores': sorted(res, key=lambda nominee: nominee['display_name'])
         })
@@ -167,7 +182,7 @@ class E15Contest(ppc.Task):
         tz = pytz.timezone('US/Mountain')
         end_of_day = tz.localize(
             datetime.datetime(
-                2015, 10, 14,
+                biv_obj.submission_end_date.year, biv_obj.submission_end_date.month, biv_obj.submission_end_date.day,
                 23, 59, 59))
         seconds_remaining = (end_of_day - datetime.datetime.now(tz)).total_seconds()
         return flask.jsonify({
@@ -175,14 +190,33 @@ class E15Contest(ppc.Task):
             'contestantCount': len(E15Contest._public_nominees(biv_obj)),
             #TODO(pjm): calculate from Nominee.is_finalist
             'finalistCount': 3,
+            'isEventVoting': biv_obj.is_event_voting,
         })
+
+    @common.decorator_login_required
+    @decorator_user_is_event_voter
+    def action_event_vote(biv_obj):
+        data = flask.request.json
+        vote = E15Contest._event_vote(biv_obj)
+        if vote.nominee_biv_id:
+            return '{}'
+        nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
+        vote.nominee_biv_id = nominee.biv_id
+        ppc.db.session.add(vote)
+        ppc.app().logger.warn('event vote: {}'.format({
+            'user_id': flask.session.get('user.biv_id'),
+            'nominee': nominee.biv_id,
+            'user-agent': flask.request.headers.get('User-Agent'),
+            'route': flask.request.access_route[0][:100],
+        }))
+        return '{}'
 
     def action_index(biv_obj):
         """Returns angular app home"""
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151110',
+            version='20151117',
         )
 
     @common.decorator_login_required
@@ -310,6 +344,41 @@ class E15Contest(ppc.Task):
         }))
         return '{}'
 
+    def action_finalist_list(biv_obj):
+        finalists = pem.E15Nominee.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == biv_obj.biv_id,
+            pam.BivAccess.target_biv_id == pem.E15Nominee.biv_id,
+            pem.E15Nominee.is_finalist == True,
+        ).all()
+        if flask.session.get('user.is_logged_in'):
+            random.Random(flask.session.get('user.biv_id')).shuffle(finalists)
+        elif flask.request.data:
+            data = flask.request.json
+            random.Random(data['random_value']).shuffle(finalists)
+        else:
+            random.shuffle(finalists)
+        votes_by_nominee_id = {}
+
+        if pam.Admin.is_admin():
+            votes = pem.E15EventVoter.query.filter(
+                pem.E15EventVoter.contest_biv_id == biv_obj.biv_id,
+                pem.E15EventVoter.nominee_biv_id != None,
+            ).all()
+            for vote in votes:
+                if vote.nominee_biv_id not in votes_by_nominee_id:
+                    votes_by_nominee_id[vote.nominee_biv_id] = 0
+                votes_by_nominee_id[vote.nominee_biv_id] += 1
+        res = []
+        for nominee in finalists:
+            res.append({
+                'biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
+                'display_name': nominee.display_name,
+                'vote_count': votes_by_nominee_id[nominee.biv_id] if nominee.biv_id in votes_by_nominee_id else 0,
+            })
+        return flask.jsonify({
+            'finalists': res,
+        })
+
     def action_public_nominee_list(biv_obj):
         nominees = E15Contest._public_nominees(biv_obj)
         if flask.request.data:
@@ -330,6 +399,25 @@ class E15Contest(ppc.Task):
             'nominees': res,
         })
 
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
+    def action_register_event_email(biv_obj):
+        email = flask.request.json['email']
+        if pem.E15EventVoter.query.filter_by(
+                user_email=email,
+        ).first():
+            return '{}'
+        ppc.db.session.add(pem.E15EventVoter(
+            contest_biv_id=biv_obj.biv_id,
+            user_email=email,
+        ))
+        ppc.app().logger.warn('event register: {}'.format({
+            'email': email,
+            'user-agent': flask.request.headers.get('User-Agent'),
+            'route': flask.request.access_route[0][:100],
+        }))
+        return '{}'
+
     def action_rules(biv_obj):
         return flask.redirect('/static/pdf/20150914-evc-rules.pdf')
 
@@ -339,17 +427,33 @@ class E15Contest(ppc.Task):
     def action_user_state(biv_obj):
         logged_in = True if flask.session.get('user.is_logged_in') else False
         vote = E15Contest._user_vote(biv_obj)
-        return flask.jsonify(user_state={
-            'user_vote': biv.Id(vote.nominee_biv_id).to_biv_uri() if vote else None,
-            'is_logged_in': logged_in,
-            'is_admin': pam.Admin.is_admin(),
-            'is_judge': biv_obj.is_judge(),
-            'display_name': flask.session.get('user.display_name') if logged_in else '',
-            'can_vote': not biv_obj.is_expired(),
+        event_vote = E15Contest._event_vote(biv_obj)
+        return flask.jsonify({
+            'isLoggedIn': logged_in,
+            'isAdmin': pam.Admin.is_admin(),
+            'isJudge': biv_obj.is_judge(),
+            'displayName': flask.session.get('user.display_name') if logged_in else '',
+            'vote': biv.Id(vote.nominee_biv_id).to_biv_uri() if vote else None,
+            'canVote': not biv_obj.is_expired(),
+            'isEventVoter': True if event_vote else False,
+            'eventVote': biv.Id(event_vote.nominee_biv_id).to_biv_uri() if event_vote and event_vote.nominee_biv_id else None,
         })
 
     def get_template():
         return _template
+
+    def is_event_voter(contest):
+        vote = E15Contest._event_vote(contest)
+        if vote:
+            return True
+        return False
+
+    def _event_vote(contest):
+        return flask.session.get('user.is_logged_in') and pem.E15EventVoter.query.select_from(pam.User).filter(
+                pam.User.biv_id == flask.session.get('user.biv_id'),
+                pem.E15EventVoter.user_email == pam.User.user_email,
+                pem.E15EventVoter.contest_biv_id == contest.biv_id,
+        ).first()
 
     def _founder_info_for_nominee(nominee):
         founders = pcm.Founder.query.select_from(pam.BivAccess).filter(
