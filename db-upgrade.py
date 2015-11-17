@@ -19,8 +19,15 @@ _MANAGER = fes.Manager(ppc.app())
 
 
 @_MANAGER.command
-def upgrade_nominee_finalist():
-    _add_column(pe15.E15Nominee, pe15.E15Nominee.is_finalist, False)
+def upgrade_nominee_event_voter():
+    pe15.E15EventVoter.__table__.create(bind=db.get_engine(ppc.app()))
+
+
+@_MANAGER.command
+def upgrade_e15_contest():
+    _add_column(pe15.E15Contest, pe15.E15Contest.is_judging, False)
+    _add_column(pe15.E15Contest, pe15.E15Contest.is_event_voting, False)
+    _add_column(pe15.E15Contest, pe15.E15Contest.submission_end_date, "'2015-11-07'")
 
 
 def _add_column(model, column, default_value=None):
