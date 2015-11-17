@@ -2,6 +2,9 @@
   "E15Contest": [
     {
       "display_name": "Exprit Venture Challenge",
+      "submission_end_date": "12/31/2015",
+      "is_judging": false,
+      "is_event_voting": false,
       "end_date": "11/07/2015",
       "Alias": {
         "name": "esprit-venture-challenge"
