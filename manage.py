@@ -388,10 +388,13 @@ def _create_database(is_production=False, is_prompt_forced=False):
         contest_id = _add_model(
             pe15.E15Contest(
                 display_name=contest['display_name'],
+                is_judging=contest['is_judging'],
+                is_event_voting=contest['is_event_voting'],
+                submission_end_date=datetime.datetime.strptime(
+                    contest['submission_end_date'], '%m/%d/%Y').date(),
                 end_date=datetime.datetime.strptime(
                     contest['end_date'], '%m/%d/%Y').date(),
-                )
-            )
+            ))
         if 'Alias' in contest:
             _add_model(pam.BivAlias(
                 biv_id=contest_id,
