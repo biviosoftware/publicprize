@@ -27,9 +27,23 @@ class E15Contest(db.Model, pcm.ContestBase):
         db.Sequence('e15contest_s', start=1015, increment=1000),
         primary_key=True
     )
+    is_judging = db.Column(db.Boolean, nullable=False)
+    is_event_voting = db.Column(db.Boolean, nullable=False)
+    submission_end_date = db.Column(db.Date, nullable=False)
 
     def is_judge(self):
+        if self.is_judging:
+            return super(E15Contest, self).is_judge()
         return False
+
+
+class E15EventVoter(db.Model, common.ModelWithDates):
+    """event voter database mode.
+    """
+    __tablename__ = 'e15_event_voter'
+    contest_biv_id = db.Column(db.Numeric(18), primary_key=True)
+    user_email = db.Column(db.String(100), nullable=False, primary_key=True)
+    nominee_biv_id = db.Column(db.Numeric(18))
 
 
 class E15Nominee(db.Model, pcm.NomineeBase):
