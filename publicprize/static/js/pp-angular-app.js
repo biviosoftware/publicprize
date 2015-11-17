@@ -3,52 +3,86 @@
 var app = angular.module('EVC2015App', ['ngRoute', 'ngAnimate']);
 
 app.config(function($routeProvider) {
+    function route(page, controller) {
+        return {
+            templateUrl: '/static/html/' + page + '.html?' + PUBLIC_PRIZE_APP_VERSION,
+            controller: controller,
+        };
+    }
     $routeProvider
-        .when('/contestants', {
-            controller: 'NomineeListController as nomineeList',
-            templateUrl: '/static/html/nominees.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/:nominee_biv_id/contestant', {
-            controller: 'NomineeController as nominee',
-            templateUrl: '/static/html/nominee.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/submit-nominee', {
-            controller: 'HomeController as home',
-            templateUrl: '/static/html/home.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/about', {
-            templateUrl: '/static/html/about.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/:nominee_biv_id/nominate-thank-you', {
-            controller: 'NomineeController as nominee',
-            templateUrl: '/static/html/nominate-thank-you.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/admin-review-nominees', {
-            controller: 'AdminReviewController as adminReview',
-            templateUrl: '/static/html/admin-review-nominees.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/admin-review-judges', {
-            controller: 'AdminJudgesController as adminJudges',
-            templateUrl: '/static/html/admin-review-judges.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/admin-review-scores', {
-            controller: 'AdminScoresController as adminScores',
-            templateUrl: '/static/html/admin-review-scores.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/admin-review-votes', {
-            controller: 'AdminVotesController as adminVotes',
-            templateUrl: '/static/html/admin-review-votes.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/judging', {
-            controller: 'JudgingController as judging',
-            templateUrl: '/static/html/judging.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
-        .when('/finalists', {
-            controller: 'NomineeListController as nomineeList',
-            templateUrl: '/static/html/finalists.html?' + PUBLIC_PRIZE_APP_VERSION,
-        })
+        .when('/about', route('about'))
+        .when(
+            '/admin-review-nominees',
+            route(
+                'admin-review-nominees',
+                'AdminReviewController as adminReview'))
+        .when(
+            '/admin-review-judges',
+            route(
+                'admin-review-judges',
+                'AdminJudgesController as adminJudges'))
+        .when(
+            '/admin-review-scores',
+            route(
+                'admin-review-scores',
+                'AdminScoresController as adminScores'))
+        .when(
+            '/admin-review-votes',
+            route(
+                'admin-review-votes',
+                'AdminVotesController as adminVotes'))
+        .when(
+            '/admin-event-votes',
+            route(
+                'admin-event-votes',
+                'EventVoteController as eventVote'))
+        .when(
+            '/contestants',
+            route(
+                'nominees',
+                'NomineeListController as nomineeList'))
+        .when(
+            '/event-registration',
+            route(
+                'event-registration',
+                'EventRegistrationController as eventRegistration'))
+        .when(
+            '/event-voting',
+            route(
+                'event-voting',
+                'EventVoteController as eventVote'))
+        .when(
+            '/finalists',
+            route(
+                'finalists',
+                'NomineeListController as nomineeList'))
+        .when(
+            '/home',
+            route(
+                'home',
+                'HomeController as home'))
+        .when(
+            '/judging',
+            route(
+                'judging',
+                'JudgingController as judging'))
+        .when(
+            '/submit-nominee',
+            route(
+                'submit-nominee',
+                'SubmitNomineeController as submitNominee'))
+        .when(
+            '/:nominee_biv_id/contestant',
+            route(
+                'nominee',
+                'NomineeController as nominee'))
+        .when(
+            '/:nominee_biv_id/nominate-thank-you',
+            route(
+                'nominate-thank-you',
+                'NomineeController as nominee'))
         .otherwise({
-            redirectTo: '/finalists',
+            redirectTo: '/home',
         });
 });
 
@@ -73,12 +107,15 @@ app.factory('serverRequest', function($http, $location) {
 app.factory('contestState', function(serverRequest) {
     var self = this;
     self.contestInfo = {
+        initializing: true,
         allowNominations: false,
         contestantCount: 0,
         finalistCount: 0,
+        isEventVoting: false,
     };
     serverRequest.sendRequest('/contest-info', function(data) {
         self.contestInfo = data;
+        self.contestInfo.initializing = false;
     });
     self.allowNominations = function() {
         return self.contestInfo.allowNominations;
@@ -89,34 +126,35 @@ app.factory('contestState', function(serverRequest) {
     self.finalistCount = function() {
         return self.contestInfo.finalistCount;
     };
+    self.isInitializing = function() {
+        return self.contestInfo.initializing;
+    };
+    self.isEventVoting = function() {
+        return self.contestInfo.isEventVoting;
+    };
     return self;
 });
 
 app.factory('userState', function(serverRequest, $rootScope, $location) {
     var self = this;
+    self.navbarHidden = false;
     self.state = {
         initializing: true,
         randomValue: Math.random(),
     };
 
     function updateUserState(data) {
-        self.state = {
-            initializing: false,
-            isLoggedIn: data.user_state.is_logged_in,
-            isAdmin: data.user_state.is_admin,
-            isJudge: data.user_state.is_judge,
-            displayName: data.user_state.display_name,
-            vote: data.user_state.user_vote,
-            randomValue: self.state.randomValue,
-            canVote: data.user_state.can_vote,
-        };
+        var randomValue = self.state.randomValue;
+        self.state = data;
+        self.state.initializing = false;
+        self.state.randomValue = randomValue;
     }
 
     self.canVote = function() {
         return self.state.canVote ? true : false;
     };
-    self.displayName = function() {
-        return self.isLoggedIn() ? self.state.displayName : '';
+    self.getEventVote = function() {
+        return self.state.eventVote;
     };
     self.getVote = function() {
         return self.state.vote;
@@ -124,17 +162,25 @@ app.factory('userState', function(serverRequest, $rootScope, $location) {
     self.hasVoted = function() {
         return self.isLoggedIn() && self.state.vote;
     };
-    self.isInitializing = function() {
-        return self.state.initializing;
-    };
-    self.isLoggedIn = function() {
-        return self.state.isLoggedIn ? true : false;
-    };
+    self.hideNavbar = function() {
+        if (self.isInitializing())
+            return true;
+        return self.navbarHidden;
+    }
     self.isAdmin = function() {
         return self.state.isAdmin ? true : false;
     };
+    self.isEventVoter = function() {
+        return self.state.isEventVoter;
+    };
+    self.isInitializing = function() {
+        return self.state.initializing;
+    };
     self.isJudge = function() {
         return self.state.isJudge ? true : false;
+    };
+    self.isLoggedIn = function() {
+        return self.state.isLoggedIn ? true : false;
     };
     self.logout = function() {
         serverRequest.sendRequest('/logout', function(data) {
@@ -146,8 +192,30 @@ app.factory('userState', function(serverRequest, $rootScope, $location) {
     self.updateState = function() {
         serverRequest.sendRequest('/user-state', updateUserState);
     }
-    self.updateState()
+    self.updateState();
     return self;
+});
+
+app.controller('HomeController', function(serverRequest, contestState, userState, $location) {
+    var self = this;
+
+    self.homeRedirect = function() {
+        if (self.isInitializing())
+            return '';
+        if (contestState.allowNominations())
+            $location.path('/submit-nominee');
+        else if (contestState.isEventVoting() && userState.isEventVoter())
+            $location.path('/event-voting');
+        else if (userState.canVote())
+            $location.path('/contestants');
+        else
+            $location.path('/finalists');
+        return '';
+    };
+
+    self.isInitializing = function() {
+        return contestState.isInitializing() || userState.isInitializing();
+    };
 });
 
 app.controller('NomineeController', function(serverRequest, userState, $route, $sce, $rootScope, $window) {
@@ -259,6 +327,100 @@ app.controller('NomineeController', function(serverRequest, userState, $route, $
     };
 });
 
+app.controller('EventRegistrationController', function(serverRequest, userState, $location, $scope, $rootScope) {
+    var self = this;
+    self.errorMessage = null;
+    self.linkedInEmail = null;
+    userState.navbarHidden = true;
+
+    function register() {
+        serverRequest.sendRequest(
+            '/register-event-email',
+            function(data) {
+                $('#registerThanks').modal('show');
+                $('#registerThanks').on('hidden.bs.modal', function() {
+                    self.linkedInEmail = null;
+                    self.errorMessage = null;
+                    $scope.$apply();
+                });
+            },
+            {
+                email: self.linkedInEmail,
+            })
+            .error(function() {
+                self.errorMessage = 'There was a problem registering your email. Please contact the event coordinator.';
+            });
+    }
+
+    self.registerEmail = function() {
+        if (! userState.isAdmin()) {
+            $location.path('/');
+            return;
+        }
+        if (self.linkedInEmail && self.linkedInEmail.indexOf('@') > 0) {
+            self.errorMessage = null;
+            register();
+        }
+        else {
+            self.errorMessage = 'Invalid Email Address';
+        }
+    };
+});
+
+app.controller('EventVoteController', function(serverRequest, userState, $location, $rootScope) {
+    var self = this;
+    self.finalists = [];
+    self.confirmNominee = null;
+    serverRequest.sendRequest(
+        '/finalist-list',
+        function(data) {
+            self.finalists = data.finalists;
+        },
+        {
+            random_value: userState.state.randomValue,
+        });
+
+    function nomineeUrl(nominee) {
+        return '/' + nominee.biv_id  + '/contestant';
+    }
+
+    self.canVoteForFinalist = function() {
+        return userState.isEventVoter() && ! userState.getEventVote();
+    };
+
+    self.confirmFinalistVote = function(nominee) {
+        self.confirmNominee = nominee;
+        $('#confirmEventVote').modal('show');
+    };
+
+    self.saveEventVote = function() {
+        serverRequest.sendRequest(
+            '/event-vote',
+            function() {
+                userState.updateState();
+                $('#confirmEventVote').modal('hide');
+            },
+            {
+                nominee_biv_id: self.confirmNominee.biv_id,
+            })
+            .error(function() {
+                $('#confirmEventVote').modal('hide');
+                $rootScope.$broadcast(
+                    'pp.alert',
+                    'There was a problem recording your vote. Please contact the event coordinator.',
+                    'danger');
+            });
+    };
+
+    self.selectNominee = function(nominee) {
+        $location.path(nomineeUrl(nominee));
+    };
+
+    self.userFinalistSelection = function(nominee) {
+        return nominee.biv_id == userState.getEventVote();
+    };
+});
+
 app.controller('NomineeListController', function(serverRequest, userState, $location) {
     var self = this;
     self.finalists = [];
@@ -305,10 +467,9 @@ app.controller('NomineeListController', function(serverRequest, userState, $loca
     self.userSelection = function(nominee) {
         return nominee.biv_id == userState.getVote();
     };
-
 });
 
-app.controller('HomeController', function(serverRequest, userState, contestState, $location) {
+app.controller('SubmitNomineeController', function(serverRequest, userState, contestState, $location) {
     var MAX_FOUNDERS = 3;
     var self = this;
     self.userState = userState;
@@ -694,11 +855,12 @@ app.directive('navLinks', function(userState) {
     return {
         scope: {},
         template: [
-            '<ul class="nav navbar-nav navbar-right" data-ng-hide="userState.isInitializing()" data-ng-cloak="">',
-            '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#signupModal" href>Sign up</a></li>',
+            '<ul class="nav navbar-nav navbar-right" data-ng-hide="userState.hideNavbar()" data-ng-cloak="">',
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href>Log in</a></li>',
             '<li data-ng-show="userState.isAdmin()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a>',
               '<ul class="dropdown-menu" role="menu">',
+                '<li><a href="#/event-registration">Event Registration</a></li>',
+                '<li><a href="#/admin-event-votes">Event Votes</a></li>',
                 '<li><a href="#/admin-review-nominees">Review Nominees</a></li>',
                 '<li><a href="#/admin-review-judges">Review Judges</a></li>',
                 '<li><a href="#/admin-review-scores">Review Scores</a></li>',
@@ -740,12 +902,12 @@ app.directive('alertBox', function($rootScope) {
 function formFieldTemplate(includeHelp) {
     return [
         '<div data-ng-switch="f.type">',
-          '<span data-ng-show="home.hasError(f.name)" class="pp-form-error text-danger">{{ home.getError(f.name) }}</span>',
-          '<div data-ng-show="home.hasError(f.name)" class="clearfix"></div>',
+          '<span data-ng-show="controller.hasError(f.name)" class="pp-form-error text-danger">{{ controller.getError(f.name) }}</span>',
+          '<div data-ng-show="controller.hasError(f.name)" class="clearfix"></div>',
             (includeHelp ? '<div class="input-group">' : ''),
               '<div data-ng-switch-when="CSRFTokenField"></div>',
-              '<textarea data-ng-switch-when="TextAreaField" class="form-control" data-ng-class="{slideDown: f.visible}" rows="5" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]"></textarea>',
-              '<input data-ng-switch-default class="form-control" type="text" value="" data-ng-class="{slideDown: f.visible}" placeholder="{{ f.label }}" data-ng-model="home.formData[f.name]">',
+              '<textarea data-ng-switch-when="TextAreaField" class="form-control" data-ng-class="{slideDown: f.visible}" rows="5" placeholder="{{ f.label }}" data-ng-model="controller.formData[f.name]"></textarea>',
+              '<input data-ng-switch-default class="form-control" type="text" value="" data-ng-class="{slideDown: f.visible}" placeholder="{{ f.label }}" data-ng-model="controller.formData[f.name]">',
               (includeHelp ? '<span class="input-group-addon"><span class= "pp-tooltip" data-toggle="tooltip" title="{{ f.helpText }}"><span class="glyphicon glyphicon-info-sign text-primary"></span></span></span>' : ''),
             (includeHelp ? '</div>' : ''),
           '</div>',
@@ -757,7 +919,7 @@ app.directive('formField', function() {
     return {
         scope: {
             f: '=formField',
-            home: '=controller',
+            controller: '=',
         },
         template: formFieldTemplate(false),
     };
@@ -767,7 +929,7 @@ app.directive('formFieldWithHelp', function() {
     return {
         scope: {
             f: '=formFieldWithHelp',
-            home: '=controller',
+            controller: '=',
         },
         template: formFieldTemplate(true),
     };
