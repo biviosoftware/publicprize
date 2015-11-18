@@ -113,3 +113,27 @@ https://travis-ci.org/biviosoftware/publicprize/builds
 Then the number of the build, e.g. 2 or 4, to see the build history
 
 The control file is .travis.yml
+
+
+##### Fedora
+
+Set up in Fedora container (already setup for Python):
+
+```bash
+yum install -y postgresql-server postgresql-devel
+postgresql-setup initdb
+cat > /var/lib/pgsql/data/pg_hba.conf <<'EOF'
+# TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+local   all         all                               trust
+hostssl all         all         0.0.0.0/0             password
+hostssl all         all         ::/0                  password
+EOF
+systemctl enable postgresql
+systemctl start postgresql
+```
+
+Also needed:
+
+```bash
+sudo yum install -y libffi-devel
+```
