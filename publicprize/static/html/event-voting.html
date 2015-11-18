@@ -1,7 +1,8 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-8">
-      <h1>LIVE Voting</h1>
+      <h1>Esprit Venture Challenge 2015</h1>
+      <h2>Live Voting</h2>
       <div data-ng-repeat="nominee in eventVote.finalists">
         <div class="pp-form" data-ng-class="{'pp-selected-nominee': eventVote.userFinalistSelection(nominee) }">
           <h3><a href data-ng-click="eventVote.selectNominee(nominee)"><span data-ng-if="eventVote.userFinalistSelection(nominee)" class="glyphicon glyphicon-check"></span> {{ nominee.display_name }}</a></h3>
