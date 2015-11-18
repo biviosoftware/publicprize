@@ -17,17 +17,13 @@ import publicprize.evc2015.model as pe15
 ppc.init()
 _MANAGER = fes.Manager(ppc.app())
 
-
 @_MANAGER.command
-def upgrade_nominee_event_voter():
-    pe15.E15EventVoter.__table__.create(bind=db.get_engine(ppc.app()))
-
-
-@_MANAGER.command
-def upgrade_e15_contest():
-    _add_column(pe15.E15Contest, pe15.E15Contest.is_judging, False)
-    _add_column(pe15.E15Contest, pe15.E15Contest.is_event_voting, False)
-    _add_column(pe15.E15Contest, pe15.E15Contest.submission_end_date, "'2015-11-07'")
+def upgrade_lowercase_user_email():
+    """Lowercases User.user_email"""
+    users = pam.User.query.all()
+    for user in users:
+        user.user_email = user.user_email.lower()
+        db.session.add(user)
 
 
 def _add_column(model, column, default_value=None):

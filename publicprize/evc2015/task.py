@@ -402,7 +402,7 @@ class E15Contest(ppc.Task):
     @common.decorator_login_required
     @common.decorator_user_is_admin
     def action_register_event_email(biv_obj):
-        email = flask.request.json['email']
+        email = flask.request.json['email'].lower()
         if pem.E15EventVoter.query.filter_by(
                 user_email=email,
         ).first():

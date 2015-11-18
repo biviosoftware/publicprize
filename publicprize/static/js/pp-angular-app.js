@@ -367,18 +367,22 @@ app.controller('EventRegistrationController', function(serverRequest, userState,
     };
 });
 
-app.controller('EventVoteController', function(serverRequest, userState, $location, $rootScope) {
+app.controller('EventVoteController', function(serverRequest, userState, $location, $rootScope, $timeout) {
     var self = this;
+    var timer = null;
     self.finalists = [];
     self.confirmNominee = null;
-    serverRequest.sendRequest(
-        '/finalist-list',
-        function(data) {
-            self.finalists = data.finalists;
-        },
-        {
-            random_value: userState.state.randomValue,
-        });
+
+    function refreshList() {
+        serverRequest.sendRequest(
+            '/finalist-list',
+            function(data) {
+                self.finalists = data.finalists;
+            },
+            {
+                random_value: userState.state.randomValue,
+            });
+    }
 
     function nomineeUrl(nominee) {
         return '/' + nominee.biv_id  + '/contestant';
@@ -416,9 +420,23 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
         $location.path(nomineeUrl(nominee));
     };
 
+    self.startRefreshTimer = function() {
+        if (! timer) {
+            timer = $timeout(
+                function() {
+                    refreshList();
+                    timer = null;
+                    self.startRefreshTimer();
+                },
+                5000);
+        }
+    };
+
     self.userFinalistSelection = function(nominee) {
         return nominee.biv_id == userState.getEventVote();
     };
+
+    refreshList();
 });
 
 app.controller('NomineeListController', function(serverRequest, userState, $location) {

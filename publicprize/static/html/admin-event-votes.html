@@ -8,6 +8,7 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-8">
+      <div>{{ eventVote.startRefreshTimer() }}</div>
       <div data-ng-repeat="nominee in eventVote.finalists">
         <div class="pp-form">
           <h3>{{ nominee.display_name }}<span class="pull-right">{{ nominee.vote_count }}</span></h3>
