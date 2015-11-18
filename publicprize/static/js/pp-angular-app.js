@@ -443,6 +443,12 @@ app.controller('NomineeListController', function(serverRequest, userState, $loca
     var self = this;
     self.finalists = [];
     self.nominees = [];
+
+    if (userState.isEventVoter() && $location.path().indexOf('finalists') >= 0) {
+        $location.path('/event-voting');
+        return;
+    }
+
     serverRequest.sendRequest(
         '/public-nominee-list',
         function(data) {
