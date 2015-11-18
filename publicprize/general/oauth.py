@@ -204,12 +204,12 @@ def _user_from_info(oauth, oauth_type, info):
     ).first()
     if user:
         user.display_name = info['name']
-        user.user_email = info['email']
+        user.user_email = info['email'].lower()
         user.avatar_url = _avatar_url_from_info(oauth_type, info)
     else:
         user = pam.User(
             display_name=info['name'],
-            user_email=info['email'],
+            user_email=info['email'].lower(),
             oauth_type=oauth_type,
             oauth_id=info['id'],
             avatar_url=_avatar_url_from_info(oauth_type, info)
