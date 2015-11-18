@@ -11,8 +11,26 @@ su -
 yum install -y postgresql-devel postgresql-server
 postgresql-setup initdb
 perl -pi.bak -e 's{\b(peer|ident)$}{password}' /var/lib/pgsql/data/pg_hba.conf
-systemctl start postgresql
+systemctl restart postgresql
 echo "ALTER USER postgres PASSWORD 'postpass'" | su - postgres -c 'psql template1'
+EOF
+```
+
+Perhaps need this for hostssl, but then you need to generate a key (not shown):
+
+
+```bash
+patch /var/lib/pgsql/data/postgresql.conf <<'EOF'
+83,84c83,84
+< #ssl = off                # (change requires restart)
+< #ssl_ciphers = 'DEFAULT:!LOW:!EXP:!MD5:@STRENGTH' # allowed SSL ciphers
+---
+> ssl = on              # (change requires restart)
+> ssl_ciphers = 'DHE-RSA-AES256-SHA:AES256-SHA:DHE-RSA-AES128-SHA:EDH-RSA-DES-CBC3-SHA:RC4-SHA:HIGH:!ADH'   # allowed SSL ciphers
+519c519
+< #client_encoding = sql_ascii      # actually, defaults to database
+---
+> client_encoding = 'UTF8'      # actually, defaults to database
 ```
 
 ##### Install home-env
