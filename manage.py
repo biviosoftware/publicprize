@@ -74,6 +74,30 @@ def add_admin(user):
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-u', '--user', help='Any email')
+@_MANAGER.option('-s', '--nominee', help='Nominee display_name')
+def add_event_vote(contest, user, nominee):
+    """Add a E15EventVoter record for the specified user/nominee."""
+    if not user:
+        raise Exception('missing user')
+    if not contest:
+        raise Exception('missing contest')
+    if not nominee:
+        raise Exception('missing nominee')
+    if not re.search(r'\@', user):
+        raise Exception('user must be an email address')
+    nominee_biv_id = pe15.E15Nominee.query.filter_by(
+        display_name=nominee
+    ).one().biv_id
+    db.session.add(
+        pe15.E15EventVoter(
+            contest_biv_id=contest,
+            user_email=user.lower(),
+            nominee_biv_id=nominee_biv_id,
+        ))
+
+
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 def add_judge(contest, user):
     """Link the User model to a Judge model."""
