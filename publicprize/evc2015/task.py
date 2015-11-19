@@ -198,6 +198,8 @@ class E15Contest(ppc.Task):
     @decorator_user_is_event_voter
     def action_event_vote(biv_obj):
         data = flask.request.json
+        if not biv_obj.is_event_voting:
+            return '{}'
         vote = E15Contest._event_vote(biv_obj)
         if vote.nominee_biv_id:
             return '{}'
@@ -217,7 +219,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151118-3',
+            version='20151118-4',
         )
 
     @common.decorator_login_required
