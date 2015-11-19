@@ -420,8 +420,8 @@ class E15Contest(ppc.Task):
         return '{}'
 
     def action_register_voter(biv_obj):
-        if flask.session.get('user.is_logged_in') and E15Contest.is_event_voter(biv_obj):
-            return flask.redirect('/esprit-venture-challenge')
+        #if flask.session.get('user.is_logged_in') and E15Contest.is_event_voter(biv_obj):
+        #    return flask.redirect('/esprit-venture-challenge')
         email = flask.request.json['email'].lower()
         user = pam.User(
             display_name=email,
