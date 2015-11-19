@@ -11,6 +11,7 @@ import functools
 import json
 import pytz
 import random
+import werkzeug
 import werkzeug.exceptions
 
 from . import form as pef
@@ -416,6 +417,23 @@ class E15Contest(ppc.Task):
             'user-agent': flask.request.headers.get('User-Agent'),
             'route': flask.request.access_route[0][:100],
         }))
+        return '{}'
+
+    def action_register_voter(biv_obj):
+        if flask.session.get('user.is_logged_in') and E15Contest.is_event_voter(biv_obj):
+            return flask.redirect('/esprit-venture-challenge')
+        email = flask.request.json['email'].lower()
+        user = pam.User(
+            display_name=email,
+            user_email=email,
+            oauth_type='test',
+            oauth_id=werkzeug.security.gen_salt(64)
+        )
+        ppc.db.session.add(pem.E15EventVoter(
+            contest_biv_id=biv_obj.biv_id,
+            user_email=email,
+        ))
+        oauth.add_user_to_session(user)
         return '{}'
 
     def action_rules(biv_obj):
