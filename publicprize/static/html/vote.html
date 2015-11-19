@@ -1,0 +1,22 @@
+<div class="container">
+  <div class="row">
+    <div class="col-sm-8 col-sm-offset-2">
+      <div class="pp-form">
+        <h3>Esprit Venture Challenge 2015</h3>
+        <h3>Voter Registration</h3>
+        <div>Please enter the email address:</div>
+        <br />
+        <form>
+          <div class="form-group">
+            <div class="text-warning pull-right">{{ vote.errorMessage }}</div>
+            <input type="text" class="form-control" data-ng-model="vote.userEmail" placeholder="Your email address">
+          </div>
+          <div class="form-group">
+            <button class="btn btn-primary btn-lg col-xs-6 pull-right" data-ng-click="vote.registerEmail()">Register</button>
+          </div>
+        </form>
+        <div class="clearfix"></div>
+      </div>
+    </div>
+  </div>
+</div>
