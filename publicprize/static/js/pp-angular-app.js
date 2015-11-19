@@ -81,6 +81,11 @@ app.config(function($routeProvider) {
             route(
                 'nominate-thank-you',
                 'NomineeController as nominee'))
+        .when(
+            '/vote',
+            route(
+                'vote',
+                'VoteController as vote'))
         .otherwise({
             redirectTo: '/home',
         });
@@ -847,6 +852,38 @@ app.controller('AdminVotesController', function(serverRequest) {
                 biv_id: vote.biv_id,
                 vote_status: voteStatus,
             });
+    };
+});
+
+app.controller('VoteController', function(serverRequest, userState, $location, $scope, $rootScope) {
+    var self = this;
+    self.errorMessage = null;
+    self.userEmail = null;
+    userState.navbarHidden = true;
+
+    function register() {
+        serverRequest.sendRequest(
+            '/register-voter',
+            function(data) {
+                userState.updateState();
+                $location.path('/home');
+            },
+            {
+                email: self.userEmail,
+            })
+            .error(function() {
+                self.errorMessage = 'There was a problem registering your email. Please contact the event coordinator.';
+            });
+    }
+
+    self.registerEmail = function() {
+        if (self.userEmail && self.userEmail.indexOf('@') > 0) {
+            self.errorMessage = null;
+            register();
+        }
+        else {
+            self.errorMessage = 'Invalid Email Address';
+        }
     };
 });
 
