@@ -128,3 +128,6 @@ class General(controller.Task):
         if not controller.app().config['PUBLICPRIZE']['TEST_USER']:
             raise Exception("TEST_USER not enabled")
         return General.action_login(biv_obj)
+
+    def action_vote(biv_obj):
+        return flask.redirect('/esprit-venture-challenge#/vote');
