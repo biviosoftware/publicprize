@@ -34,6 +34,8 @@ class Config(object):
 
     SECRET_KEY = PUBLICPRIZE['SECRET_KEY']
     DEBUG = PUBLICPRIZE['TEST_MODE']
+    # Avoid message: "adds significant overhead..."
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = \
         'postgresql://{user}:{password}@/{name}'.format(**PUBLICPRIZE['DATABASE'])
     if 'SQLALCHEMY_ECHO' in PUBLICPRIZE:
