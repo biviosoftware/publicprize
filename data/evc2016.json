@@ -1,0 +1,21 @@
+{
+    "E15Contest": [
+        {
+            "display_name": "Exprit Venture Challenge 2016",
+            "submission_end_date": "8/31/2016",
+            "is_judging": false,
+            "is_event_voting": false,
+            "end_date": "10/05/2016",
+            "Alias": {
+                "name": "esprit-venture-challenge"
+            },
+            "Sponsor": [
+                {
+                    "display_name":  "Colorado PERA",
+                    "website": "https://www.copera.org/",
+                    "logo_filename": "data/evc15/pera-150.jpg"
+                }
+            ]
+        }
+    ]
+}
