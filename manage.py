@@ -173,9 +173,7 @@ def create_prod_db():
 def create_test_db(force_prompt=False):
     """Recreates the database and loads the test data from
     data/test_data.json"""
-    # Force boolean-ness, may be unecessary
-    force_prompt = True if force_prompt else False
-    _create_database(is_prompt_forced=force_prompt)
+    _create_database(is_prompt_forced=bool(force_prompt))
 
 
 @_MANAGER.command
@@ -302,6 +300,34 @@ def replace_founder_avatar(user, input_file):
     for user_model in users:
         for founder in _founders_for_user(user_model):
             _update_founder_avatar(founder, image)
+
+
+@_MANAGER.command
+def upgrade_db():
+    data = json.load(open('data/evc2016.json', 'r'))
+    for contest in data['E15Contest']:
+        contest_id = _add_model(
+            pe15.E15Contest(
+                display_name=contest['display_name'],
+                is_judging=contest['is_judging'],
+                is_event_voting=contest['is_event_voting'],
+                submission_end_date=datetime.datetime.strptime(
+                    contest['submission_end_date'], '%m/%d/%Y').date(),
+                end_date=datetime.datetime.strptime(
+                    contest['end_date'], '%m/%d/%Y').date(),
+            ))
+        if 'Alias' in contest:
+            f = pam.BivAlias.query.filter(
+                pam.BivAlias.alias_name == contest['Alias']['name'],
+            ).delete()
+            _add_model(pam.BivAlias(
+                biv_id=contest_id,
+                alias_name=contest['Alias']['name']
+            ))
+        for sponsor in contest['Sponsor']:
+            add_sponsor(contest_id, sponsor['display_name'],
+                        sponsor['website'], sponsor['logo_filename'])
+    db.session.commit()
 
 
 def _add_model(model):
