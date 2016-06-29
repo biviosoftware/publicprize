@@ -186,11 +186,15 @@ class E15Contest(ppc.Task):
                 biv_obj.submission_end_date.year, biv_obj.submission_end_date.month, biv_obj.submission_end_date.day,
                 23, 59, 59))
         seconds_remaining = (end_of_day - datetime.datetime.now(tz)).total_seconds()
+        is_current = seconds_remaining > -86400 * 60
+        pre_nomimation = is_current
         return flask.jsonify({
-            'allowNominations': seconds_remaining > 0,
+            #TODO CHANGE THIS WHEN allowNominations
+            'preNomination': pre_nomimation,
+            'allowNominations': not pre_nomimation and seconds_remaining > 0,
             'contestantCount': len(E15Contest._public_nominees(biv_obj)),
             #TODO(pjm): calculate from Nominee.is_finalist
-            'finalistCount': 3,
+            'finalistCount': 0 if is_current else 3,
             'isEventVoting': biv_obj.is_event_voting,
         })
 
@@ -219,7 +223,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20151118-4',
+            version='20160629',
         )
 
     @common.decorator_login_required

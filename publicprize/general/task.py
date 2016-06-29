@@ -56,10 +56,12 @@ class General(controller.Task):
         return oauth.authorize_complete('google')
 
     def action_home(biv_obj):
+        x = pe15.E15Contest.query.all()
         return flask.render_template(
             "general/home.html",
-            evc15_contest=pe15.E15Contest.query.first(),
-            evc_contest=pem.Contest.query.first(),
+            evc16_contest=x[1],
+            evc15_contest=x[0],
+            evc14_contest=pem.Contest.query.first(),
             nextup_contest=pnm.NUContest.query.first(),
         )
 

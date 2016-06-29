@@ -113,6 +113,7 @@ app.factory('contestState', function(serverRequest) {
     var self = this;
     self.contestInfo = {
         initializing: true,
+        preNomination: true,
         allowNominations: false,
         contestantCount: 0,
         finalistCount: 0,
@@ -136,6 +137,9 @@ app.factory('contestState', function(serverRequest) {
     };
     self.isEventVoting = function() {
         return self.contestInfo.isEventVoting;
+    };
+    self.preNomination = function() {
+        return self.contestInfo.preNomination;
     };
     return self;
 });
@@ -207,14 +211,18 @@ app.controller('HomeController', function(serverRequest, contestState, userState
     self.homeRedirect = function() {
         if (self.isInitializing())
             return '';
-        if (contestState.allowNominations())
+        if (contestState.preNomination())
+            $location.path('/about');
+        else if (contestState.allowNominations())
             $location.path('/submit-nominee');
         else if (contestState.isEventVoting() && userState.isEventVoter())
             $location.path('/event-voting');
         else if (userState.canVote())
             $location.path('/contestants');
-        else
+        else if (contestState.finalistCount() > 0)
             $location.path('/finalists');
+        else
+            $location.path('/about');
         return '';
     };
 
@@ -1063,8 +1071,8 @@ app.directive('sectionNav', function($location) {
         scope: {},
         template: [
             '<br />',
-            '<ul class="nav nav-justified">',
-              '<li data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ finalistCount() }}</span></a></li>',
+            '<ul data-ng-if="! preNomination()" class="nav nav-justified">',
+              '<li data-ng-if="finalistCount() > 0" data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ finalistCount() }}</span></a></li>',
               '<li data-ng-class="{\'pp-active-menu\': isSelected(\'contestants\') }"><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestantCount() }}</span></a></li>',
               '<li data-ng-class="{\'pp-active-menu\': isSelected(\'about\') }"><a class="btn btn-default" href="#/about">About</a></li>',
             '</ul>',
@@ -1075,6 +1083,9 @@ app.directive('sectionNav', function($location) {
             };
             $scope.finalistCount = function() {
                 return contestState.finalistCount();
+            };
+            $scope.preNomination = function() {
+                return contestState.preNomination();
             };
             $scope.isSelected = function(path) {
                 return $location.path().indexOf(path) >= 0;
