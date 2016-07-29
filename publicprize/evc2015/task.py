@@ -180,29 +180,24 @@ class E15Contest(ppc.Task):
         return '{}'
 
     def action_contest_info(biv_obj):
-        tz = pytz.timezone('US/Mountain')
-        end_of_day = tz.localize(
-            datetime.datetime(
-                biv_obj.submission_end_date.year, biv_obj.submission_end_date.month, biv_obj.submission_end_date.day,
-                23, 59, 59))
-        seconds_remaining = (end_of_day - datetime.datetime.now(tz)).total_seconds()
-        is_current = seconds_remaining > -86400 * 60
-        pre_nomimation = is_current
         return flask.jsonify({
             #TODO CHANGE THIS WHEN allowNominations
-            'preNomination': pre_nomimation,
-            'allowNominations': not pre_nomimation and seconds_remaining > 0,
+            'preNomination': biv_obj.is_pre_nomimation(),
+            'allowNominations': biv_obj.is_nominating(),
+            'showAllContestants': biv_obj.show_all_contestants(),
+            'showSemiFinalists': biv_obj.show_semi_finalists(),
+            'showFinalists': biv_obj.show_finalists(),
             'contestantCount': len(E15Contest._public_nominees(biv_obj)),
             #TODO(pjm): calculate from Nominee.is_finalist
-            'finalistCount': 0 if is_current else 3,
-            'isEventVoting': biv_obj.is_event_voting,
+            'finalistCount': 3 if biv_obj.is_expired() else 0,
+            'isEventVoting': biv_obj.is_event_voting(),
         })
 
     @common.decorator_login_required
     @decorator_user_is_event_voter
     def action_event_vote(biv_obj):
         data = flask.request.json
-        if not biv_obj.is_event_voting:
+        if not biv_obj.is_event_voting():
             return '{}'
         vote = E15Contest._event_vote(biv_obj)
         if vote.nominee_biv_id:
@@ -468,9 +463,7 @@ class E15Contest(ppc.Task):
 
     def is_event_voter(contest):
         vote = E15Contest._event_vote(contest)
-        if vote:
-            return True
-        return False
+        return bool(vote)
 
     def _event_vote(contest):
         return flask.session.get('user.is_logged_in') and pem.E15EventVoter.query.select_from(pam.User).filter(

@@ -21,8 +21,10 @@ import publicprize.controller as ppc
 import publicprize.evc.model as pem
 import publicprize.evc2015.model as pe15
 import publicprize.nextup.model as pnm
+import pytz
 import re
 import subprocess
+import time
 import urllib.request
 import werkzeug.serving
 
@@ -435,16 +437,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
                         )))
 
     for contest in data['E15Contest']:
-        contest_id = _add_model(
-            pe15.E15Contest(
-                display_name=contest['display_name'],
-                is_judging=contest['is_judging'],
-                is_event_voting=contest['is_event_voting'],
-                submission_end_date=datetime.datetime.strptime(
-                    contest['submission_end_date'], '%m/%d/%Y').date(),
-                end_date=datetime.datetime.strptime(
-                    contest['end_date'], '%m/%d/%Y').date(),
-            ))
+        contest_id = _add_model(pe15.E15Contest(**(_e15contest_kwargs(contest))))
         if 'Alias' in contest:
             _add_model(pam.BivAlias(
                 biv_id=contest_id,
@@ -470,6 +463,28 @@ def _create_founder(founder):
             founder['avatar_filename'])
         model.avatar_type = imghdr.what(None, model.founder_avatar)
     return model
+
+
+def _e15contest_kwargs(contest):
+    tz = pytz.timezone(contest['time_zone'])
+    kwargs = {}
+
+    def _dt(k, v):
+         kwargs[k] = tz.localize(
+             datetime.datetime.strptime(v, '%m/%d/%Y %H:%M:%S')
+         ).astimezone(pytz.UTC)
+
+    for k, v in contest.items():
+        if re.search('^[A-Z]', k):
+            pass
+        elif k == 'end_date':
+            kwargs[k] = datetime.datetime.strptime(v, '%m/%d/%Y').date()
+        elif re.search('_end$|_start$', k):
+            _dt(k, v)
+        else:
+            kwargs[k] = v
+    print(str(kwargs))
+    return kwargs
 
 
 def _founders_for_user(user, without_avatars=None):

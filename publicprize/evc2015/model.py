@@ -18,6 +18,12 @@ from .. import controller
 from ..contest import model as pcm
 from ..auth import model as pam
 from ..controller import db
+from .. import ppdatetime
+
+
+def _datetime_column():
+    return db.Column(db.DateTime(timezone=False), nullable=False)
+
 
 class E15Contest(db.Model, pcm.ContestBase):
     """contest database model.
@@ -27,14 +33,45 @@ class E15Contest(db.Model, pcm.ContestBase):
         db.Sequence('e15contest_s', start=1015, increment=1000),
         primary_key=True
     )
-    is_judging = db.Column(db.Boolean, nullable=False)
-    is_event_voting = db.Column(db.Boolean, nullable=False)
-    submission_end_date = db.Column(db.Date, nullable=False)
+    time_zone = db.Column(db.String, nullable=False)
+    event_voting_end = _datetime_column()
+    event_voting_start = _datetime_column()
+    judging_end = _datetime_column()
+    judging_start = _datetime_column()
+    public_voting_end = _datetime_column()
+    public_voting_start = _datetime_column()
+    submission_end = _datetime_column()
+    submission_start = _datetime_column()
+
+    def is_event_voting(self):
+        return ppdatetime.now_in_range(self.event_voting_start, self.event_voting_end)
 
     def is_judge(self):
-        if self.is_judging:
+        if self.is_judging():
             return super(E15Contest, self).is_judge()
         return False
+
+    def is_judging(self):
+        return ppdatetime.now_in_range(self.judging_start, self.judging_end)
+
+    def is_public_voting(self):
+        return ppdatetime.now_in_range(self.public_voting_start, self.public_voting_end)
+
+    def is_pre_nomimation(self):
+        return ppdatetime.now_before_start(self.submission_start)
+
+    def is_nominating(self):
+        return ppdatetime.now_in_range(self.submission_start, self.submission_end)
+
+    def show_all_contestants(self):
+        return ppdatetime.now_in_range(self.submission_start, self.judging_start)
+
+    def show_semi_finalists(self):
+        return ppdatetime.now_in_range(self.public_voting_end, self.judging_end)
+
+    def show_finalists(self):
+        return ppdatetime.now_in_range(self.judging_start, self.event_voting_end)
+
 
 
 class E15EventVoter(db.Model, common.ModelWithDates):

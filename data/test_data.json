@@ -2,10 +2,39 @@
     "E15Contest": [
         {
             "display_name": "2015 Exprit Venture Challenge",
-            "submission_end_date": "8/31/2015",
-            "is_judging": false,
-            "is_event_voting": false,
-            "end_date": "10/14/2015",
+            "submission_start": "8/1/2015 0:0:0",
+            "submission_end": "8/30/2015 23:59:59",
+            "end_date": "10/25/2015",
+            "event_voting_start": "10/25/2015 17:0:0",
+            "event_voting_end": "10/25/2015 20:0:0",
+            "judging_end": "9/29/2015 12:0:0",
+            "judging_start": "9/29/2015 14:0:0",
+            "public_voting_start": "9/6/2015 0:0:0",
+            "public_voting_end": "9/20/2015 23:59:59",
+            "time_zone": "US/Mountain",
+            "Alias": {
+                "name": "2015-esprit-venture-challenge"
+            },
+            "Sponsor": [
+                {
+                    "display_name":  "Colorado PERA",
+                    "website": "https://www.copera.org/",
+                    "logo_filename": "data/evc15/pera-150.jpg"
+                }
+            ]
+        },
+        {
+            "display_name": "2016 Exprit Venture Challenge",
+            "submission_start": "8/1/2016 0:0:0",
+            "submission_end": "8/30/2016 23:59:59",
+            "end_date": "10/25/2016",
+            "event_voting_start": "10/25/2016 17:0:0",
+            "event_voting_end": "10/25/2016 20:0:0",
+            "judging_end": "9/29/2016 12:0:0",
+            "judging_start": "9/29/2016 14:0:0",
+            "public_voting_start": "9/6/2016 0:0:0",
+            "public_voting_end": "9/20/2016 23:59:59",
+            "time_zone": "US/Mountain",
             "Alias": {
                 "name": "esprit-venture-challenge"
             },
