@@ -364,6 +364,13 @@ button.pp-amount-bar {
   line-height: 1.1;
   font-size: 33px;
 }
+.pp-inline-figure {
+  padding: 10px 0;
+}
+.pp-inline-figure .figure-caption {
+  padding: 10px 0;
+  text-align: center;
+}
 .pp-contest-desc:hover {
   color: #068587;
 }

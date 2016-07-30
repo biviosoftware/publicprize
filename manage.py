@@ -483,7 +483,6 @@ def _e15contest_kwargs(contest):
             _dt(k, v)
         else:
             kwargs[k] = v
-    print(str(kwargs))
     return kwargs
 
 

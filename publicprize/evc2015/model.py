@@ -73,7 +73,6 @@ class E15Contest(db.Model, pcm.ContestBase):
         return ppdatetime.now_in_range(self.judging_start, self.event_voting_end)
 
 
-
 class E15EventVoter(db.Model, common.ModelWithDates):
     """event voter database mode.
     """
@@ -93,6 +92,7 @@ class E15Nominee(db.Model, pcm.NomineeBase):
     )
     youtube_code = db.Column(db.String(500))
     nominee_desc = db.Column(db.String)
+    is_semi_finalist = db.Column(db.Boolean, nullable=False)
     is_finalist = db.Column(db.Boolean, nullable=False)
 
 

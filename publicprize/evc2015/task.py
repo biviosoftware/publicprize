@@ -219,6 +219,7 @@ class E15Contest(ppc.Task):
             biv_obj,
             'index',
             version='20160629',
+            base_template=None,
         )
 
     @common.decorator_login_required
