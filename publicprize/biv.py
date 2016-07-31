@@ -53,8 +53,16 @@ class Id(int):
 
         :param use_alias: If False, creates encoded uri, always
         """
-        if use_alias and self.__int__() in _id_to_alias:
-            return _id_to_alias[self.__int__()][0]
+        if use_alias:
+            i = self.__int__()
+            if i in _id_to_alias:
+                return _id_to_alias[i][0]
+            import publicprize.auth.model
+            alias = publicprize.auth.model.BivAlias.query.filter_by(
+                biv_id=i,
+            ).first()
+            if alias:
+                return URI(alias.alias_name)
         return URI(self)
 
 
@@ -95,14 +103,14 @@ class URI(str):
         self = super().__new__(cls, bu)
         if bu[0] == _ENC_PREFIX:
             self.__id = cls.__decode(bu)
-        else:
-            if bu not in _alias_to_id:
-                import publicprize.auth.model
-                alias = publicprize.auth.model.BivAlias.query.filter_by(
-                    alias_name=bu
-                ).first_or_404()
-                register_alias(bu, alias.biv_id)
+        elif bu in _alias_to_id:
             self.__id = _alias_to_id[bu]
+        else:
+            import publicprize.auth.model
+            alias = publicprize.auth.model.BivAlias.query.filter_by(
+                alias_name=bu
+            ).first_or_404()
+            self.__id = Id(alias.biv_id)
         return self
 
     @property

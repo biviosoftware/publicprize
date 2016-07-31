@@ -19,7 +19,7 @@ from ..auth import model as pam
 from ..contest import model as pcm
 
 HELP_TEXT = {
-    'nominee_desc': 'An explanation that tells the world how it addresses a social need, how it fulfills Boulder’s values in that regard, and how it will be sustainable financially. That is, how it uses business techniques to find solutions for social problems (e.g., homelessness, youth unemployment, ex-convict social programs, drug and alcohol programs etc.)',
+    'nominee_desc': 'Explain what your company does, what your plan for success is, and any other details about your company that might impress the judges and general public.',
     'youtube_url': 'A video that tells that story to a general audience (think "Kickstarter")',
 }
 
@@ -37,7 +37,7 @@ class Nominate(flask_wtf.Form):
         'YouTube Video URL',
         validators=[wtfv.DataRequired(), wtfv.Length(max=500)])
     nominee_desc = wtforms.TextAreaField(
-        'Explanation',
+        'Description and "pitch"',
         validators=[wtfv.DataRequired(), wtfv.Length(max=10000)])
     founder_name = wtforms.StringField(
         'Founder Name',
@@ -117,6 +117,8 @@ class Nominate(flask_wtf.Form):
         nominee.youtube_code = self._youtube_code()
         nominee.is_public = False
         nominee.is_finalist = False
+        nominee.is_semi_finalist = False
+        nominee.is_winner = False
         ppc.db.session.add(nominee)
         ppc.db.session.flush()
         ppc.db.session.add(

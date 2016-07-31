@@ -43,8 +43,29 @@ class E15Contest(db.Model, pcm.ContestBase):
     submission_end = _datetime_column()
     submission_start = _datetime_column()
 
-    def is_event_voting(self):
-        return ppdatetime.now_in_range(self.event_voting_start, self.event_voting_end)
+    def contest_info(self):
+        winner = self._winner_biv_id()
+        # TODO: check to make sure show*/is* aren't conflicting (one second overlap)
+        #    need to detect transtions. If there are no finalists, but showFinalists, then
+        #    compute finalists. Probably just want this on any contest page.
+        return {
+            'contestantCount': len(self.public_nominees()),
+            'finalistCount': self._count(E15Nominee.is_semi_finalist),
+            'isEventVoting': ppdatetime.now_in_range(self.event_voting_start, self.event_voting_end),
+            'isJudging': self.is_judging(),
+            'isNominating': ppdatetime.now_in_range(self.submission_start, self.submission_end),
+            'isPreNominating': ppdatetime.now_before_start(self.submission_start),
+            'isPublicVoting': ppdatetime.now_in_range(self.public_voting_start, self.public_voting_end),
+            'semiFinalistCount': self._count(E15Nominee.is_semi_finalist),
+            'showAllContestants': ppdatetime.now_in_range(self.submission_start, self.public_voting_end),
+            'showFinalists': ppdatetime.now_in_range(self.judging_end, self.event_voting_end),
+            'showSemiFinalists': ppdatetime.now_in_range(self.public_voting_end, self.judging_end),
+            'showWinner': bool(winner),
+            'winner_biv_id': winner,
+        }
+
+    def is_expired(self):
+        return ppdatetime.now_after_end(self.event_voting_end)
 
     def is_judge(self):
         if self.is_judging():
@@ -54,23 +75,27 @@ class E15Contest(db.Model, pcm.ContestBase):
     def is_judging(self):
         return ppdatetime.now_in_range(self.judging_start, self.judging_end)
 
-    def is_public_voting(self):
-        return ppdatetime.now_in_range(self.public_voting_start, self.public_voting_end)
+    def public_nominees(self):
+        return E15Nominee.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == E15Nominee.biv_id,
+            E15Nominee.is_public == True,
+        ).all()
 
-    def is_pre_nomimation(self):
-        return ppdatetime.now_before_start(self.submission_start)
+    def _count(self, field):
+        return E15Nominee.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == E15Nominee.biv_id,
+            field == True,
+        ).count()
 
-    def is_nominating(self):
-        return ppdatetime.now_in_range(self.submission_start, self.submission_end)
-
-    def show_all_contestants(self):
-        return ppdatetime.now_in_range(self.submission_start, self.judging_start)
-
-    def show_semi_finalists(self):
-        return ppdatetime.now_in_range(self.public_voting_end, self.judging_end)
-
-    def show_finalists(self):
-        return ppdatetime.now_in_range(self.judging_start, self.event_voting_end)
+    def _winner_biv_id(self):
+        res = E15Nominee.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == E15Nominee.biv_id,
+            E15Nominee.is_winner == True,
+        ).one_or_none()
+        return res.biv_id if res else None
 
 
 class E15EventVoter(db.Model, common.ModelWithDates):
@@ -94,6 +119,7 @@ class E15Nominee(db.Model, pcm.NomineeBase):
     nominee_desc = db.Column(db.String)
     is_semi_finalist = db.Column(db.Boolean, nullable=False)
     is_finalist = db.Column(db.Boolean, nullable=False)
+    is_winner = db.Column(db.Boolean, nullable=False)
 
 
 E15Contest.BIV_MARKER = biv.register_marker(15, E15Contest)

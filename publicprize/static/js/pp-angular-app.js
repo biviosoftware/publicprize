@@ -113,33 +113,66 @@ app.factory('contestState', function(serverRequest) {
     var self = this;
     self.contestInfo = {
         initializing: true,
-        preNomination: true,
-        allowNominations: false,
-        contestantCount: 0,
-        finalistCount: 0,
-        isEventVoting: false,
+        'contestantCount': 0,
+        'finalistCount': 0,
+        'isEventVoting': false,
+        'isJudging': false,
+        'isNominating': false,
+        'isPreNominating': false,
+        'isPublicVoting': false,
+        'semiFinalistCount': 0,
+        'showAllContestants': false,
+        'showFinalists': false,
+        'showSemiFinalists': false,
+        'showWinner': false,
+        'winner_biv_id': null
     };
     serverRequest.sendRequest('/contest-info', function(data) {
         self.contestInfo = data;
         self.contestInfo.initializing = false;
     });
-    self.allowNominations = function() {
-        return self.contestInfo.allowNominations;
-    };
+
     self.contestantCount = function() {
         return self.contestInfo.contestantCount;
     };
     self.finalistCount = function() {
         return self.contestInfo.finalistCount;
     };
-    self.isInitializing = function() {
-        return self.contestInfo.initializing;
-    };
     self.isEventVoting = function() {
         return self.contestInfo.isEventVoting;
     };
-    self.preNomination = function() {
-        return self.contestInfo.preNomination;
+    self.isJudging = function() {
+        return self.contestInfo.isJudging;
+    };
+    self.isInitializing = function() {
+        return self.contestInfo.initializing;
+    };
+    self.isNominating = function() {
+        return self.contestInfo.isNominating;
+    };
+    self.isPreNominating = function() {
+        return self.contestInfo.isPreNominating;
+    };
+    self.isPublicVoting = function() {
+        return self.contestInfo.isPublicVoting;
+    };
+    self.semiFinalistCount = function() {
+        return self.contestInfo.semiFinalistCount;
+    };
+    self.showAllContestants = function() {
+        return self.contestInfo.showAllContestants;
+    };
+    self.showFinalists = function() {
+        return self.contestInfo.showFinalists;
+    };
+    self.showSemiFinalists = function() {
+        return self.contestInfo.showSemiFinalists;
+    };
+    self.showWinner = function() {
+        return self.contestInfo.showWinner;
+    };
+    self.winner_biv_id = function() {
+        return self.contestInfo.winner_biv_id;
     };
     return self;
 });
@@ -211,15 +244,15 @@ app.controller('HomeController', function(serverRequest, contestState, userState
     self.homeRedirect = function() {
         if (self.isInitializing())
             return '';
-        if (contestState.preNomination())
+        if (contestState.isPreNominating())
             $location.path('/about');
-        else if (contestState.allowNominations())
+        else if (contestState.isNominating())
             $location.path('/submit-nominee');
         else if (contestState.isEventVoting() && userState.isEventVoter())
             $location.path('/event-voting');
         else if (userState.canVote())
             $location.path('/contestants');
-        else if (contestState.finalistCount() > 0)
+        else if (contestState.showFinalists())
             $location.path('/finalists');
         else
             $location.path('/about');
@@ -549,8 +582,8 @@ app.controller('SubmitNomineeController', function(serverRequest, userState, con
             $('#addFounderButton').fadeOut();
     };
 
-    self.allowNominations = function() {
-        return contestState.allowNominations();
+    self.isNominating = function() {
+        return contestState.isNominating();
     };
 
     self.getError = function(name) {
@@ -1071,8 +1104,8 @@ app.directive('sectionNav', function($location) {
         scope: {},
         template: [
             '<br />',
-            '<ul data-ng-if="! preNomination()" class="nav nav-justified">',
-              '<li data-ng-if="finalistCount() > 0" data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ finalistCount() }}</span></a></li>',
+            '<ul data-ng-if="! isPreNominating()" class="nav nav-justified">',
+              '<li data-ng-if="showFinalists()" data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ finalistCount() }}</span></a></li>',
               '<li data-ng-class="{\'pp-active-menu\': isSelected(\'contestants\') }"><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestantCount() }}</span></a></li>',
               '<li data-ng-class="{\'pp-active-menu\': isSelected(\'about\') }"><a class="btn btn-default" href="#/about">About</a></li>',
             '</ul>',
@@ -1084,8 +1117,11 @@ app.directive('sectionNav', function($location) {
             $scope.finalistCount = function() {
                 return contestState.finalistCount();
             };
-            $scope.preNomination = function() {
-                return contestState.preNomination();
+            $scope.showFinalists = function() {
+                return contestState.showFinalists();
+            };
+            $scope.isPreNominating = function() {
+                return contestState.isPreNominating();
             };
             $scope.isSelected = function(path) {
                 return $location.path().indexOf(path) >= 0;

@@ -53,7 +53,7 @@ class E15Contest(ppc.Task):
     def action_admin_review_judges(biv_obj):
         users = pcm.Judge.judge_users_for_contest(biv_obj)
         nominee_ids = {}
-        for nominee in E15Contest._public_nominees(biv_obj):
+        for nominee in biv_obj.public_nominees():
             nominee_ids[nominee.biv_id] = True
         res = []
 
@@ -85,13 +85,13 @@ class E15Contest(ppc.Task):
             res.append({
                 'biv_id': nominee.biv_id,
                 'display_name': nominee.display_name,
-                'url': nominee.url,
-                'youtube_code': nominee.youtube_code,
-                'nominee_desc': nominee.nominee_desc,
-                'is_public': nominee.is_public,
                 'founders': E15Contest._founder_info_for_nominee(nominee),
+                'is_public': nominee.is_public,
+                'nominee_desc': nominee.nominee_desc,
                 'submitter_display_name': submitter.display_name,
                 'submitter_email': submitter.user_email,
+                'url': nominee.url,
+                'youtube_code': nominee.youtube_code,
             })
 
         return flask.jsonify({
@@ -104,7 +104,7 @@ class E15Contest(ppc.Task):
         res = []
         total_votes = 0
         total_rank_scores = 0
-        for nominee in E15Contest._public_nominees(biv_obj):
+        for nominee in biv_obj.public_nominees():
             ranks = nominee.get_judge_ranks()
             votes = nominee.get_votes()
             vote_score = E15Contest._tally_votes(votes)
@@ -132,7 +132,7 @@ class E15Contest(ppc.Task):
     def action_admin_review_votes(biv_obj):
         res = []
         nominee_id_to_name = {}
-        for nominee in E15Contest._public_nominees(biv_obj):
+        for nominee in biv_obj.public_nominees():
             nominee_id_to_name[nominee.biv_id] = nominee.display_name
 
         for vote in pcm.Vote.query.select_from(pam.User).filter(
@@ -180,18 +180,7 @@ class E15Contest(ppc.Task):
         return '{}'
 
     def action_contest_info(biv_obj):
-        return flask.jsonify({
-            #TODO CHANGE THIS WHEN allowNominations
-            'preNomination': biv_obj.is_pre_nomimation(),
-            'allowNominations': biv_obj.is_nominating(),
-            'showAllContestants': biv_obj.show_all_contestants(),
-            'showSemiFinalists': biv_obj.show_semi_finalists(),
-            'showFinalists': biv_obj.show_finalists(),
-            'contestantCount': len(E15Contest._public_nominees(biv_obj)),
-            #TODO(pjm): calculate from Nominee.is_finalist
-            'finalistCount': 3 if biv_obj.is_expired() else 0,
-            'isEventVoting': biv_obj.is_event_voting(),
-        })
+        return flask.jsonify(biv_obj.contest_info())
 
     @common.decorator_login_required
     @decorator_user_is_event_voter
@@ -226,7 +215,7 @@ class E15Contest(ppc.Task):
     @common.decorator_user_is_judge
     def action_judge_ranking(biv_obj):
         data = flask.request.json
-        nominees = E15Contest._public_nominees(biv_obj)
+        nominees = biv_obj.public_nominees()
         ranks, comments = E15Contest._judge_ranks_and_comments_for_nominees(flask.session.get('user.biv_id'), nominees)
 
         for biv_id in ranks:
@@ -255,7 +244,7 @@ class E15Contest(ppc.Task):
     @common.decorator_login_required
     @common.decorator_user_is_judge
     def action_judging(biv_obj):
-        nominees = E15Contest._public_nominees(biv_obj)
+        nominees = biv_obj.public_nominees()
         random.Random(flask.session.get('user.display_name')).shuffle(nominees)
         ranks, comments = E15Contest._judge_ranks_and_comments_for_nominees(flask.session.get('user.biv_id'), nominees)
 
@@ -383,7 +372,7 @@ class E15Contest(ppc.Task):
         })
 
     def action_public_nominee_list(biv_obj):
-        nominees = E15Contest._public_nominees(biv_obj)
+        nominees = biv_obj.public_nominees()
         if flask.request.data:
             data = flask.request.json
             random.Random(data['random_value']).shuffle(nominees)
@@ -404,7 +393,7 @@ class E15Contest(ppc.Task):
 
     @common.decorator_login_required
     @common.decorator_user_is_admin
-    def action_register_event_email(biv_obj):
+    def old_action_register_event_email(biv_obj):
         email = flask.request.json['email'].lower()
         if pem.E15EventVoter.query.filter_by(
                 user_email=email,
@@ -421,7 +410,8 @@ class E15Contest(ppc.Task):
         }))
         return '{}'
 
-    def action_register_voter(biv_obj):
+    def old_action_register_voter(biv_obj):
+        #TODO: problem
         #if flask.session.get('user.is_logged_in') and E15Contest.is_event_voter(biv_obj):
         #    return flask.redirect('/esprit-venture-challenge')
         email = flask.request.json['email'].lower()
@@ -439,12 +429,14 @@ class E15Contest(ppc.Task):
         return '{}'
 
     def action_rules(biv_obj):
-        return flask.redirect('/static/pdf/20150914-evc-rules.pdf')
+        return flask.redirect('/static/pdf/20160801-evc-rules.pdf')
 
     def action_sponsors(biv_obj):
         return flask.jsonify(sponsors=biv_obj.get_sponsors())
 
     def action_user_state(biv_obj):
+        # Relies on session user (ie this person) to calculate these values so is secure
+        # and will only work for "self"
         logged_in = True if flask.session.get('user.is_logged_in') else False
         vote = E15Contest._user_vote(biv_obj)
         event_vote = E15Contest._event_vote(biv_obj)
@@ -526,13 +518,6 @@ class E15Contest(ppc.Task):
             comments[str(comment.nominee_biv_id)] = comment
         return (ranks, comments)
 
-    def _public_nominees(contest):
-        return pem.E15Nominee.query.select_from(pam.BivAccess).filter(
-            pam.BivAccess.source_biv_id == contest.biv_id,
-            pam.BivAccess.target_biv_id == pem.E15Nominee.biv_id,
-            pem.E15Nominee.is_public == True,
-        ).all()
-
     def _tally_judge_ranks(ranks):
         score = 0
         for rank in ranks:
@@ -553,7 +538,7 @@ class E15Contest(ppc.Task):
         if not flask.session.get('user.is_logged_in'):
             return False
         nominee_ids = {}
-        for nominee in E15Contest._public_nominees(contest):
+        for nominee in contest.public_nominees():
             nominee_ids[nominee.biv_id] = True
         user_vote = None
 

@@ -7,6 +7,17 @@ u"""Date routines
 from __future__ import absolute_import, division, print_function
 
 
+def now_after_end(end):
+    """Is current time after end
+
+    Args:
+        end (db.DateTime): stop
+    Returns:
+        bool: True if after end
+    """
+    return end.utcnow() > end
+
+
 def now_before_start(start):
     """Is current time before start
 

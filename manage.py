@@ -178,6 +178,16 @@ def create_test_db(force_prompt=False):
     _create_database(is_prompt_forced=bool(force_prompt))
 
 
+@_MANAGER.option('-b', '--biv_id', help='biv_id')
+def biv_info(biv_id):
+    """Set contest.field to date."""
+    b = biv.load_obj(biv_id)
+    print(str(b))
+    for k in b.__table__.columns:
+        k = k.name
+        print('{:>24} = {}'.format(k, getattr(b, k)))
+
+
 @_MANAGER.command
 def drop_db(auto_force=False):
     """Destroy the database"""
@@ -304,6 +314,19 @@ def replace_founder_avatar(user, input_file):
             _update_founder_avatar(founder, image)
 
 
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-d', '--date_time', help='Date/time value')
+@_MANAGER.option('-f', '--field', help='Field to set value to')
+def set_contest_date_time(contest, date_time, field):
+    """Set contest.field to date."""
+    c = biv.load_obj(contest)
+    assert type(c) == pe15.E15Contest
+    dt = _local_date_time(c, date_time)
+    assert hasattr(c, field), \
+        '{}: has no attr {}'.format(c, field)
+    setattr(c, field, dt)
+
+
 @_MANAGER.command
 def upgrade_db():
     data = json.load(open('data/evc2016.json', 'r'))
@@ -313,8 +336,8 @@ def upgrade_db():
                 display_name=contest['display_name'],
                 is_judging=contest['is_judging'],
                 is_event_voting=contest['is_event_voting'],
-                submission_end_date=datetime.datetime.strptime(
-                    contest['submission_end_date'], '%m/%d/%Y').date(),
+                submission_end=datetime.datetime.strptime(
+                    contest['submission_end'], '%m/%d/%Y').date(),
                 end_date=datetime.datetime.strptime(
                     contest['end_date'], '%m/%d/%Y').date(),
             ))
@@ -438,12 +461,10 @@ def _create_database(is_production=False, is_prompt_forced=False):
 
     for contest in data['E15Contest']:
         contest_id = _add_model(pe15.E15Contest(**(_e15contest_kwargs(contest))))
-        if 'Alias' in contest:
-            _add_model(pam.BivAlias(
-                biv_id=contest_id,
-                alias_name=contest['Alias']['name']
-            ))
-
+        _add_model(pam.BivAlias(
+            biv_id=contest_id,
+            alias_name=contest['Alias']['name']
+        ))
         for sponsor in contest['Sponsor']:
             add_sponsor(contest_id, sponsor['display_name'],
                         sponsor['website'], sponsor['logo_filename'])
@@ -466,13 +487,7 @@ def _create_founder(founder):
 
 
 def _e15contest_kwargs(contest):
-    tz = pytz.timezone(contest['time_zone'])
     kwargs = {}
-
-    def _dt(k, v):
-         kwargs[k] = tz.localize(
-             datetime.datetime.strptime(v, '%m/%d/%Y %H:%M:%S')
-         ).astimezone(pytz.UTC)
 
     for k, v in contest.items():
         if re.search('^[A-Z]', k):
@@ -480,7 +495,7 @@ def _e15contest_kwargs(contest):
         elif k == 'end_date':
             kwargs[k] = datetime.datetime.strptime(v, '%m/%d/%Y').date()
         elif re.search('_end$|_start$', k):
-            _dt(k, v)
+            kwargs[k] = _local_date_time(k, v)
         else:
             kwargs[k] = v
     return kwargs
@@ -497,6 +512,15 @@ def _founders_for_user(user, without_avatars=None):
     if without_avatars:
         query = query.filter(pcm.Founder.founder_avatar == None)  # noqa
     return query.all()
+
+
+def _local_date_time(contest, date_time):
+    tz = contest['time_zone'] if isinstance(contest, dict) else contest.time_zone
+    return pytz.timezone(
+        tz
+    ).localize(
+        datetime.datetime.strptime(date_time, '%m/%d/%Y %H:%M:%S')
+    ).astimezone(pytz.UTC)
 
 
 def _lookup_user(user):
