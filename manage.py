@@ -344,6 +344,7 @@ def set_contest_date_time(contest, date_time, field):
 
 @_MANAGER.command
 def upgrade_db():
+    """Backs up the db and runs an upgrade"""
     backup_db()
     contests = json.load(open('data/test_data.json', 'r'))['E15Contest']
     from publicprize import db_upgrade
