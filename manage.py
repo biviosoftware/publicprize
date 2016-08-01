@@ -195,7 +195,7 @@ def restore_db(dump_file):
 
 @_MANAGER.option('-b', '--biv_id', help='biv_id')
 def biv_info(biv_id):
-    """Set contest.field to date."""
+    """Dump fields of biv obj."""
     b = biv.load_obj(biv_id)
     print(str(b))
     for k in b.__table__.columns:
