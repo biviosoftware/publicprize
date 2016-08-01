@@ -347,14 +347,6 @@ def upgrade_db():
     """Backs up the db and runs an upgrade"""
     backup_db()
     contests = json.load(open('data/test_data.json', 'r'))['E15Contest']
-    from publicprize import db_upgrade
-    for f in 'is_judging', 'is_event_voting', 'submission_end_date':
-        db_upgrade.remove_column(pe15.E15Contest, f)
-    db_upgrade.add_column(
-        pe15.E15Contest,
-        pe15.E15Contest.time_zone,
-        contests[0]['time_zone'],
-    )
     date_fields = (
         'event_voting_end',
         'event_voting_start',
@@ -365,15 +357,6 @@ def upgrade_db():
         'submission_end',
         'submission_start',
     )
-    for f in date_fields:
-        db_upgrade.add_column(
-            pe15.E15Contest,
-            getattr(pe15.E15Contest, f),
-            _local_date_time_as_utc(contests[0], contests[0][f]),
-        )
-    for f in 'is_semi_finalist', 'is_winner':
-        db_upgrade.add_column(pe15.E15Nominee, getattr(pe15.E15Nominee, f), False)
-
     def _upgrade_contest(current_name, fields):
         m = pe15.E15Contest.query.filter_by(
             display_name=current_name,
@@ -383,8 +366,8 @@ def upgrade_db():
             setattr(m, f, _local_date_time_as_utc(fields, fields[f]))
         db.session.add(m)
 
-    _upgrade_contest('Exprit Venture Challenge', contests[0])
-    _upgrade_contest('Esprit Venture Challenge 2016', contests[1])
+    _upgrade_contest('2015 Exprit Venture Challenge', contests[0])
+    _upgrade_contest('2016 Exprit Venture Challenge', contests[1])
     db.session.commit()
 
 
@@ -528,7 +511,7 @@ def _e15contest_kwargs(contest):
         elif k == 'end_date':
             kwargs[k] = datetime.datetime.strptime(v, '%m/%d/%Y').date()
         elif re.search('_end$|_start$', k):
-            kwargs[k] = _local_date_time_as_utc(k, v)
+            kwargs[k] = _local_date_time_as_utc(contest, v)
         else:
             kwargs[k] = v
     return kwargs
