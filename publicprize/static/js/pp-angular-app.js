@@ -10,7 +10,10 @@ app.config(function($routeProvider) {
         };
     }
     $routeProvider
-        .when('/about', route('about'))
+        .when('/about',
+            route(
+                'about',
+                'HomeController as about'))
         .when(
             '/admin-review-nominees',
             route(
@@ -259,6 +262,8 @@ app.controller('HomeController', function(serverRequest, contestState, userState
         return '';
     };
 
+    self.contestState = contestState;
+
     self.isInitializing = function() {
         return contestState.isInitializing() || userState.isInitializing();
     };
@@ -485,10 +490,11 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
     refreshList();
 });
 
-app.controller('NomineeListController', function(serverRequest, userState, $location) {
+app.controller('NomineeListController', function(serverRequest, userState, contestState, $location) {
     var self = this;
     self.finalists = [];
     self.nominees = [];
+    self.contestState = contestState;
 
     // if (userState.isEventVoter() && $location.path().indexOf('finalists') >= 0) {
     //     $location.path('/event-voting');
@@ -1099,29 +1105,52 @@ app.directive('sponsorList', function() {
     };
 });
 
+app.directive('contestPage', function ($location) {
+    return {
+        scope: {},
+        transclude: true,
+        template: [
+            '<div class="pp-jumbo-bg"></div>',
+            '<div class="container" style="min-height: 380px">',
+              '<div class="row">',
+                '<div class="col-sm-12">',
+                  '<a href="#/home"><div class="pp-logo"></div></a>',
+                  '<div class="pp-jumbo-text">',
+                    "<h1>Boulder's Own Startup Competition</h1>",
+                  '</div>',
+                '</div>',
+              '</div>',
+            '</div>',
+            '<div class="container">',
+              '<div class="row">',
+                '<div class="col-sm-8">',
+                  '<div data-section-nav=""></div>',
+                  '<br />',
+                  '<div ng-transclude></div>',
+                '</div>',
+                '<div data-sponsor-list=""></div>',
+              '</div>',
+            '</div>',
+        ].join(''),
+        controller: function($scope, contestState) {return},
+    };
+});
+
 app.directive('sectionNav', function($location) {
     return {
         scope: {},
         template: [
             '<br />',
-            '<ul data-ng-if="! isPreNominating()" class="nav nav-justified">',
-              '<li data-ng-if="showFinalists()" data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ finalistCount() }}</span></a></li>',
-              '<li data-ng-class="{\'pp-active-menu\': isSelected(\'contestants\') }"><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestantCount() }}</span></a></li>',
+            '<ul data-ng-if="! contestInfo().isPreNominating" class="nav nav-justified">',
+              '<li data-ng-if="contestInfo().showFinalists" data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ contestInfo().finalistCount }}</span></a></li>',
+              '<li data-ng-if="contestInfo().isNominating" data-ng-class="{\'pp-active-menu\': isSelected(\'submit-nominee\') }"><a class="btn btn-default" href="#/submit-nominee">Contest Entry Form</a></li>',
+              '<li data-ng-if="contestInfo().showAllContestants" data-ng-class="{\'pp-active-menu\': isSelected(\'contestants\') }"><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestInfo().contestantCount }}</span></a></li>',
               '<li data-ng-class="{\'pp-active-menu\': isSelected(\'about\') }"><a class="btn btn-default" href="#/about">About</a></li>',
             '</ul>',
         ].join(''),
         controller: function($scope, contestState) {
-            $scope.contestantCount = function() {
-                return contestState.contestantCount();
-            };
-            $scope.finalistCount = function() {
-                return contestState.finalistCount();
-            };
-            $scope.showFinalists = function() {
-                return contestState.showFinalists();
-            };
-            $scope.isPreNominating = function() {
-                return contestState.isPreNominating();
+            $scope.contestInfo = function () {
+                return contestState.contestInfo;
             };
             $scope.isSelected = function(path) {
                 return $location.path().indexOf(path) >= 0;

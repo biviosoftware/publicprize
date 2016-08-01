@@ -1,31 +1,18 @@
-<div class="container">
-  <div class="row">
-    <div class="col-sm-12">
-      <a href="#/home"><div class="pp-logo"></div></a>
-    </div>
-  </div>
-</div>
-<div class="container">
-  <div class="row">
-    <div class="col-sm-8">
-      <div data-section-nav=""></div>
-      <div data-ng-repeat="nominee in nomineeList.nominees">
-        <div class="pp-form pp-nominee-summary-box" data-ng-click="nomineeList.selectNominee(nominee)" data-ng-class="{'pp-selected-nominee': nomineeList.userSelection(nominee) }">
-          <div class="pull-right" style="position: relative; margin: 1ex;">
-              <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
-              <img class="pp-video-play" alt="Play" src="/static/img/play.png" data-ng-click="nomineeList.selectNominee(nominee, true)">
-          </div>
-          <h3><span data-ng-if="nomineeList.userSelection(nominee)" class="glyphicon glyphicon-check"></span> {{ nominee.display_name }}</h3>
-          <div class="pp-nominee-text">{{ nominee.nominee_summary }}</div>
-          <div>
-            <a class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nomineeList.selectNominee(nominee)">Learn More</a>
-            <a data-ng-if="nomineeList.canVote()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nomineeList.castVote(nominee); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
-          </div>
-          <div class="clearfix"></div>
-        </div>
+<div data-contest-page="">
+  <p data-ng-if="nomineeList.contestState.isNominating()"><a href="#/submit-nominee">Learn how to enter the Esprit Venture Challenge.</a></p>
+  <div data-ng-repeat="nominee in nomineeList.nominees">
+    <div class="pp-form pp-nominee-summary-box" data-ng-click="nomineeList.selectNominee(nominee)" data-ng-class="{'pp-selected-nominee': nomineeList.userSelection(nominee) }">
+      <div class="pull-right" style="position: relative; margin: 1ex;">
+          <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
+          <img class="pp-video-play" alt="Play" src="/static/img/play.png" data-ng-click="nomineeList.selectNominee(nominee, true)">
       </div>
+      <h3><span data-ng-if="nomineeList.userSelection(nominee)" class="glyphicon glyphicon-check"></span> {{ nominee.display_name }}</h3>
+      <div class="pp-nominee-text">{{ nominee.nominee_summary }}</div>
+      <div>
+        <a class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nomineeList.selectNominee(nominee)">Learn More</a>
+        <a data-ng-if="nomineeList.canVote()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nomineeList.castVote(nominee); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
+      </div>
+      <div class="clearfix"></div>
     </div>
-    <div data-sponsor-list="" data-include-carousel="1"></div>
   </div>
 </div>
-<div data-login-modal="loginAndVoteModal" data-login-text="Log in and Vote!" data-next-url="nomineeList.voteUrl"></div>

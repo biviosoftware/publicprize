@@ -1,66 +1,44 @@
-<div class="pp-jumbo-bg"></div>
-<div class="container" style="min-height: 380px">
-  <div class="row">
-    <div class="col-sm-12">
-      <a href="#/home"><div class="pp-logo"></div></a>
-      <div class="pp-jumbo-text">
-        <h1>Boulder's Own Startup Competition</h1>
-      </div>
+<div data-contest-page="">
+  <p>Boulder is a hotbed for entrepreneurs, winning top ratings for its inviting environment, top-tier research and education institutions, and diversity of businesses that attract highly educated, creative and collaborative individuals who are willing to take risks &mdash; people we call "Boulderpreneurs."  The <strong>Boulder Chamber's Esprit Venture Challenge</strong>, presented by <a href="http://pera.org" target="_blank">Colorado PERA</a>, showcases the next generation of risk-taking <em>Boulderpreneurs</em> that the unique Boulder ecosystem fosters. <a href="#/about">[Read more]</a></p>
+  <div data-ng-if="submitNominee.isNominating()">
+    <p><span class="lead"><strong>Enter Now!</strong></span></p>
+    The basic entry criteria are:
+    <p><ul>
+        <li>Boulder County-based startups</li>
+        <li>Less than two years old</li>
+        <li>Received less than $1M in funding and revenue</li>
+    </ul></p>
+    <p>If your company meets these criteria and can follow the <a href="/esprit-venture-challenge/rules" target="_blank">Contest Rules</a> and <a href="/pub/terms" target="_blank">Terms of Use</a>, you have a chance to win <strong>$10,000</strong>.</p>
+    <p><strong>Don’t delay. Entry deadline is 12 p.m. MDT on August 30, 2016!</strong></p>
+    <!-- TODO(pjm): register link -->
+    <div class="pp-form" data-ng-hide="submitNominee.userState.isLoggedIn()">
+      <a href data-target="#loginModal" data-toggle="modal" rel="nofollow">Log in with LinkedIn to submit your company.</a>
     </div>
+    <div class="pp-form" data-ng-show="submitNominee.userState.isLoggedIn()">
+      <form name="form">
+        <h2>Contest Entry Form</h2>
+        <div data-ng-repeat="f in submitNominee.formFields">
+          <div class="form-group">
+            <div data-ng-show="f.visible && f.helpText" data-form-field-with-help="f" data-controller="submitNominee"></div>
+            <div data-ng-show="f.visible && ! f.helpText" data-form-field="f" data-controller="submitNominee"></div>
+          </div>
+        </div>
+        <div style="margin-bottom: 2ex">
+          <button type="button" id="addFounderButton" data-ng-click="submitNominee.addFounder()" class="btn btn-default btn-sm">
+            <span class="glyphicon glyphicon-plus"></span> Add another founder
+          </button>
+        </div>
+        <div class="pull-left pp-agree-to-terms">By submitting this form, I agree to <a href="/pub/terms" target="_blank">Terms of Use</a> and the <a href="/esprit-venture-challenge/rules" target="_blank">Contest Rules</a>.</div>
+        <div class="clearfix"></div>
+        <div class="pull-right">
+          <button type="submit" data-ng-click="submitNominee.saveForm()" class="pp-big-button btn btn-primary btn-lg ladda-button" data-style="expand-left"><span class="ladda-label">Submit Entry</span></button>
+        </div>
+        <div class="clearfix"></div>
+      </form>
+    </div>
+    <div>&nbsp;</div>
   </div>
-</div>
-<div class="container">
-  <div class="row">
-    <div class="col-sm-8">
-      <br>
-      <div class="lead" style="display: inline">
-        <p>Boulder is a hotbed for entrepreneurs, winning top ratings for its inviting environment, top-tier research and education institutions, and diversity of businesses that attract highly educated, creative and collaborative individuals who are willing to take risks &mdash; people we call "Boulderpreneurs."  The <strong>Boulder Chamber's Esprit Venture Challenge</strong>, presented by <a href="http://pera.org" target="_blank">Colorado PERA</a>, showcases the next generation of risk-taking <em>Boulderpreneurs</em> that the unique Boulder ecosystem fosters.</p>
-      </div>
-      <a href="#/about">Read more</a>
-      <hr>
-    <div data-ng-if="submitNominee.isNominating()">
-      <p><span class="lead">Apply Now!</span></p>
-      In order to enter, your company must
-      <p><ul>
-          <li>be based in Boulder County</li>
-          <li>be less than two years old</li>
-          <li>have received than $1M</li>
-      </ul></p>
-      <p>If so, here's your chance to win $10,000 in startup capital. Enter the 2016 Esprit Venture Challenge (<a href="/esprit-venture-challenge/rules" target="_blank">official rules</a>).</p>
-      <p><strong>Don’t delay. Entry deadline is 12 p.m. MDT on August 30, 2016!</strong></p>
-      <!-- TODO(pjm): register link -->
-      <div class="pp-form" data-ng-hide="submitNominee.userState.isLoggedIn()">
-        <a href data-target="#loginModal" data-toggle="modal" rel="nofollow">Log in with LinkedIn to submit your company.</a>
-      </div>
-      <div class="pp-form" data-ng-show="submitNominee.userState.isLoggedIn()">
-        <form name="form">
-          <h2>Contest Entry Form</h2>
-          <p>The Esprit Venture Challenge is for Boulder County seed-stage businesses, which are less than two years old and have received less than $1M. (<a href="/esprit-venture-challenge/rules" target="_blank">Contest Rules</a>)</p>
-          <div data-ng-repeat="f in submitNominee.formFields">
-            <div class="form-group">
-              <div data-ng-show="f.visible && f.helpText" data-form-field-with-help="f" data-controller="submitNominee"></div>
-              <div data-ng-show="f.visible && ! f.helpText" data-form-field="f" data-controller="submitNominee"></div>
-            </div>
-          </div>
-          <div style="margin-bottom: 2ex">
-            <button type="button" id="addFounderButton" data-ng-click="submitNominee.addFounder()" class="btn btn-default btn-sm">
-              <span class="glyphicon glyphicon-plus"></span> Add another founder
-            </button>
-          </div>
-          <div class="pull-left pp-agree-to-terms">By submitting this form, I agree to <a href="/pub/terms" target="_blank">Terms of Use</a> and the <a href="/esprit-venture-challenge/rules" target="_blank">Contest Rules</a>.</div>
-          <div class="clearfix"></div>
-          <div class="pull-right">
-            <button type="submit" data-ng-click="submitNominee.saveForm()" class="pp-big-button btn btn-primary btn-lg ladda-button" data-style="expand-left"><span class="ladda-label">Submit Entry</span></button>
-          </div>
-          <div class="clearfix"></div>
-        </form>
-      </div>
-      <div>&nbsp;</div>
-    </div>
-      <p><strong>And don’t forget to register to attend the event. It’s Boulder's premier event focused on entrepreneurs!</strong></p>
-      <p><span class="lead">About Esprit Entrepreneur</span></p>
-      <p>For the 32nd year the Boulder Chamber is proud to present Esprit, the premier celebration of the Entrepreneur in Boulder. This year’s event is an exciting revisioning of the celebration and includes collaboration with NewCo, an up close experience of Boulder’s leading companies and start ups.  The Esprit Celebration will be held on October 25th from 5-8:30 p.m. in the University of Colorado’s Memorial Center. Esprit will feature a networking cocktail reception from 5-6PM followed by a Jeffersonian Dinner during which our guests from all areas of the Boulder Economy will engage in a discussion of the issues of the day. <a href="http://boulderchamber.com/events/esprit-entrepreneur/">Learn more about Esprit Entrepreneur.</a></p>
-    </div>
-    <div data-sponsor-list=""></div>
-  </div>
+  <p><strong>And don’t forget to register to attend the event. It’s Boulder's premier event focused on entrepreneurs!</strong></p>
+  <p><span class="lead">About Esprit Entrepreneur</span></p>
+  <p>For the 32nd year the Boulder Chamber is proud to present Esprit, the premier celebration of the Entrepreneur in Boulder. This year’s event is an exciting revisioning of the celebration and includes collaboration with NewCo, an up close experience of Boulder’s leading companies and start ups.  The Esprit Celebration will be held on October 25th from 5-8:30 p.m. in the University of Colorado’s Memorial Center. Esprit will feature a networking cocktail reception from 5-6PM followed by a Jeffersonian Dinner during which our guests from all areas of the Boulder Economy will engage in a discussion of the issues of the day. <a href="http://boulderchamber.com/events/esprit-entrepreneur/">Learn more about Esprit Entrepreneur.</a></p>
 </div>

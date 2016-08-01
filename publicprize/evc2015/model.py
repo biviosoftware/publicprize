@@ -55,7 +55,7 @@ class E15Contest(db.Model, pcm.ContestBase):
             'isJudging': self.is_judging(),
             'isNominating': ppdatetime.now_in_range(self.submission_start, self.submission_end),
             'isPreNominating': ppdatetime.now_before_start(self.submission_start),
-            'isPublicVoting': ppdatetime.now_in_range(self.public_voting_start, self.public_voting_end),
+            'isPublicVoting': self.is_public_voting(),
             'semiFinalistCount': self._count(E15Nominee.is_semi_finalist),
             'showAllContestants': ppdatetime.now_in_range(self.submission_start, self.public_voting_end),
             'showFinalists': ppdatetime.now_in_range(self.judging_end, self.event_voting_end),
@@ -74,6 +74,9 @@ class E15Contest(db.Model, pcm.ContestBase):
 
     def is_judging(self):
         return ppdatetime.now_in_range(self.judging_start, self.judging_end)
+
+    def is_public_voting(self):
+        return ppdatetime.now_in_range(self.public_voting_start, self.public_voting_end)
 
     def public_nominees(self):
         return E15Nominee.query.select_from(pam.BivAccess).filter(
@@ -94,7 +97,7 @@ class E15Contest(db.Model, pcm.ContestBase):
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == E15Nominee.biv_id,
             E15Nominee.is_winner == True,
-        ).one_or_none()
+        ).first()
         return res.biv_id if res else None
 
 

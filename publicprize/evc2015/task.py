@@ -446,8 +446,8 @@ class E15Contest(ppc.Task):
             'isJudge': biv_obj.is_judge(),
             'displayName': flask.session.get('user.display_name') if logged_in else '',
             'vote': biv.Id(vote.nominee_biv_id).to_biv_uri() if vote else None,
-            'canVote': not biv_obj.is_expired(),
-            'isEventVoter': True if event_vote else False,
+            'canVote': not biv_obj.is_public_voting(),
+            'isEventVoter': bool(event_vote),
             'eventVote': biv.Id(event_vote.nominee_biv_id).to_biv_uri() if event_vote and event_vote.nominee_biv_id else None,
         })
 

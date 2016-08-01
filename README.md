@@ -35,10 +35,8 @@ patch /var/lib/pgsql/data/postgresql.conf <<'EOF'
 
 ##### Install home-env
 
-https://github.com/biviosoftware/home-env
-
 ```bash
-curl -s -L https://raw.githubusercontent.com/biviosoftware/home-env/master/install.sh | bash
+curl radia.run | bash -s home
 ```
 
 Exit your shell and restart.
@@ -49,8 +47,12 @@ Exit your shell and restart.
 cd ~/src/biviosoftware
 gcl publicprize
 cd publicprize
-bivio_pyenv_3
-bivio_pyenv_local
+pyenv install 3.4.1
+pyenv virtualenv 3.4.1 pp
+pyenv activate pp
+pip install -U setuptools pip
+pip install -r requirements.txt
+python setup.py develop
 ```
 
 This will create an "editable version" of this repository with pip so

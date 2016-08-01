@@ -133,34 +133,35 @@ def add_sponsor(contest, name, website, input_file):
         ))
     _add_owner(contest, sponsor_id)
 
+
+@_MANAGER.command
+def backup_db():
+    """Backup the database"""
+    c = ppc.app().config['PUBLICPRIZE']['DATABASE']
+    now = datetime.datetime.now()
+    dump_file = now.strftime('%Y%m%d%H%M%S-pp.pg_dump') + '-pp.pg_dump'
+    subprocess.check_call([
+        'pg_dump',
+        '--clean',
+        '--format=c',
+        '--blobs',
+        '--user=' +  c['user'],
+        '--file=' + dump_file,
+        c['name'],
+    ])
+    print('wrote ' + dump_file)
+
+
 @_MANAGER.option('-uri', help='URI')
 def biv_id(uri):
+    """Return the biv_id for any uri"""
     print(biv.URI(uri).biv_id)
+
 
 @_MANAGER.command
 def create_db():
     """Create the postgres user, database, and publicprize schema"""
-    c = ppc.app().config['PUBLICPRIZE']['DATABASE']
-    e = os.environ.copy()
-    e['PGPASSWORD'] = c['postgres_pass']
-    subprocess.call(
-        ['createuser', '--host=' + c['host'], '--user=postgres',
-         '--no-superuser', '--no-createdb', '--no-createrole', c['user']],
-        env=e)
-    p = subprocess.Popen(
-        ['psql', '--host=' + c['host'], '--user=postgres', 'template1'],
-        env=e,
-        stdin=subprocess.PIPE)
-    s = u"ALTER USER {user} WITH PASSWORD '{password}'".format(**c)
-    enc = locale.getlocale()[1]
-    loc = locale.setlocale(locale.LC_ALL)
-    p.communicate(input=bytes(s, enc))
-    subprocess.check_call(
-        ['createdb', '--host=' + c['host'], '--encoding=' + enc,
-         '--locale=' + loc, '--user=postgres',
-         '--template=template0',
-         '--owner=' + c['user'], c['name']],
-        env=e)
+    _init_db()
     db.create_all()
 
 
@@ -176,6 +177,20 @@ def create_test_db(force_prompt=False):
     """Recreates the database and loads the test data from
     data/test_data.json"""
     _create_database(is_prompt_forced=bool(force_prompt))
+
+
+@_MANAGER.option('-d', '--dump_file', help='dump file')
+def restore_db(dump_file):
+    """Restores db from dump_file"""
+    drop_db()
+    _init_db()
+    c = ppc.app().config['PUBLICPRIZE']['DATABASE']
+    subprocess.check_call([
+        'pg_restore',
+        '--dbname=' + c['name'],
+        '--user=' +  c['user'],
+        dump_file,
+    ])
 
 
 @_MANAGER.option('-b', '--biv_id', help='biv_id')
@@ -321,7 +336,7 @@ def set_contest_date_time(contest, date_time, field):
     """Set contest.field to date."""
     c = biv.load_obj(contest)
     assert type(c) == pe15.E15Contest
-    dt = _local_date_time(c, date_time)
+    dt = _local_date_time_as_utc(c, date_time)
     assert hasattr(c, field), \
         '{}: has no attr {}'.format(c, field)
     setattr(c, field, dt)
@@ -329,29 +344,46 @@ def set_contest_date_time(contest, date_time, field):
 
 @_MANAGER.command
 def upgrade_db():
-    data = json.load(open('data/evc2016.json', 'r'))
-    for contest in data['E15Contest']:
-        contest_id = _add_model(
-            pe15.E15Contest(
-                display_name=contest['display_name'],
-                is_judging=contest['is_judging'],
-                is_event_voting=contest['is_event_voting'],
-                submission_end=datetime.datetime.strptime(
-                    contest['submission_end'], '%m/%d/%Y').date(),
-                end_date=datetime.datetime.strptime(
-                    contest['end_date'], '%m/%d/%Y').date(),
-            ))
-        if 'Alias' in contest:
-            f = pam.BivAlias.query.filter(
-                pam.BivAlias.alias_name == contest['Alias']['name'],
-            ).delete()
-            _add_model(pam.BivAlias(
-                biv_id=contest_id,
-                alias_name=contest['Alias']['name']
-            ))
-        for sponsor in contest['Sponsor']:
-            add_sponsor(contest_id, sponsor['display_name'],
-                        sponsor['website'], sponsor['logo_filename'])
+    backup_db()
+    contests = json.load(open('data/test_data.json', 'r'))['E15Contest']
+    from publicprize import db_upgrade
+    for f in 'is_judging', 'is_event_voting', 'submission_end_date':
+        db_upgrade.remove_column(pe15.E15Contest, f)
+    db_upgrade.add_column(
+        pe15.E15Contest,
+        pe15.E15Contest.time_zone,
+        contests[0]['time_zone'],
+    )
+    date_fields = (
+        'event_voting_end',
+        'event_voting_start',
+        'judging_end',
+        'judging_start',
+        'public_voting_end',
+        'public_voting_start',
+        'submission_end',
+        'submission_start',
+    )
+    for f in date_fields:
+        db_upgrade.add_column(
+            pe15.E15Contest,
+            getattr(pe15.E15Contest, f),
+            _local_date_time_as_utc(contests[0], contests[0][f]),
+        )
+    for f in 'is_semi_finalist', 'is_winner':
+        db_upgrade.add_column(pe15.E15Nominee, getattr(pe15.E15Nominee, f), False)
+
+    def _upgrade_contest(current_name, fields):
+        m = pe15.E15Contest.query.filter_by(
+            display_name=current_name,
+        ).one()
+        m.display_name = fields['display_name']
+        for f in date_fields:
+            setattr(m, f, _local_date_time_as_utc(fields, fields[f]))
+        db.session.add(m)
+
+    _upgrade_contest('Exprit Venture Challenge', contests[0])
+    _upgrade_contest('Esprit Venture Challenge 2016', contests[1])
     db.session.commit()
 
 
@@ -495,7 +527,7 @@ def _e15contest_kwargs(contest):
         elif k == 'end_date':
             kwargs[k] = datetime.datetime.strptime(v, '%m/%d/%Y').date()
         elif re.search('_end$|_start$', k):
-            kwargs[k] = _local_date_time(k, v)
+            kwargs[k] = _local_date_time_as_utc(k, v)
         else:
             kwargs[k] = v
     return kwargs
@@ -514,7 +546,32 @@ def _founders_for_user(user, without_avatars=None):
     return query.all()
 
 
-def _local_date_time(contest, date_time):
+def _init_db():
+    """Create the database without tables"""
+    c = ppc.app().config['PUBLICPRIZE']['DATABASE']
+    e = os.environ.copy()
+    e['PGPASSWORD'] = c['postgres_pass']
+    subprocess.call(
+        ['createuser', '--host=' + c['host'], '--user=postgres',
+         '--no-superuser', '--no-createdb', '--no-createrole', c['user']],
+        env=e)
+    p = subprocess.Popen(
+        ['psql', '--host=' + c['host'], '--user=postgres', 'template1'],
+        env=e,
+        stdin=subprocess.PIPE)
+    s = u"ALTER USER {user} WITH PASSWORD '{password}'".format(**c)
+    enc = locale.getlocale()[1]
+    loc = locale.setlocale(locale.LC_ALL)
+    p.communicate(input=bytes(s, enc))
+    subprocess.check_call(
+        ['createdb', '--host=' + c['host'], '--encoding=' + enc,
+         '--locale=' + loc, '--user=postgres',
+         '--template=template0',
+         '--owner=' + c['user'], c['name']],
+        env=e)
+
+
+def _local_date_time_as_utc(contest, date_time):
     tz = contest['time_zone'] if isinstance(contest, dict) else contest.time_zone
     return pytz.timezone(
         tz
