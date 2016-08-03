@@ -10,6 +10,7 @@ import importlib
 import inspect
 import locale
 import os
+import os.path
 import re
 import sys
 
@@ -69,12 +70,15 @@ class BeakerSession(flask.sessions.SessionInterface):
 
     def init_app(self, app):
         """Register the session manager with flask."""
+        lock_dir = os.path.join(os.getcwd(), 'run/lock')
+        if not os.path.exists(lock_dir):
+            os.makedirs(lock_dir)
         app.wsgi_app = SessionMiddleware(
             app.wsgi_app,
             {
                 'session.type': 'ext:database',
                 'session.url': app.config['SQLALCHEMY_DATABASE_URI'],
-                'session.lock_dir': '/tmp/cache/lock',
+                'session.lock_dir': lock_dir,
                 # the cookie key
                 'session.key': 'pp',
                 'session.cookie_expires': False
