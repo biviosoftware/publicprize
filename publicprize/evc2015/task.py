@@ -429,7 +429,7 @@ class E15Contest(ppc.Task):
         return '{}'
 
     def action_rules(biv_obj):
-        return flask.redirect('/static/pdf/20160801-evc-rules.pdf')
+        return flask.redirect('/static/pdf/20160829-evc-rules.pdf')
 
     def action_sponsors(biv_obj):
         return flask.jsonify(sponsors=biv_obj.get_sponsors())
