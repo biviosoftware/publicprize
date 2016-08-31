@@ -357,17 +357,15 @@ def upgrade_db():
         'submission_end',
         'submission_start',
     )
-    def _upgrade_contest(current_name, fields):
+    def _upgrade_contest(fields):
         m = pe15.E15Contest.query.filter_by(
-            display_name=current_name,
+            display_name=fields['display_name'],
         ).one()
-        m.display_name = fields['display_name']
         for f in date_fields:
             setattr(m, f, _local_date_time_as_utc(fields, fields[f]))
         db.session.add(m)
 
-    _upgrade_contest('2015 Exprit Venture Challenge', contests[0])
-    _upgrade_contest('2016 Exprit Venture Challenge', contests[1])
+    _upgrade_contest(contests[1])
     db.session.commit()
 
 
