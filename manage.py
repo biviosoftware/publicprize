@@ -139,7 +139,7 @@ def backup_db():
     """Backup the database"""
     c = ppc.app().config['PUBLICPRIZE']['DATABASE']
     now = datetime.datetime.now()
-    dump_file = now.strftime('%Y%m%d%H%M%S-pp.pg_dump') + '-pp.pg_dump'
+    dump_file = now.strftime('%Y%m%d%H%M%S-pp.pg_dump')
     subprocess.check_call([
         'pg_dump',
         '--clean',
