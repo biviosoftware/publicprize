@@ -299,6 +299,10 @@ app.controller('NomineeController', function(serverRequest, userState, $route, $
         return serverRequest.formatFullPath('#' + nomineeUrl());
     };
 
+    self.canVote = function() {
+        return userState.canVote();
+    };
+
     self.castVote = function() {
         if (! userState.isLoggedIn()) {
             self.voteUrl = self.fullNomineeUrl() + '?vote=1';
