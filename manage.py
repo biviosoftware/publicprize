@@ -370,7 +370,11 @@ def twitter_votes(contest):
     ).all()
     all_votes = dict([(v.biv_id, v) for v in all_votes if v.twitter_handle])
     #print(all_votes)
-    for s in res['statuses']:
+    events = {}
+    ignore_handles = set()
+    for s in reversed(res['statuses']):
+        dt = s['created_at'][4:].replace('+0000 ', '')
+        dt = datetime.datetime.strptime(dt, '%b %d %H:%M:%S %Y')
         sn = pcm.Vote.strip_twitter_handle(s['user']['screen_name'])
         m = tweet_re.search(s['text'])
         err = None
@@ -390,33 +394,36 @@ def twitter_votes(contest):
                         votes[0].vote_status = '2x'
                         del all_votes[votes[0].biv_id]
                         _add_model(votes[0])
+                        ignore_handles.add(sn)
                         #print('{}: updated'.format(votes[0]))
                         continue
                     else:
                         err = '{}: duplicate vote'.format(votes[0])
                         continue
-                else:
+                elif len(votes) > 1:
                     err = '{}: strange vote count, votes='.format(len(votes), votes)
+                else:
+                    err = 'miss'
             else:
                 err = '{}: guess={} not found in {}'.format(m.group(1), guess, nominees.keys())
         else:
             err = 'tweet did not match {}'.format(s['text'], tweet_re)
-        print('{}\n    {}\n    {}\n    https://twitter.com/{}/status/{}\n    {}'.format(err, m and m.group(1), s['created_at'], sn, s['id'], s['text']))
+        if not sn in ignore_handles:
+            events[dt] = '{}\n    {} => {}\n    https://twitter.com/{}/status/{}\n    {}'.format(
+                err, m and m.group(1), sn, sn, s['id'], s['text'])
 
-    print('\nVotes not found')
-    misses = {}
+    # print('\nVotes not found')
     for v in all_votes.values():
         if not '!' in v.twitter_handle:
             u = biv.load_obj(biv.Id(v.user).to_biv_uri())
-            misses[v.creation_date_time] = '{}: {} {} {} {}'.format(
+            events[v.creation_date_time] = '{}: {} {} {}'.format(
                 v.twitter_handle,
                 u.display_name,
                 u.user_email,
                 nominees_by_id[v.nominee_biv_id],
-                v.creation_date_time,
             )
-    for k in reversed(sorted(misses.keys())):
-        print(misses[k])
+    for k in reversed(sorted(events.keys())):
+        print('{} {}'.format(k.strftime('%d %H:%M'), events[k]))
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
