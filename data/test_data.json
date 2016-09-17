@@ -21,7 +21,8 @@
                     "website": "https://www.copera.org/",
                     "logo_filename": "data/evc15/pera-150.jpg"
                 }
-            ]
+            ],
+            "E15Nominee": []
         },
         {
             "display_name": "2016 Esprit Venture Challenge",
@@ -44,6 +45,26 @@
                     "website": "https://www.copera.org/",
                     "logo_filename": "data/evc15/pera-150.jpg"
                 }
+            ],
+            "E15Nominee": [
+	        {
+	            "display_name": "Culture Kitchen",
+	            "youtube_code": "TvhOWfIoutU",
+	            "nominee_desc": "Culture Kitchen brings real authentic ethnic cuisines and the story behind the food to food lovers through our online platform. At www.culturekitchensf.com we bring you the recipes, cooking knowledge and ingredients to actually cook at home. These are the coveted recipes that get passed down from generation to generation. We connect you with the grandmothers from around the world you wish you had and now the ingredients and knowledge to cook like them at home.",
+	            "url": "http://www.culturekitchen.com/",
+	            "Founder": [
+	                {
+	                    "display_name": "Abby Sturges",
+	                    "avatar_filename": "data/abby-sturges.jpg",
+	                    "avatar_type": "jpeg",
+	                    "founder_desc": "Product Manager ¾ @Tastemade. Founder/COO @Culture Kitchen, @500 Startups, @Designer Fund. MFA Design @Stanford University. BFA Industrial Design @CMU University."
+	                }
+	            ],
+                    "Vote": [
+                        "robnagler",
+                        ""
+                    ]
+	        }
             ]
         }
     ],

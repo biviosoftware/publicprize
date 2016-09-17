@@ -9,6 +9,7 @@ import datetime
 import flask
 import math
 import pytz
+import re
 import random
 import sqlalchemy.orm
 
@@ -261,6 +262,14 @@ class Vote(db.Model, common.ModelWithDates):
         db.ForeignKey('user_t.biv_id'),
         nullable=False
     )
+
+    @staticmethod
+    def strip_twitter_handle(value):
+        value = value.lower()
+        value = value.replace('https://twitter.com/', '')
+        value = value.replace('@gmail.com', '')
+        return value.replace('@', '')[:100]
+
     nominee_biv_id = db.Column(db.Numeric(18), nullable=False)
     twitter_handle = db.Column(db.String(100))
     vote_status = db.Column(db.Enum('invalid', '1x', '2x', name='vote_status'), nullable=False)

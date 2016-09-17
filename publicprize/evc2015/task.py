@@ -305,7 +305,7 @@ class E15Contest(ppc.Task):
         nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
         #TODO(pjm): move to form which does proper validation
         # and checkes if valid twitter handle format
-        twitter_handle = data['twitter_handle'][:100]
+        twitter_handle = pcm.Vote.strip_twitter_handle(data['twitter_handle'])
         vote = E15Contest._user_vote(biv_obj)
         if not vote:
             ppc.app().logger.warn('tweet with no vote: {}'.format(data))

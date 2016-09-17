@@ -342,30 +342,119 @@ def set_contest_date_time(contest, date_time, field):
     setattr(c, field, dt)
 
 
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+def twitter_votes(contest):
+    """Count tweets and apply to votes for EspritVentureChallenge"""
+    import application_only_auth
+    import re
+
+    c = biv.load_obj(contest)
+    assert type(c) == pe15.E15Contest
+    cfg = ppc.app().config['PUBLICPRIZE']['TWITTER']
+    client = application_only_auth.Client(**cfg)
+    res = client.request(
+        'https://api.twitter.com/1.1/search/tweets.json?q=%40BoulderChamber%20%23EspritVentureChallenge&result_type=recent&count=1000',
+    )
+    strip_re = re.compile(r'[^a-z]')
+    def _strip(name):
+        return strip_re.sub('', name.lower())[0:5]
+
+    tweet_re = re.compile(r'I.*voted for (.+) in the')
+    nominees = {}
+    nominees_by_id = {}
+    for nominee in c.public_nominees():
+        nominees[_strip(nominee.display_name)] = nominee.biv_id
+        nominees_by_id[nominee.biv_id] = nominee.display_name
+    all_votes = pcm.Vote.query.filter(
+        pcm.Vote.nominee_biv_id.in_(list(nominees.values())),
+    ).all()
+    all_votes = dict([(v.biv_id, v) for v in all_votes if v.twitter_handle])
+    #print(all_votes)
+    for s in res['statuses']:
+        sn = pcm.Vote.strip_twitter_handle(s['user']['screen_name'])
+        m = tweet_re.search(s['text'])
+        err = None
+        #print('https://twitter.com/{}/status/{}'.format(sn, s['id']))
+        if s['retweet_count'] > 0:
+            err = 'ignore retweet'
+            continue
+        elif m:
+            guess = _strip(m.group(1))
+            if guess in nominees:
+                votes = pcm.Vote.query.filter_by(
+                    nominee_biv_id=nominees[guess],
+                    twitter_handle=sn,
+                ).all()
+                if len(votes) == 1:
+                    if votes[0].biv_id in all_votes:
+                        votes[0].vote_status = '2x'
+                        del all_votes[votes[0].biv_id]
+                        _add_model(votes[0])
+                        #print('{}: updated'.format(votes[0]))
+                        continue
+                    else:
+                        err = '{}: duplicate vote'.format(votes[0])
+                        continue
+                else:
+                    err = '{}: strange vote count, votes='.format(len(votes), votes)
+            else:
+                err = '{}: guess={} not found in {}'.format(m.group(1), guess, nominees.keys())
+        else:
+            err = 'tweet did not match {}'.format(s['text'], tweet_re)
+        print('{}\n    {}\n    {}\n    https://twitter.com/{}/status/{}\n    {}'.format(err, m and m.group(1), s['created_at'], sn, s['id'], s['text']))
+
+    print('\nVotes not found')
+    misses = {}
+    for v in all_votes.values():
+        if not '!' in v.twitter_handle:
+            u = biv.load_obj(biv.Id(v.user).to_biv_uri())
+            misses[v.creation_date_time] = '{}: {} {} {} {}'.format(
+                v.twitter_handle,
+                u.display_name,
+                u.user_email,
+                nominees_by_id[v.nominee_biv_id],
+                v.creation_date_time,
+            )
+    for k in reversed(sorted(misses.keys())):
+        print(misses[k])
+
+
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-o', '--old', help='old')
+@_MANAGER.option('-n', '--new', help='new')
+def twitter_handle_update(contest, old, new):
+    """update or invalidat"""
+    c = biv.load_obj(contest)
+    assert type(c) == pe15.E15Contest
+    all_nominees = [n.biv_id for n in c.public_nominees()]
+    all_votes = pcm.Vote.query.filter(
+        pcm.Vote.nominee_biv_id.in_(all_nominees),
+    ).all()
+    all_votes = dict([(v.biv_id, v) for v in all_votes if v.twitter_handle])
+    for v in all_votes.values():
+        if old != v.twitter_handle:
+            continue
+        new = ('!' + old) if new == '!' else pcm.Vote.strip_twitter_handle(new)
+        v.twitter_handle = new
+        _add_model(v)
+        break
+
+
 @_MANAGER.command
 def upgrade_db():
     """Backs up the db and runs an upgrade"""
     backup_db()
-    contests = json.load(open('data/test_data.json', 'r'))['E15Contest']
-    date_fields = (
-        'event_voting_end',
-        'event_voting_start',
-        'judging_end',
-        'judging_start',
-        'public_voting_end',
-        'public_voting_start',
-        'submission_end',
-        'submission_start',
-    )
-    def _upgrade_contest(fields):
-        m = pe15.E15Contest.query.filter_by(
-            display_name=fields['display_name'],
-        ).one()
-        for f in date_fields:
-            setattr(m, f, _local_date_time_as_utc(fields, fields[f]))
-        db.session.add(m)
-
-    _upgrade_contest(contests[1])
+    m = pe15.E15Contest.query.filter_by(
+        display_name='2016 Esprit Venture Challenge',
+    ).one()
+    for n in m.public_nominees():
+        for v in pcm.Vote.query.filter_by(
+            nominee_biv_id=n.biv_id,
+        ):
+            if v.twitter_handle:
+                v.twitter_handle = pcm.Vote.strip_twitter_handle(v.twitter_handle)
+                print(v.twitter_handle)
+                _add_model(v)
     db.session.commit()
 
 
@@ -483,6 +572,36 @@ def _create_database(is_production=False, is_prompt_forced=False):
             add_sponsor(contest_id, sponsor['display_name'],
                         sponsor['website'], sponsor['logo_filename'])
 
+        for nominee in contest['E15Nominee']:
+            founders = nominee['Founder']
+            del nominee['Founder']
+            votes = nominee['Vote']
+            del nominee['Vote']
+            nominee.update({
+                'is_public': True,
+                'is_semi_finalist': True,
+                'is_finalist': True,
+                'is_winner': True,
+            })
+            nominee_id = _add_model(pe15.E15Nominee(**nominee))
+            _add_owner(
+                contest_id,
+                nominee_id,
+            )
+            for founder in founders:
+                _add_owner(
+                    nominee_id,
+                    _add_model(_create_founder(founder)))
+            for twitter_handle in votes:
+                user_id = _create_user()
+                _add_model(
+                    pcm.Vote(
+                        user=user_id,
+                        nominee_biv_id=nominee_id,
+                        vote_status='1x',
+                        twitter_handle=twitter_handle.lower(),
+                    ))
+
     db.session.commit()
 
 
@@ -498,6 +617,19 @@ def _create_founder(founder):
             founder['avatar_filename'])
         model.avatar_type = imghdr.what(None, model.founder_avatar)
     return model
+
+
+def _create_user():
+    import werkzeug.security
+    name = 'F{} L{}'.format(
+        werkzeug.security.gen_salt(6).lower(),
+        werkzeug.security.gen_salt(8).lower())
+    return _add_model(pam.User(
+        display_name=name,
+        user_email='{}@localhost'.format(name.lower().replace(' ', '')),
+        oauth_type='test',
+        oauth_id=werkzeug.security.gen_salt(64)
+    ))
 
 
 def _e15contest_kwargs(contest):
