@@ -410,11 +410,12 @@ def twitter_votes(contest):
             err = 'tweet did not match {}'.format(s['text'], tweet_re)
         if not sn in ignore_handles:
             events[dt] = '{}\n    {} => {}\n    https://twitter.com/{}/status/{}\n    {}'.format(
-                err, m and m.group(1), sn, sn, s['id'], s['text'])
+                err, sn, m and m.group(1), sn, s['id'], s['text'])
 
     # print('\nVotes not found')
     for v in all_votes.values():
-        if not '!' in v.twitter_handle:
+        # Ignore invalidated handles and already counted votes
+        if not ('!' in v.twitter_handle or v.vote_status == '2x'):
             u = biv.load_obj(biv.Id(v.user).to_biv_uri())
             events[v.creation_date_time] = '{}: {} {} {}'.format(
                 v.twitter_handle,
