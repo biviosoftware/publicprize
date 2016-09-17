@@ -391,9 +391,10 @@ def twitter_votes(contest):
                 ).all()
                 if len(votes) == 1:
                     if votes[0].biv_id in all_votes:
-                        votes[0].vote_status = '2x'
+                        if votes[0].vote_status != '2x':
+                            votes[0].vote_status = '2x'
+                            _add_model(votes[0])
                         del all_votes[votes[0].biv_id]
-                        _add_model(votes[0])
                         ignore_handles.add(sn)
                         #print('{}: updated'.format(votes[0]))
                         continue
