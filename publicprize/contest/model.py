@@ -268,6 +268,9 @@ class Vote(db.Model, common.ModelWithDates):
         value = value.lower()
         value = value.replace('https://twitter.com/', '')
         value = value.replace('@gmail.com', '')
+        value = value.replace('@twitter.com', '')
+        value = value.replace('@yahoo.com', '')
+        value = value.replace('twitter@', '')
         return value.replace('@', '')[:100]
 
     nominee_biv_id = db.Column(db.Numeric(18), nullable=False)

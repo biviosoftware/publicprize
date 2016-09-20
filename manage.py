@@ -351,6 +351,7 @@ def twitter_votes(contest):
     c = biv.load_obj(contest)
     assert type(c) == pe15.E15Contest
     cfg = ppc.app().config['PUBLICPRIZE']['TWITTER']
+    ignore_list = ppc.app().config['PUBLICPRIZE']['TWEETS']['ignore_list']
     client = application_only_auth.Client(**cfg)
     res = client.request(
         'https://api.twitter.com/1.1/search/tweets.json?q=%40BoulderChamber%20%23EspritVentureChallenge&result_type=recent&count=1000',
@@ -373,9 +374,11 @@ def twitter_votes(contest):
     events = {}
     ignore_handles = set()
     for s in reversed(res['statuses']):
+        sn = pcm.Vote.strip_twitter_handle(s['user']['screen_name'])
+        if sn in ignore_list:
+            continue
         dt = s['created_at'][4:].replace('+0000 ', '')
         dt = datetime.datetime.strptime(dt, '%b %d %H:%M:%S %Y')
-        sn = pcm.Vote.strip_twitter_handle(s['user']['screen_name'])
         m = tweet_re.search(s['text'])
         err = None
         #print('https://twitter.com/{}/status/{}'.format(sn, s['id']))
@@ -404,7 +407,7 @@ def twitter_votes(contest):
                 elif len(votes) > 1:
                     err = '{}: strange vote count, votes='.format(len(votes), votes)
                 else:
-                    err = 'miss'
+                    err = 'vote not found'
             else:
                 err = '{}: guess={} not found in {}'.format(m.group(1), guess, nominees.keys())
         else:
@@ -416,7 +419,7 @@ def twitter_votes(contest):
     # print('\nVotes not found')
     for v in all_votes.values():
         # Ignore invalidated handles and already counted votes
-        if not ('!' in v.twitter_handle or v.vote_status == '2x'):
+        if not ('!' in v.twitter_handle or v.vote_status == '2x' or v.twitter_handle in ignore_list):
             u = biv.load_obj(biv.Id(v.user).to_biv_uri())
             events[v.creation_date_time] = '{}: {} {} {}'.format(
                 v.twitter_handle,
