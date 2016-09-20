@@ -382,10 +382,7 @@ def twitter_votes(contest):
         m = tweet_re.search(s['text'])
         err = None
         #print('https://twitter.com/{}/status/{}'.format(sn, s['id']))
-        if s['retweet_count'] > 0:
-            err = 'ignore retweet'
-            continue
-        elif m:
+        if m:
             guess = _strip(m.group(1))
             if guess in nominees:
                 votes = pcm.Vote.query.filter_by(
