@@ -348,6 +348,8 @@ def twitter_votes(contest):
     import application_only_auth
     import re
 
+    #TODO(robnagler) Add ability to count tweets for non-matching
+    # that is assign the tweet to a contestant manually
     c = biv.load_obj(contest)
     assert type(c) == pe15.E15Contest
     cfg = ppc.app().config['PUBLICPRIZE']['TWITTER']
@@ -461,8 +463,10 @@ def upgrade_db():
         key=lambda x: x['votes'],
         reverse=True,
     )
+    # make sure there isn't a tie between 10th and 11th place
     assert nominees[9]['votes'] > nominees[10]['votes']
     for i in range(10):
+        assert nominees[i]['votes'] >= nominees[i + 1]['votes']
         n = pe15.E15Nominee.query.filter_by(biv_id=nominees[i]['biv_id']).one()
         n.is_semi_finalist = True
         _add_model(n)
