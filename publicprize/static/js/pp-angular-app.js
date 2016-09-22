@@ -60,6 +60,11 @@ app.config(function($routeProvider) {
                 'finalists',
                 'NomineeListController as nomineeList'))
         .when(
+            '/semi-finalists',
+            route(
+                'semi-finalists',
+                'NomineeListController as nomineeList'))
+        .when(
             '/home',
             route(
                 'home',
@@ -255,6 +260,8 @@ app.controller('HomeController', function(serverRequest, contestState, userState
             $location.path('/event-voting');
         else if (userState.canVote())
             $location.path('/contestants');
+        else if (contestState.showSemiFinalists())
+            $location.path('/semi-finalists');
         else if (contestState.showFinalists())
             $location.path('/finalists');
         else
@@ -497,6 +504,7 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
 app.controller('NomineeListController', function(serverRequest, userState, contestState, $location) {
     var self = this;
     self.finalists = [];
+    self.semiFinalists = [];
     self.nominees = [];
     self.contestState = contestState;
 
@@ -511,8 +519,13 @@ app.controller('NomineeListController', function(serverRequest, userState, conte
             self.nominees = data.nominees;
 
             for (var i = 0; i < self.nominees.length; i++) {
-                if (self.nominees[i].is_finalist)
-                    self.finalists.push(self.nominees[i]);
+                var n = self.nominees[i];
+                if (n.is_finalist) {
+                    self.finalists.push(n);
+                }
+                if (n.is_semi_finalist) {
+                    self.semiFinalists.push(n);
+                }
             }
         },
         {
@@ -1147,6 +1160,7 @@ app.directive('sectionNav', function($location) {
             '<br />',
             '<ul data-ng-if="! contestInfo().isPreNominating" class="nav nav-justified">',
               '<li data-ng-if="contestInfo().showFinalists" data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ contestInfo().finalistCount }}</span></a></li>',
+              '<li data-ng-if="contestInfo().showSemiFinalists" data-ng-class="{\'pp-active-menu\': isSelected(\'semi-finalists\') }"><a class="btn btn-default" href="#/semi-finalists">Semi-Finalists <span class="badge">{{ contestInfo().semiFinalistCount }}</span></a></li>',
               '<li data-ng-if="contestInfo().isNominating" data-ng-class="{\'pp-active-menu\': isSelected(\'submit-nominee\') }"><a class="btn btn-default" href="#/submit-nominee">Contest Entry Form</a></li>',
               '<li data-ng-if="contestInfo().showAllContestants" data-ng-class="{\'pp-active-menu\': isSelected(\'contestants\') }"><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestInfo().contestantCount }}</span></a></li>',
               '<li data-ng-class="{\'pp-active-menu\': isSelected(\'about\') }"><a class="btn btn-default" href="#/about">About</a></li>',

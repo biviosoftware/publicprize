@@ -40,14 +40,6 @@ def decorator_user_is_event_voter(func):
 class E15Contest(ppc.Task):
     """Contest actions"""
 
-    _SCORE_FOR_RANK = {
-        '1': 10,
-        '2': 5,
-        '3': 2.5,
-        '4': 1.25,
-        '5': 0.625,
-    }
-
     @common.decorator_login_required
     @common.decorator_user_is_admin
     def action_admin_review_judges(biv_obj):
@@ -101,30 +93,9 @@ class E15Contest(ppc.Task):
     @common.decorator_login_required
     @common.decorator_user_is_admin
     def action_admin_review_scores(biv_obj):
-        res = []
-        total_votes = 0
-        total_rank_scores = 0
-        for nominee in biv_obj.public_nominees():
-            ranks = nominee.get_judge_ranks()
-            votes = nominee.get_votes()
-            vote_score = E15Contest._tally_votes(votes)
-            total_votes += vote_score
-            rank_score = E15Contest._tally_judge_ranks(ranks)
-            total_rank_scores += rank_score
-            res.append({
-                'biv_id': nominee.biv_id,
-                'display_name': nominee.display_name,
-                'judge_ranks': '( {} )'.format(', '.join(map(str, ranks))),
-                'votes': vote_score,
-                'judge_score': rank_score,
-            })
-        for row in res:
-            if total_votes and total_rank_scores:
-                row['score'] = 40 * row['votes'] / total_votes + 60 * row['judge_score'] / total_rank_scores
-            else:
-                row['score'] = 0
+        scores = biv_obj.tally_all_scores();
         return flask.jsonify({
-            'scores': sorted(res, key=lambda nominee: nominee['display_name'])
+            'scores': sorted(scores, key=lambda nominee: nominee['display_name'])
         })
 
     @common.decorator_login_required
@@ -386,6 +357,8 @@ class E15Contest(ppc.Task):
                 'youtube_code': nominee.youtube_code,
                 'nominee_summary': common.summary_text(nominee.nominee_desc),
                 'is_finalist': nominee.is_finalist,
+                'is_semi_finalist': nominee.is_semi_finalist,
+                'is_winner': nominee.is_winner,
             })
         return flask.jsonify({
             'nominees': res,
@@ -517,21 +490,6 @@ class E15Contest(ppc.Task):
         ).all()):
             comments[str(comment.nominee_biv_id)] = comment
         return (ranks, comments)
-
-    def _tally_judge_ranks(ranks):
-        score = 0
-        for rank in ranks:
-            score += E15Contest._SCORE_FOR_RANK[str(rank)]
-        return score
-
-    def _tally_votes(votes):
-        count = 0
-        for vote in votes:
-            if vote.vote_status == '1x':
-                count += 1
-            elif vote.vote_status == '2x':
-                count += 2
-        return count
 
     def _user_vote(contest):
         """ Returns the user's vote or None """

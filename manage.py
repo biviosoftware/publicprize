@@ -456,14 +456,16 @@ def upgrade_db():
     m = pe15.E15Contest.query.filter_by(
         display_name='2016 Esprit Venture Challenge',
     ).one()
-    for n in m.public_nominees():
-        for v in pcm.Vote.query.filter_by(
-            nominee_biv_id=n.biv_id,
-        ):
-            if v.twitter_handle:
-                v.twitter_handle = pcm.Vote.strip_twitter_handle(v.twitter_handle)
-                print(v.twitter_handle)
-                _add_model(v)
+    nominees = sorted(
+        m.tally_all_scores(),
+        key=lambda x: x['votes'],
+        reverse=True,
+    )
+    assert nominees[9]['votes'] > nominees[10]['votes']
+    for i in range(10):
+        n = pe15.E15Nominee.query.filter_by(biv_id=nominees[i]['biv_id']).one()
+        n.is_semi_finalist = True
+        _add_model(n)
     db.session.commit()
 
 
