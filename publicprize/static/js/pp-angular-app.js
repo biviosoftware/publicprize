@@ -879,7 +879,7 @@ app.controller('AdminJudgesController', function(serverRequest) {
     });
 });
 
-app.controller('AdminScoresController', function(serverRequest) {
+app.controller('AdminScoresController', function(serverRequest, contestState) {
     var self = this;
     self.scores = [];
     self.totalVotes = 0;
@@ -888,14 +888,20 @@ app.controller('AdminScoresController', function(serverRequest) {
         self.scores = data.scores;
         self.totalVotes = 0;
         self.totalJudgeRanks = 0;
-
         for (var i = 0; i < self.scores.length; i++) {
             self.totalVotes += self.scores[i].votes;
             self.totalJudgeRanks += self.scores[i].judge_score;
         }
-        self.scores.sort(function(a, b) {
-            return b.score - a.score;
-        });
+        var key = contestState.isEventVoting()
+            ? function(x) {return x.event_votes;}
+            : contestState.isJudging() || contestState.showFinalists()
+            ? function(x) {return x.judge_score;}
+            : contestState.isPublicVoting() || contestState.showSemiFinalists()
+            ? function(x) {return x.votes;}
+            : null;
+        self.scores.sort(
+            key ? function(a, b) {return key(b) - key(a);} : undefined
+        );
     });
 });
 
