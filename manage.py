@@ -158,6 +158,16 @@ def biv_id(uri):
     print(biv.URI(uri).biv_id)
 
 
+@_MANAGER.option('-b', '--biv_id', help='biv_id')
+def biv_info(biv_id):
+    """Dump fields of biv obj."""
+    b = biv.load_obj(biv_id)
+    print(str(b))
+    for k in b.__table__.columns:
+        k = k.name
+        print('{:>24} = {}'.format(k, getattr(b, k)))
+
+
 @_MANAGER.command
 def create_db():
     """Create the postgres user, database, and publicprize schema"""
@@ -177,30 +187,6 @@ def create_test_db(force_prompt=False):
     """Recreates the database and loads the test data from
     data/test_data.json"""
     _create_database(is_prompt_forced=bool(force_prompt))
-
-
-@_MANAGER.option('-d', '--dump_file', help='dump file')
-def restore_db(dump_file):
-    """Restores db from dump_file"""
-    drop_db()
-    _init_db()
-    c = ppc.app().config['PUBLICPRIZE']['DATABASE']
-    subprocess.check_call([
-        'pg_restore',
-        '--dbname=' + c['name'],
-        '--user=' +  c['user'],
-        dump_file,
-    ])
-
-
-@_MANAGER.option('-b', '--biv_id', help='biv_id')
-def biv_info(biv_id):
-    """Dump fields of biv obj."""
-    b = biv.load_obj(biv_id)
-    print(str(b))
-    for k in b.__table__.columns:
-        k = k.name
-        print('{:>24} = {}'.format(k, getattr(b, k)))
 
 
 @_MANAGER.command
@@ -327,6 +313,20 @@ def replace_founder_avatar(user, input_file):
     for user_model in users:
         for founder in _founders_for_user(user_model):
             _update_founder_avatar(founder, image)
+
+
+@_MANAGER.option('-d', '--dump_file', help='dump file')
+def restore_db(dump_file):
+    """Restores db from dump_file"""
+    drop_db()
+    _init_db()
+    c = ppc.app().config['PUBLICPRIZE']['DATABASE']
+    subprocess.check_call([
+        'pg_restore',
+        '--dbname=' + c['name'],
+        '--user=' +  c['user'],
+        dump_file,
+    ])
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
