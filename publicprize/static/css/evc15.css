@@ -119,6 +119,16 @@ div.pp-jumbo-text h1 {
   border-radius: 2em;
   display: table-cell;
 }
+.pp-rank-btn-in-text {
+  min-width: 1em;
+  min-height: 1em;
+  line-height: 1em;
+  padding: 0;
+  margin: 5px;
+  border-radius: .5em;
+  display: table-cell;
+  background-color: #222;
+}
 .pp-nominee-name {
   font-weight: 300;
   font-size: 21px;

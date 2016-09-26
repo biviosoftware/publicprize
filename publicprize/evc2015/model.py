@@ -147,7 +147,7 @@ class E15Nominee(db.Model, pcm.NomineeBase):
     def tally_judge_ranks(self):
         score = 0
         for rank in self.get_judge_ranks():
-            score += 11 - rank
+            score += (pcm.JudgeRank.MAX_RANKS + 1) - rank
         return score
 
     def tally_votes(self):

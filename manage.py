@@ -340,6 +340,22 @@ def set_contest_date_time(contest, date_time, field):
     assert hasattr(c, field), \
         '{}: has no attr {}'.format(c, field)
     setattr(c, field, dt)
+    _add_model(c)
+
+
+@_MANAGER.option('-n', '--nominee', help='Nominee biv_id')
+@_MANAGER.option('-f', '--field', help='Field to toggle')
+def toggle_nominee_flag(nominee, field):
+    """Set contest.field to date."""
+    n = biv.load_obj(nominee)
+    assert type(n) == pe15.E15Nominee
+    assert hasattr(n, field), \
+        '{}: has no attr {}'.format(n, field)
+    v = getattr(n, field)
+    assert type(v) == bool, \
+        '{}.{}: is not boolean {}'.format(n, field, type(n.field))
+    setattr(n, field, not v)
+    _add_model(n)
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
@@ -594,9 +610,9 @@ def _create_database(is_production=False, is_prompt_forced=False):
             del nominee['Vote']
             nominee.update({
                 'is_public': True,
-                'is_semi_finalist': True,
-                'is_finalist': True,
-                'is_winner': True,
+                'is_semi_finalist': False,
+                'is_finalist': False,
+                'is_winner': False,
             })
             nominee_id = _add_model(pe15.E15Nominee(**nominee))
             _add_owner(

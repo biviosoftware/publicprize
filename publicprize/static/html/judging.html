@@ -9,9 +9,7 @@
   <div class="row">
     <div class="col-sm-12">
       <div class="pp-media-body">
-        <p>As a judge, your job is to rank the top {{ judging.MAX_RANKS }} contestants. You may change your rankings any time
-	  before October 26, 2015. Individual rankings will remain secret. You may optionally provide a comment to any
-          contestant by selecting the <span class="glyphicon glyphicon-comment"></span> icon.</p>
+        <p>As a judge, your job is to rank the top {{ judging.MAX_RANKS }} contestants. Click on the <span class="pp-rank-btn-in-text-container"><span title="click circle icon to rank" class="pp-rank-btn-in-text">&nbsp;</span></span> to set or to change a rank. Individual rankings will remain secret. You may optionally provide a comment to any contestant by selecting the <span title="click chat icon to comment" class="glyphicon glyphicon-comment"></span>.</p>
       </div>
       <div class="text-muted pull-right pp-auto-save"><small>{{ judging.autoSaveMessage || '&nbsp;' }}</small></div>
       <div class="clearfix"></div>
@@ -20,7 +18,7 @@
   <div class="row">
     <div class="col-sm-6" data-ng-repeat="nominee in judging.nominees">
       <div class="dropdown pp-rank-row">
-        <button data-ng-click="judging.selectNominee(nominee, $event)" data-ng-mouseleave="judging.endHoverNominee(nominee, $event)" data-ng-mouseover="judging.hoverNominee(nominee, $event)" data-ng-class="{'btn-warning': nominee.rank, 'disabled': judging.isDisabled(nominee)}" class="btn btn-default pp-rank-btn" data-toggle="dropdown">
+        <button title="Click to rank contestant" data-ng-click="judging.selectNominee(nominee, $event)" data-ng-mouseleave="judging.endHoverNominee(nominee, $event)" data-ng-mouseover="judging.hoverNominee(nominee, $event)" data-ng-class="{'btn-warning': nominee.rank, 'disabled': judging.isDisabled(nominee)}" class="btn btn-default pp-rank-btn" data-toggle="dropdown">
           <span data-ng-show="nominee.hoverRank" class="pp-rank">{{ nominee.hoverRank }}<sup>{{ judging.superscript(nominee.hoverRank) }}</sup></span>
           <span data-ng-show="nominee.rank" class="pp-rank">{{ nominee.rank }}<sup>{{ judging.superscript(nominee.rank) }}</sup></span>
           <span data-ng-hide="nominee.rank || nominee.hoverRank">&nbsp;</span>
@@ -30,7 +28,7 @@
             <a href data-ng-click="judging.selectRank(nominee, rank)" class="pp-rank-item">{{ rank.text }}</a>
           </li>
         </ul>
-        <span class="pp-nominee-name"><a data-ng-href="{{ judging.nomineeURL(nominee) }}">{{ nominee.display_name }}</a>&nbsp;&nbsp;&nbsp;<span class="pp-comment-icon"><a href data-ng-click="judging.showComment(nominee)"><span data-ng-class="{'pp-has-comment': judging.hasComment(nominee)}" class="glyphicon glyphicon-comment"></span></a></span></span>
+        <span class="pp-nominee-name"><a data-ng-href="{{ judging.nomineeURL(nominee) }}">{{ nominee.display_name }}</a>&nbsp;&nbsp;&nbsp;<span title="Click to provide a comment to contestant" class="pp-comment-icon"><a href data-ng-click="judging.showComment(nominee)"><span data-ng-class="{'pp-has-comment': judging.hasComment(nominee)}" class="glyphicon glyphicon-comment"></span></a></span></span>
       </div>
     </div>
   </div>

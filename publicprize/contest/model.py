@@ -172,8 +172,8 @@ class Judge(db.Model, common.ModelWithDates):
 
 
 class JudgeRank(db.Model, common.ModelWithDates):
-    """Judge's top 10 ranks."""
-    MAX_RANKS = 10
+    """Judge's top 5 ranks."""
+    MAX_RANKS = 5
 
     judge_biv_id = db.Column(db.Numeric(18), primary_key=True)
     nominee_biv_id = db.Column(db.Numeric(18), primary_key=True)

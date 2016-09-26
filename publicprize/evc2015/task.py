@@ -221,13 +221,14 @@ class E15Contest(ppc.Task):
 
         res = []
         for nominee in nominees:
-            biv_id = str(nominee.biv_id)
-            res.append({
-                'biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
-                'display_name': nominee.display_name,
-                'rank': ranks[biv_id].judge_rank if biv_id in ranks else None,
-                'comment': comments[biv_id].judge_comment if biv_id in comments else None,
-            })
+            if nominee.is_semi_finalist:
+                biv_id = str(nominee.biv_id)
+                res.append({
+                    'biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
+                    'display_name': nominee.display_name,
+                    'rank': ranks[biv_id].judge_rank if biv_id in ranks else None,
+                    'comment': comments[biv_id].judge_comment if biv_id in comments else None,
+                })
         return flask.jsonify({
             'judging': res,
         })

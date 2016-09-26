@@ -64,6 +64,22 @@
                         "robnagler",
                         ""
                     ]
+	        },
+	        {
+	            "display_name": "gazeMetrix",
+	            "youtube_code": "IltOrITTJBo",
+	            "nominee_desc": "gazeMetrix empowers brands with insight into when and where their brand was photographed across social media in real-time. Using proprietary computer vision and machine learning algorithms, gazeMetrix accurately analyzes user-created photos on Instagram and identifies when a brand is featured. Brands discover their latest photos instantly. We automatically pick up the 'most popular pictures' and they can share them on their fan page/ Pinterest boards or twitter streams.",
+	            "url": "https://www.yahoo.com",
+	            "Founder": [],
+                    "Vote": []
+	        },
+	        {
+	            "display_name": "mac lethal",
+	            "youtube_code": "RvLmcRZte78",
+	            "nominee_desc": "Mac Lethal is also responsible for a Tumblr feed called Texts from Bennett, in which he purports to divulge text message conversations between himself and his cousin Bennett. Although some have questioned whether or not Bennett is a real person, he insists that the conversations are 100% genuine.[12] He released the novel of the same name on Simon & Schuster in 2013.[13]",
+	            "url": "http://maclethal.bandcamp.com",
+	            "Founder": [],
+                    "Vote": []
 	        }
             ]
         }
