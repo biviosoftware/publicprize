@@ -272,6 +272,22 @@ class E15Contest(ppc.Task):
         })
 
     @common.decorator_login_required
+    def action_nominee_comments(biv_obj):
+        # only nominee submitters will receive rows
+        res = []
+        for nominee in biv_obj.semi_finalist_nominees_for_user():
+            for comment in pcm.JudgeComment.query.filter_by(
+                nominee_biv_id=nominee.biv_id,
+            ).all():
+                res.append({
+                    'display_name': nominee.display_name,
+                    'judge_comment': comment.judge_comment,
+                })
+        return flask.jsonify({
+            'comments': res,
+        })
+
+    @common.decorator_login_required
     def action_nominee_tweet(biv_obj):
         data = flask.request.json
         nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
@@ -418,6 +434,7 @@ class E15Contest(ppc.Task):
             'isLoggedIn': logged_in,
             'isAdmin': pam.Admin.is_admin(),
             'isJudge': biv_obj.is_judge(),
+            'isSemiFinalistSubmitter': biv_obj.is_semi_finalist_submitter(),
             'displayName': flask.session.get('user.display_name') if logged_in else '',
             'vote': biv.Id(vote.nominee_biv_id).to_biv_uri() if vote else None,
             'canVote': biv_obj.is_public_voting(),
