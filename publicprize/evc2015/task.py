@@ -26,17 +26,6 @@ from ..contest import model as pcm
 _template = common.Template('evc2015')
 
 
-def decorator_user_is_event_voter(func):
-    """Require the current user is an E15EventVoter."""
-    @functools.wraps(func)
-    def decorated_function(*args, **kwargs):
-        """Forbidden unless allowed."""
-        if E15Contest.is_event_voter(args[0]):
-            return func(*args, **kwargs)
-        werkzeug.exceptions.abort(403)
-    return decorated_function
-
-
 class E15Contest(ppc.Task):
     """Contest actions"""
 
@@ -152,26 +141,6 @@ class E15Contest(ppc.Task):
 
     def action_contest_info(biv_obj):
         return flask.jsonify(biv_obj.contest_info())
-
-    @common.decorator_login_required
-    @decorator_user_is_event_voter
-    def action_event_vote(biv_obj):
-        data = flask.request.json
-        if not biv_obj.is_event_voting():
-            return '{}'
-        vote = E15Contest._event_vote(biv_obj)
-        if vote.nominee_biv_id:
-            return '{}'
-        nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
-        vote.nominee_biv_id = nominee.biv_id
-        ppc.db.session.add(vote)
-        ppc.app().logger.warn('event vote: {}'.format({
-            'user_id': flask.session.get('user.biv_id'),
-            'nominee': nominee.biv_id,
-            'user-agent': flask.request.headers.get('User-Agent'),
-            'route': flask.request.access_route[0][:100],
-        }))
-        return '{}'
 
     def action_index(biv_obj):
         """Returns angular app home"""
@@ -339,10 +308,10 @@ class E15Contest(ppc.Task):
             random.shuffle(finalists)
         votes_by_nominee_id = {}
 
-        if pam.Admin.is_admin():
-            votes = pem.E15EventVoter.query.filter(
-                pem.E15EventVoter.contest_biv_id == biv_obj.biv_id,
-                pem.E15EventVoter.nominee_biv_id != None,
+        if pam.Admin.is_admin() or biv_obj.is_registrar():
+            votes = pcm.VoteAtEvent.query.filter(
+                pcm.VoteAtEvent.contest_biv_id == biv_obj.biv_id,
+                pcm.VoteAtEvent.nominee_biv_id != None,
             ).all()
             for vote in votes:
                 if vote.nominee_biv_id not in votes_by_nominee_id:
@@ -382,40 +351,20 @@ class E15Contest(ppc.Task):
         })
 
     @common.decorator_login_required
-    @common.decorator_user_is_admin
-    def old_action_register_event_email(biv_obj):
-        email = flask.request.json['email'].lower()
-        if pem.E15EventVoter.query.filter_by(
-                user_email=email,
+    @common.decorator_user_is_registrar
+    def action_register_event_voter(biv_obj):
+        import pyisemail
+        eop = _is_email_or_phone(flask.request.json['email_or_phone'])
+        if not eop:
+            return flask.jsonify({'error': 'not a valid phone or email'})
+        if pcm.VoteAtEvent.query.filter_by(
+            invite_email_or_phone=eop,
         ).first():
             return '{}'
-        ppc.db.session.add(pem.E15EventVoter(
+        ppc.db.session.add(pcm.VoteAtEvent(
             contest_biv_id=biv_obj.biv_id,
-            user_email=email,
+            invite_email_or_phone=eop,
         ))
-        ppc.app().logger.warn('event register: {}'.format({
-            'email': email,
-            'user-agent': flask.request.headers.get('User-Agent'),
-            'route': flask.request.access_route[0][:100],
-        }))
-        return '{}'
-
-    def old_action_register_voter(biv_obj):
-        #TODO: problem
-        #if flask.session.get('user.is_logged_in') and E15Contest.is_event_voter(biv_obj):
-        #    return flask.redirect('/esprit-venture-challenge')
-        email = flask.request.json['email'].lower()
-        user = pam.User(
-            display_name=email,
-            user_email=email,
-            oauth_type='test',
-            oauth_id=werkzeug.security.gen_salt(64)
-        )
-        ppc.db.session.add(pem.E15EventVoter(
-            contest_biv_id=biv_obj.biv_id,
-            user_email=email,
-        ))
-        oauth.add_user_to_session(user)
         return '{}'
 
     def action_rules(biv_obj):
@@ -429,32 +378,19 @@ class E15Contest(ppc.Task):
         # and will only work for "self"
         logged_in = True if flask.session.get('user.is_logged_in') else False
         vote = E15Contest._user_vote(biv_obj)
-        event_vote = E15Contest._event_vote(biv_obj)
         return flask.jsonify({
             'isLoggedIn': logged_in,
             'isAdmin': pam.Admin.is_admin(),
             'isJudge': biv_obj.is_judge(),
+            'isRegistrar': biv_obj.is_registrar(),
             'isSemiFinalistSubmitter': biv_obj.is_semi_finalist_submitter(),
             'displayName': flask.session.get('user.display_name') if logged_in else '',
             'vote': biv.Id(vote.nominee_biv_id).to_biv_uri() if vote else None,
             'canVote': biv_obj.is_public_voting(),
-            'isEventVoter': bool(event_vote),
-            'eventVote': biv.Id(event_vote.nominee_biv_id).to_biv_uri() if event_vote and event_vote.nominee_biv_id else None,
         })
 
     def get_template():
         return _template
-
-    def is_event_voter(contest):
-        vote = E15Contest._event_vote(contest)
-        return bool(vote)
-
-    def _event_vote(contest):
-        return flask.session.get('user.is_logged_in') and pem.E15EventVoter.query.select_from(pam.User).filter(
-                pam.User.biv_id == flask.session.get('user.biv_id'),
-                pem.E15EventVoter.user_email == pam.User.user_email,
-                pem.E15EventVoter.contest_biv_id == contest.biv_id,
-        ).first()
 
     def _founder_info_for_nominee(nominee):
         founders = pcm.Founder.query.select_from(pam.BivAccess).filter(
@@ -526,3 +462,16 @@ class E15Contest(ppc.Task):
                     raise Exception('user has multiple votes: {}'.format(flask.session.get('user.biv_id')))
                 user_vote = vote
         return user_vote
+
+
+def _is_email_or_phone(value):
+    import pyisemail
+    value = value.lower()
+    if pyisemail.is_email(value):
+        return value
+    if '@' in value:
+        return None
+    value = re.sub(r'\D', '', value)
+    if len(value) == 10:
+        return value
+    return None

@@ -103,19 +103,14 @@ def add_event_vote(contest, user, nominee):
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 def add_judge(contest, user):
     """Link the User model to a Judge model."""
-    user_model = _lookup_user(user)
-    judge = pcm.Judge.query.select_from(pam.BivAccess).filter(
-        pam.BivAccess.source_biv_id == user_model.biv_id,
-        pam.BivAccess.target_biv_id == pcm.Judge.biv_id
-    ).first()
-    judge_id = None
+    _add_role(contest, user, pcm.Judge)
 
-    if judge:
-        judge_id = judge.biv_id
-    else:
-        judge_id = _add_model(pcm.Judge())
-        _add_owner(user_model.biv_id, judge_id)
-    _add_owner(contest, judge_id)
+
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-u', '--user', help='User biv_id or email')
+def add_registrar(contest, user):
+    """Link the User model to a Registrar model."""
+    _add_role(contest, user, pcm.Registrar)
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
@@ -207,6 +202,14 @@ def drop_db(auto_force=False):
             env=e)
 
 
+@_MANAGER.option('-n', '--nominee', help='Nominee biv_id')
+def nominee_comments(nominee):
+    """Output comments for nominee"""
+    n = biv.load_obj(nominee)
+    assert type(n) == pe15.E15Nominee
+    print('\n\n'.join(n.get_comments_only()))
+
+
 @_MANAGER.command
 def refresh_founder_avatars():
     """Download the User.avatar_url and store in Founder.founder_avatar."""
@@ -252,17 +255,14 @@ def remove_admin(user):
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 def remove_judge(contest, user):
     """Link the User model to a Judge model."""
-    user_biv_id = _lookup_user(user).biv_id
-    judge = pcm.Judge.query.select_from(pam.BivAccess).filter(
-        pam.BivAccess.source_biv_id == user_biv_id,
-        pam.BivAccess.target_biv_id == pcm.Judge.biv_id
-    ).one()
-    db.session.delete(
-        pam.BivAccess.query.filter(
-            pam.BivAccess.source_biv_id == contest,
-            pam.BivAccess.target_biv_id == judge.biv_id
-        ).one()
-    )
+    _remove_role(contest, user, pcm.Judge)
+
+
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-u', '--user', help='User biv_id or email')
+def remove_registrar(contest, user):
+    """Link the User model to a Registrar model."""
+    _remove_role(contest, user, pcm.Registrar)
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
@@ -341,6 +341,31 @@ def set_contest_date_time(contest, date_time, field):
         '{}: has no attr {}'.format(c, field)
     setattr(c, field, dt)
     _add_model(c)
+
+
+@_MANAGER.option('-t', '--to', help='who you gonna call')
+@_MANAGER.option('-b', '--body', help='what ya say')
+def send_sms(to, body):
+    """Send SMS through Twilio"""
+    import twilio.rest
+    cfg = ppc.app().config['PUBLICPRIZE']['TWILIO']
+    c = twilio.rest.TwilioRestClient(**cfg['auth'])
+    c.sms.messages.create(to=to, from_=cfg['from'], body=body)
+
+
+@_MANAGER.option('-t', '--to', help='who you gonna call')
+@_MANAGER.option('-b', '--body', help='what ya say')
+def send_mail(to, body):
+    """Send mail msg through Flask"""
+    import flask_mail
+    ppc.mail().send(
+        flask_mail.Message(
+            subject='Rob Test',
+            sender=ppc.app().config['PUBLICPRIZE']['SUPPORT_EMAIL'],
+            recipients=[to],
+            body='n/a',
+        ),
+    )
 
 
 @_MANAGER.option('-n', '--nominee', help='Nominee biv_id')
@@ -505,6 +530,22 @@ def _add_owner(parent_id, child_id):
             target_biv_id=child_id
         )
     )
+
+
+def _add_role(contest, user, role_class):
+    user_model = _lookup_user(user)
+    role = role_class.query.select_from(pam.BivAccess).filter(
+        pam.BivAccess.source_biv_id == user_model.biv_id,
+        pam.BivAccess.target_biv_id == role_class.biv_id
+    ).first()
+    role_id = None
+
+    if role:
+        role_id = role.biv_id
+    else:
+        role_id = _add_model(role_class())
+        _add_owner(user_model.biv_id, role_id)
+    _add_owner(contest, role_id)
 
 
 def _create_contest(contest):
@@ -740,6 +781,21 @@ def _read_image_from_file(file_name):
     image = image_file.read()
     image_file.close()
     return image
+
+
+def _remove_role(contest, user, role_class):
+    """Link the User model to a Role model."""
+    user_biv_id = _lookup_user(user).biv_id
+    role = role_class.query.select_from(pam.BivAccess).filter(
+        pam.BivAccess.source_biv_id == user_biv_id,
+        pam.BivAccess.target_biv_id == role_class.biv_id
+    ).one()
+    db.session.delete(
+        pam.BivAccess.query.filter(
+            pam.BivAccess.source_biv_id == contest,
+            pam.BivAccess.target_biv_id == role.biv_id
+        ).one()
+    )
 
 
 def _update_founder_avatar(founder, image):

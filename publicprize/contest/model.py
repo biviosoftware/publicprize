@@ -12,6 +12,7 @@ import pytz
 import re
 import random
 import sqlalchemy.orm
+import string
 
 from .. import biv
 from .. import common
@@ -62,19 +63,11 @@ class ContestBase(common.ModelWithDates):
 
     def is_judge(self):
         """Returns True if the current user is a judge for this Contest"""
-        if not flask.session.get('user.is_logged_in'):
-            return False
-        if self.is_expired():
-            return False
-        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
-        if Judge.query.select_from(pam.BivAccess, access_alias).filter(
-            pam.BivAccess.source_biv_id == self.biv_id,
-            pam.BivAccess.target_biv_id == Judge.biv_id,
-            pam.BivAccess.target_biv_id == access_alias.target_biv_id,
-            access_alias.source_biv_id == flask.session['user.biv_id']
-        ).first():
-            return True
-        return False
+        return self._user_is(Judge)
+
+    def is_registrar(self):
+        """Returns True if the current user is a registrar for this Contest"""
+        return self._user_is(Registrar)
 
     def minutes_remaining(self):
         """Minutes remaining for this Contest."""
@@ -91,6 +84,21 @@ class ContestBase(common.ModelWithDates):
                 self.end_date.year, self.end_date.month, self.end_date.day,
                 23, 59, 59))
         return end_of_day - datetime.datetime.now(tz)
+
+    def _user_is(self, clazz):
+        if not flask.session.get('user.is_logged_in'):
+            return False
+        if self.is_expired():
+            return False
+        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
+        if clazz.query.select_from(pam.BivAccess, access_alias).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == clazz.biv_id,
+            pam.BivAccess.target_biv_id == access_alias.target_biv_id,
+            access_alias.source_biv_id == flask.session['user.biv_id']
+        ).first():
+            return True
+        return False
 
 
 class Founder(db.Model, common.ModelWithDates):
@@ -120,6 +128,7 @@ class Image(db.Model, common.Model):
     """Image file"""
     biv_id = db.Column(
         db.Numeric(18),
+        #TODO(robnagler) start=1017
         db.Sequence('image_s', start=1004, increment=1000),
         primary_key=True
     )
@@ -219,6 +228,19 @@ class NomineeBase(common.ModelWithDates):
         ).all()
 
 
+class Registrar(db.Model, common.ModelWithDates):
+    """Registrar database model.
+
+    Fields:
+        biv_id: primary ID
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('registrar_s', start=1018, increment=1000),
+        primary_key=True
+    )
+
+
 class Sponsor(db.Model, common.ModelWithDates):
     """sponsor database model.
 
@@ -278,8 +300,36 @@ class Vote(db.Model, common.ModelWithDates):
     vote_status = db.Column(db.Enum('invalid', '1x', '2x', name='vote_status'), nullable=False)
 
 
+def _invite_nonce():
+    # SystemRandom is cryptographically secure
+    return ''.join(
+        random.SystemRandom().choice(string.ascii_lowercase) for _ in range(24)
+    )
+
+
+class VoteAtEvent(db.Model, common.ModelWithDates):
+    """An event vote token
+    """
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('voteatevent_s', start=1019, increment=1000),
+        primary_key=True
+    )
+    contest_biv_id = db.Column(db.Numeric(18), nullable=False)
+    invite_email_or_phone = db.Column(db.String(100), nullable=False)
+    # Bit larger than _invite_nonce()
+    invite_nonce = db.Column(db.String(32), unique=True, default=_invite_nonce)
+    nominee_biv_id = db.Column(db.Numeric(18), nullable=True)
+    remote_addr = db.Column(db.String(32), nullable=True)
+    user_agent = db.Column(db.Numeric(18), nullable=True)
+    # Logged in user at the time of vote, may be meaningless
+    user_biv_id = db.Column(db.Numeric(18), nullable=True)
+
+
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
-Sponsor.BIV_MARKER = biv.register_marker(8, Sponsor)
-Judge.BIV_MARKER = biv.register_marker(9, Judge)
-Vote.BIV_MARKER = biv.register_marker(14, Vote)
 Image.BIV_MARKER = biv.register_marker(17, Image)
+Judge.BIV_MARKER = biv.register_marker(9, Judge)
+Registrar.BIV_MARKER = biv.register_marker(18, Registrar)
+Sponsor.BIV_MARKER = biv.register_marker(8, Sponsor)
+Vote.BIV_MARKER = biv.register_marker(14, Vote)
+VoteAtEvent.BIV_MARKER = biv.register_marker(19, VoteAtEvent)

@@ -61,6 +61,17 @@ def decorator_user_is_judge(func):
     return decorated_function
 
 
+def decorator_user_is_registrar(func):
+    """Require the current user is a contest registrar."""
+    @functools.wraps(func)
+    def decorated_function(*args, **kwargs):
+        """Forbidden unless allowed."""
+        if args[0].is_registrar():
+            return func(*args, **kwargs)
+        werkzeug.exceptions.abort(403)
+    return decorated_function
+
+
 class Model(object):
     """Provides biv support for Models"""
 
@@ -162,6 +173,7 @@ class Model(object):
     def __str__(self):
         return self.__repr__()
 
+
 class ModelWithDates(Model):
     """Model superclass with create/update datetime fields.
 
@@ -179,6 +191,7 @@ class ModelWithDates(Model):
         ppc.db.DateTime,
         onupdate=sqlalchemy.text('current_timestamp')
     )
+
 
 class Template(object):
     """Render html templates based on the template_dir.
