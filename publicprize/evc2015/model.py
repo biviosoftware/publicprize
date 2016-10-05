@@ -79,11 +79,26 @@ class E15Contest(db.Model, pcm.ContestBase):
     def is_public_voting(self):
         return ppdatetime.now_in_range(self.public_voting_start, self.public_voting_end)
 
+    def is_semi_finalist_submitter(self):
+        return len(E15Contest.semi_finalist_nominees_for_user(self)) > 0
+
     def public_nominees(self):
         return E15Nominee.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == self.biv_id,
             pam.BivAccess.target_biv_id == E15Nominee.biv_id,
             E15Nominee.is_public == True,
+        ).all()
+
+    def semi_finalist_nominees_for_user(self):
+        if not flask.session.get('user.is_logged_in'):
+            return []
+        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
+        return E15Nominee.query.select_from(pam.BivAccess, access_alias).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == E15Nominee.biv_id,
+            pam.BivAccess.target_biv_id == access_alias.target_biv_id,
+            access_alias.source_biv_id == flask.session['user.biv_id'],
+            E15Nominee.is_semi_finalist == True,
         ).all()
 
     def tally_all_scores(self):

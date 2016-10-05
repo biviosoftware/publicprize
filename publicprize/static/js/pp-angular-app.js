@@ -90,6 +90,11 @@ app.config(function($routeProvider) {
                 'nominate-thank-you',
                 'NomineeController as nominee'))
         .when(
+            '/comments',
+            route(
+                'nominee-comments',
+                'CommentsController as comments'))
+        .when(
             '/vote',
             route(
                 'vote',
@@ -231,6 +236,9 @@ app.factory('userState', function(serverRequest, $rootScope, $location) {
     };
     self.isLoggedIn = function() {
         return self.state.isLoggedIn ? true : false;
+    };
+    self.isSemiFinalistSubmitter = function() {
+        return self.state.isSemiFinalistSubmitter ? true : false;
     };
     self.logout = function() {
         serverRequest.sendRequest('/logout', function(data) {
@@ -647,6 +655,19 @@ app.controller('NavController', function () {
     };
 });
 
+app.controller('CommentsController', function (serverRequest) {
+    var self = this;
+    serverRequest.sendRequest('/nominee-comments', function(data) {
+        self.comments = data.comments;
+        if (self.hasComments()) {
+            self.nominee_display_name = self.comments[0].display_name;
+        }
+    });
+    self.hasComments = function() {
+        return self.comments && self.comments.length > 0;
+    };
+});
+
 app.controller('JudgingController', function(serverRequest) {
     var self = this;
     var rankSuperscript = {
@@ -982,7 +1003,7 @@ app.directive('loginModal', function() {
     };
 });
 
-app.directive('navLinks', function(userState) {
+app.directive('navLinks', function(contestState, userState) {
     return {
         scope: {},
         template: [
@@ -999,11 +1020,13 @@ app.directive('navLinks', function(userState) {
               '</ul>',
             '</li>',
             '<li data-ng-show="userState.isJudge()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href="#/judging" data-toggle="dropdown">Judging</a></li>',
+            '<li data-ng-show="contestState.showWinner() && userState.isSemiFinalistSubmitter()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href="#/comments" data-toggle="dropdown">Comments</a></li>',
             '<li data-ng-show="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-ng-click="userState.logout()" href>Logout</a></li>',
             '</ul>',
         ].join(''),
         controller: function($scope) {
             $scope.userState = userState;
+            $scope.contestState = contestState;
         },
     };
 });
