@@ -11,6 +11,7 @@ import functools
 import json
 import pytz
 import random
+import re
 import werkzeug
 import werkzeug.exceptions
 
@@ -142,12 +143,30 @@ class E15Contest(ppc.Task):
     def action_contest_info(biv_obj):
         return flask.jsonify(biv_obj.contest_info())
 
+    def action_event_vote(biv_obj):
+        nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
+        if biv_obj.is_expired() or E15Contest._user_vote(biv_obj):
+            return '{}'
+        vote = pcm.Vote(
+            user=flask.session.get('user.biv_id'),
+            nominee_biv_id=nominee.biv_id,
+            vote_status='1x',
+        )
+        ppc.db.session.add(vote)
+        ppc.app().logger.warn('user vote: {}'.format({
+            'user_id': flask.session.get('user.biv_id'),
+            'nominee': nominee.biv_id,
+            'user-agent': flask.request.headers.get('User-Agent'),
+            'route': flask.request.access_route[0][:100],
+        }))
+        return '{}'
+
     def action_index(biv_obj):
         """Returns angular app home"""
         return _template.render_template(
             biv_obj,
             'index',
-            version='20160629',
+            version='20161022',
             base_template=None,
         )
 
@@ -209,6 +228,10 @@ class E15Contest(ppc.Task):
     def action_new_test_judge(biv_obj):
         """Creates a new test user and judge models and log in."""
         return pcm.Judge.new_test_judge(biv_obj)
+
+    def action_new_test_registrar(biv_obj):
+        """Creates a new test user and judge models and log in."""
+        return pcm.Registrar.new_test_registrar(biv_obj)
 
     def action_nominee_form_metadata(biv_obj):
         form = pef.Nominate()
@@ -350,21 +373,28 @@ class E15Contest(ppc.Task):
             'nominees': res,
         })
 
-    @common.decorator_login_required
     @common.decorator_user_is_registrar
     def action_register_event_voter(biv_obj):
         import pyisemail
-        eop = _is_email_or_phone(flask.request.json['email_or_phone'])
+        eop = _is_email_or_phone(flask.request.json['emailOrPhone'])
         if not eop:
-            return flask.jsonify({'error': 'not a valid phone or email'})
+            return flask.jsonify({'errors': 'invalid phone or email'})
         if pcm.VoteAtEvent.query.filter_by(
             invite_email_or_phone=eop,
         ).first():
-            return '{}'
-        ppc.db.session.add(pcm.VoteAtEvent(
+            return flask.jsonify({'errors': eop + ' was already registered'})
+        m = pcm.VoteAtEvent(
             contest_biv_id=biv_obj.biv_id,
             invite_email_or_phone=eop,
-        ))
+        )
+        ppc.db.session.add(m)
+        pam.db.session.flush()
+        ppc.db.session.add(
+            pam.BivAlias(
+                biv_id=m.biv_id,
+                alias_name=m.invite_nonce,
+            ),
+        )
         return '{}'
 
     def action_rules(biv_obj):
@@ -382,6 +412,7 @@ class E15Contest(ppc.Task):
             'isLoggedIn': logged_in,
             'isAdmin': pam.Admin.is_admin(),
             'isJudge': biv_obj.is_judge(),
+            'isEventVoter': biv_obj.is_event_voter(),
             'isRegistrar': biv_obj.is_registrar(),
             'isSemiFinalistSubmitter': biv_obj.is_semi_finalist_submitter(),
             'displayName': flask.session.get('user.display_name') if logged_in else '',

@@ -136,8 +136,9 @@ def _parse_path(path):
     biv_uri = parts[0] if len(parts) >= 1 else biv.URI_FOR_NONE
     action = parts[1] if len(parts) >= 2 else _DEFAULT_ACTION_NAME
     path_info = parts[2] if len(parts) >= 3 else None
-    pp_t('biv_uri={} action={} path_info={}', [biv_uri, action, path_info])
-    return biv.load_obj(biv_uri), action, path_info
+    biv_obj = biv.load_obj(biv_uri)
+    pp_t('obj={} biv_uri={} action={} path_info={}', [biv_obj, biv_uri, action, path_info])
+    return biv_obj, action, path_info
 
 
 def _register_globals():

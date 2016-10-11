@@ -42,9 +42,9 @@ def test_uri():
     assert biv.URI('index').biv_id == 4001
     assert biv.URI('_401') == '_401'
     assert biv.URI('_401').biv_id == 4001
+    assert biv.URI(4001).biv_id == 4001
 
 def test_load_obj():
     assert biv.load_obj('_101').format_uri() == '/pub'
     assert biv.load_obj('').format_uri() == '/index'
     assert biv.load_obj('_101').format_uri('logout') == '/pub/logout'
-

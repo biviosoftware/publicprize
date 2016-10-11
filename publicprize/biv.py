@@ -5,10 +5,12 @@
     :license: Apache, see LICENSE for more details.
 """
 
+import decimal
 import numconv
 import werkzeug.exceptions
 
 from . import inspect as ppi
+from .debug import pp_t
 
 URI_FOR_GENERAL_TASKS = 'pub'
 URI_FOR_NONE = 'index'
@@ -90,11 +92,14 @@ class Marker(int):
         "Convert an index value to a biv_id"
         return Id(self, Index(biv_index))
 
+
 class URI(str):
     """Parses and stores an encoded biv_uri or an alias"""
     def __new__(cls, biv_uri_or_id):
         if isinstance(biv_uri_or_id, cls):
             return biv_uri_or_id
+        if isinstance(biv_uri_or_id, decimal.Decimal):
+            biv_uri_or_id = Id(biv_uri_or_id)
         if isinstance(biv_uri_or_id, Id):
             self = super().__new__(cls, cls.__encode(biv_uri_or_id))
             self.__id = biv_uri_or_id
@@ -135,10 +140,12 @@ class URI(str):
 
 def load_obj(biv_uri):
     """Loads the object identified by biv_uri"""
-    if biv_uri is None or len(biv_uri) == 0:
+    if biv_uri is None or isinstance(biv_uri, str) and len(biv_uri) == 0:
         biv_uri = URI_FOR_NONE
     bi = URI(biv_uri).biv_id
+    pp_t('biv_uri={} biv_id={}', [biv_uri, bi])
     if bi.biv_marker not in _marker_to_class:
+        pp_t('biv_marker={}', [bi.biv_marker])
         werkzeug.exceptions.abort(404)
     return _marker_to_class[bi.biv_marker].load_biv_obj(bi)
 

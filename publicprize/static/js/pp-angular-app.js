@@ -80,6 +80,11 @@ app.config(function($routeProvider) {
                 'submit-nominee',
                 'SubmitNomineeController as submitNominee'))
         .when(
+            '/register-event-voter',
+            route(
+                'register-event-voter',
+                'RegisterEventVoterController as registerEventVoter'))
+        .when(
             '/:nominee_biv_id/contestant',
             route(
                 'nominee',
@@ -224,6 +229,9 @@ app.factory('userState', function(serverRequest, $rootScope, $location) {
     }
     self.isAdmin = function() {
         return self.state.isAdmin ? true : false;
+    };
+    self.isRegistrar = function() {
+        return self.state.isRegistrar ? true : false;
     };
     self.isEventVoter = function() {
         return self.state.isEventVoter;
@@ -648,6 +656,40 @@ app.controller('SubmitNomineeController', function(serverRequest, userState, con
     };
 });
 
+app.controller('RegisterEventVoterController', function(serverRequest, $rootScope) {
+    var self = this;
+    self.errorMessage = null;
+    self.emailOrPhone = null;
+
+    function errorHandler(data, status) {
+        if (data && typeof data === 'object') {
+            if (data.errors) {
+                self.errorMessage = data.errors;
+                return;
+            }
+        }
+        self.done = 'system error: status=' + status + ' ' + String(data).substring(0, 100);
+    }
+
+    self.submitForm = function() {
+        serverRequest.sendRequest(
+            '/register-event-voter',
+            function(data) {
+                if (data.errors) {
+                    errorHandler(data, 200);
+                    return;
+                }
+                $rootScope.$broadcast(
+                    'pp.alert', self.emailOrPhone + ' registered successfully.');
+                self.emailOrPhone = '';
+            },
+            {
+                emailOrPhone: self.emailOrPhone
+            }
+        ).error(errorHandler);
+    };
+});
+
 app.controller('NavController', function () {
     var self = this;
     self.pageTitle = function() {
@@ -1009,14 +1051,15 @@ app.directive('navLinks', function(contestState, userState) {
         template: [
             '<ul class="nav navbar-nav navbar-right" data-ng-hide="userState.hideNavbar()" data-ng-cloak="">',
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href>Log in</a></li>',
-            '<li data-ng-show="userState.isAdmin()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a>',
+            '<li data-ng-show="userState.isAdmin() || userState.isRegistrar()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a>',
               '<ul class="dropdown-menu" role="menu">',
-                '<li><a href="#/event-registration">Event Registration</a></li>',
-                '<li><a href="#/admin-event-votes">Event Votes</a></li>',
-                '<li><a href="#/admin-review-nominees">Review Nominees</a></li>',
-                '<li><a href="#/admin-review-judges">Review Judges</a></li>',
-                '<li><a href="#/admin-review-scores">Review Scores</a></li>',
-                '<li><a href="#/admin-review-votes">Review Votes</a></li>',
+                '<li data-ng-show="userState.isAdmin()"><a href="#/event-registration">Event Registration</a></li>',
+                '<li data-ng-show="userState.isAdmin()"><a href="#/admin-event-votes">Event Votes</a></li>',
+                '<li data-ng-show="userState.isRegistrar()"><a href="#/register-event-voter">Register Event Voter</a></li>',
+                '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-nominees">Review Nominees</a></li>',
+                '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-judges">Review Judges</a></li>',
+                '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-scores">Review Scores</a></li>',
+                '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-votes">Review Votes</a></li>',
               '</ul>',
             '</li>',
             '<li data-ng-show="userState.isJudge()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href="#/judging" data-toggle="dropdown">Judging</a></li>',

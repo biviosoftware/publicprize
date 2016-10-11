@@ -4,11 +4,13 @@
     :copyright: Copyright (c) 2014 Bivio Software, Inc.  All Rights Reserved.
     :license: Apache, see LICENSE for more details.
 """
-
-import io
-import flask
-
+from .. import biv
+from .. import common
 from .. import controller
+from ..controller import db
+from ..debug import pp_t
+import flask
+import io
 
 
 class Founder(controller.Task):
@@ -23,6 +25,20 @@ class Sponsor(controller.Task):
     def action_sponsor_logo(biv_obj):
         """Sponsor logo image"""
         return _send_image_data(biv_obj, 'sponsor_logo', 'logo_type')
+
+
+class VoteAtEvent(controller.Task):
+    def action_index(biv_obj):
+        """Returns angular app home and sets session"""
+        pp_t('obj={} contest={}', [biv_obj, biv_obj.contest_biv_id])
+        c = biv.load_obj(biv_obj.contest_biv_id)
+        biv_obj.save_to_session()
+        pp_t('contest={}', [c])
+        flask.session['vote_at_event.invite_nonce'] = biv_obj.invite_nonce
+        return flask.redirect(c.format_uri(
+            #action_uri='/',
+            anchor='/event-vote',
+        ))
 
 
 def _send_image_data(biv_obj, data, data_type):

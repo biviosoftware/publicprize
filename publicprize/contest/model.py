@@ -13,11 +13,17 @@ import re
 import random
 import sqlalchemy.orm
 import string
+import werkzeug.exceptions
 
 from .. import biv
 from .. import common
 from ..auth import model as pam
 from ..controller import db
+from ..debug import pp_t
+
+
+_NONCE_ATTR = 'vote_at_event.invite_nonce'
+
 
 class ContestBase(common.ModelWithDates):
     """Contest base class. Contains the contest end_date field for calculating
@@ -163,21 +169,7 @@ class Judge(db.Model, common.ModelWithDates):
             ).all()
 
     def new_test_judge(contest):
-        """Creates a new test user and judge models and log in."""
-        # will raise an exception unless TEST_USER is configured
-        flask.g.pub_obj.task_class().action_new_test_user()
-        judge = Judge()
-        db.session.add(judge)
-        db.session.flush()
-        db.session.add(pam.BivAccess(
-            source_biv_id=flask.session['user.biv_id'],
-            target_biv_id=judge.biv_id
-        ))
-        db.session.add(pam.BivAccess(
-            source_biv_id=contest.biv_id,
-            target_biv_id=judge.biv_id
-        ))
-        return flask.redirect('/')
+        return _test_role(contest, Judge)
 
 
 class JudgeRank(db.Model, common.ModelWithDates):
@@ -239,6 +231,8 @@ class Registrar(db.Model, common.ModelWithDates):
         db.Sequence('registrar_s', start=1018, increment=1000),
         primary_key=True
     )
+    def new_test_registrar(contest):
+        return _test_role(contest, Registrar)
 
 
 class Sponsor(db.Model, common.ModelWithDates):
@@ -307,6 +301,24 @@ def _invite_nonce():
     )
 
 
+def _test_role(contest, clazz):
+    """Creates a new test user and clazz models and log in."""
+    # will raise an exception unless TEST_USER is configured
+    flask.g.pub_obj.task_class().action_new_test_user()
+    role = clazz()
+    db.session.add(role)
+    db.session.flush()
+    db.session.add(pam.BivAccess(
+        source_biv_id=flask.session['user.biv_id'],
+        target_biv_id=role.biv_id
+    ))
+    db.session.add(pam.BivAccess(
+        source_biv_id=contest.biv_id,
+        target_biv_id=role.biv_id
+    ))
+    return flask.redirect('/')
+
+
 class VoteAtEvent(db.Model, common.ModelWithDates):
     """An event vote token
     """
@@ -324,6 +336,23 @@ class VoteAtEvent(db.Model, common.ModelWithDates):
     user_agent = db.Column(db.Numeric(18), nullable=True)
     # Logged in user at the time of vote, may be meaningless
     user_biv_id = db.Column(db.Numeric(18), nullable=True)
+
+    @classmethod
+    def validate_session(cls, contest):
+        i = flask.session.get(_NONCE_ATTR)
+        if not i:
+            pp_t('no invite_nonce')
+            werkzeug.exceptions.abort(404)
+        self = cls.query.filter_by(invite_nonce=i).first_or_404()
+        if self.contest_biv_id != contest.biv_id:
+            pp_t(
+                'nonce={} expect_contest={} actual_contest={}',
+                [i, contest.biv_id, self.contest_biv_id],
+            )
+            werkzeug.exceptions.abort(404)
+
+    def save_to_session(self):
+        flask.session[_NONCE_ATTR] = self.invite_nonce
 
 
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
