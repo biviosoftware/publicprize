@@ -343,29 +343,19 @@ def set_contest_date_time(contest, date_time, field):
     _add_model(c)
 
 
-@_MANAGER.option('-t', '--to', help='who you gonna call')
-@_MANAGER.option('-b', '--body', help='what ya say')
-def send_sms(to, body):
-    """Send SMS through Twilio"""
-    import twilio.rest
-    cfg = ppc.app().config['PUBLICPRIZE']['TWILIO']
-    c = twilio.rest.TwilioRestClient(**cfg['auth'])
-    c.sms.messages.create(to=to, from_=cfg['from'], body=body)
-
-
-@_MANAGER.option('-t', '--to', help='who you gonna call')
-@_MANAGER.option('-b', '--body', help='what ya say')
-def send_mail(to, body):
-    """Send mail msg through Flask"""
-    import flask_mail
-    ppc.mail().send(
-        flask_mail.Message(
-            subject='Rob Test',
-            sender=ppc.app().config['PUBLICPRIZE']['SUPPORT_EMAIL'],
-            recipients=[to],
-            body='n/a',
-        ),
-    )
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+def setup_event_voting(contest):
+    """Set contest.field to date."""
+    c = biv.load_obj(contest)
+    assert type(c) == pe15.E15Contest
+    dt = datetime.datetime.utcnow()
+    setattr(c, 'event_voting_start', dt)
+    _add_model(c)
+    nominees = sorted(list(c.public_nominees()), key=lambda x: x.display_name)
+    for n in nominees[0:3]:
+        n.is_finalist = True
+        _add_model(n)
+        print(n.display_name)
 
 
 @_MANAGER.option('-n', '--nominee', help='Nominee biv_id')

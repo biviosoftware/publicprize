@@ -4,14 +4,14 @@
     :copyright: Copyright (c) 2014 Bivio Software, Inc.  All Rights Reserved.
     :license: Apache, see LICENSE for more details.
 """
-
 import decimal
+import flask
 import random
 import re
-
-import flask
 import sqlalchemy.orm
+import string
 
+from ..debug import pp_t
 from .. import biv
 from .. import common
 from .. import controller
@@ -19,6 +19,23 @@ from ..contest import model as pcm
 from ..auth import model as pam
 from ..controller import db
 from .. import ppdatetime
+
+def is_email(v):
+    """Only works for validated emails; Differentiating from phone"""
+    return '@' in v
+
+
+def validate_email_or_phone(value):
+    import pyisemail
+    if pyisemail.is_email(value):
+        return value.lower()
+    if is_email(value):
+        return None
+    v = re.sub(r'\D', '', value)
+    if len(v) == 10:
+        return '({}) {}-{}'.format(v[0:3], v[3:6], v[6:])
+    return None
+
 
 def _datetime_column():
     return db.Column(db.DateTime(timezone=False), nullable=False)
@@ -51,10 +68,10 @@ class E15Contest(db.Model, pcm.ContestBase):
         finalistCount = self._count(E15Nominee.is_finalist)
         return {
             'contestantCount': len(self.public_nominees()),
+            'displayName': self.display_name,
             'finalistCount': finalistCount,
             'isEventRegistration': ppdatetime.now_in_range(self.submission_start, self.event_voting_end),
             'isEventVoting': self.is_event_voting(),
-            'isEventVoter': self.is_event_voter(),
             'isJudging': self.is_judging(),
             'isNominating': ppdatetime.now_in_range(self.submission_start, self.submission_end),
             'isPreNominating': ppdatetime.now_before_start(self.submission_start),
@@ -66,9 +83,6 @@ class E15Contest(db.Model, pcm.ContestBase):
             'showWinner': bool(winner),
             'winner_biv_id': winner,
         }
-
-    def is_event_voter(self):
-        return self.is_event_voting() && pcm.VoteAtEvent.validate_session(self)
 
     def is_event_voting(self):
         return ppdatetime.now_in_range(self.event_voting_start, self.event_voting_end)
@@ -183,5 +197,81 @@ class E15Nominee(db.Model, pcm.NomineeBase):
         return count
 
 
+def _invite_nonce():
+    # SystemRandom is cryptographically secure
+    return ''.join(
+        random.SystemRandom().choice(string.ascii_lowercase) for _ in range(24)
+    )
+
+
+class E15VoteAtEvent(db.Model, common.ModelWithDates):
+    """An event vote token
+    """
+    _NONCE_ATTR = 'vote_at_event.invite_nonce'
+
+    biv_id = db.Column(
+        db.Numeric(18),
+        db.Sequence('e15_vote_at_event_s', start=1019, increment=1000),
+        primary_key=True
+    )
+    contest_biv_id = db.Column(
+        db.Numeric(18), db.ForeignKey('e15_contest.biv_id'), nullable=False)
+    contest = db.relationship('E15Contest')
+    invite_email_or_phone = db.Column(db.String(100), nullable=False)
+    # Bit larger than _invite_nonce()
+    invite_nonce = db.Column(db.String(32), unique=True, default=_invite_nonce)
+    nominee_biv_id = db.Column(db.Numeric(18), nullable=True)
+    remote_addr = db.Column(db.String(32), nullable=True)
+    user_agent = db.Column(db.String(100), nullable=True)
+    # Logged in user at the time of vote, may be meaningless
+    user_biv_id = db.Column(db.Numeric(18), nullable=True)
+
+    def save_to_session(self):
+        flask.session[self._NONCE_ATTR] = self.invite_nonce
+
+    def send_invite(self):
+        """Email or SMS voting link"""
+        u = self.format_absolute_uri()
+        body = 'Vote at {} here: {}'.format(self.contest.display_name, u)
+        pp_t('to={} uri={}', [self.invite_email_or_phone, u])
+        if is_email(self.invite_email_or_phone):
+            import flask_mail
+            controller.mail().send(
+                flask_mail.Message(
+                    subject='Esprit Venture Challenge Voting Link',
+                    sender=ppc.app().config['PUBLICPRIZE']['SUPPORT_EMAIL'],
+                    recipients=[self.invite_email_or_phone],
+                    body=body,
+                ),
+            )
+        else:
+            import twilio.rest
+            pp_cfg = controller.app().config['PUBLICPRIZE']
+            cfg = pp_cfg['TWILIO']
+            c = twilio.rest.TwilioRestClient(**cfg['auth'])
+            if not pp_cfg['MAIL_SUPPRESS_SEND']:
+                c.sms.messages.create(
+                    to=self.invite_email_or_phone,
+                    from_=cfg['from'],
+                    body=body,
+                )
+
+    @classmethod
+    def validate_session(cls, contest):
+        i = flask.session.get(cls._NONCE_ATTR)
+        if not i:
+            pp_t('no invite_nonce')
+            return False, None
+        self = cls.query.filter_by(invite_nonce=i).first_or_404()
+        if self.contest_biv_id != contest.biv_id:
+            pp_t(
+                'nonce={} expect_contest={} actual_contest={}',
+                [i, contest.biv_id, self.contest_biv_id],
+            )
+            return False, None
+        return True, self
+
+
 E15Contest.BIV_MARKER = biv.register_marker(15, E15Contest)
 E15Nominee.BIV_MARKER = biv.register_marker(16, E15Nominee)
+E15VoteAtEvent.BIV_MARKER = biv.register_marker(19, E15VoteAtEvent)

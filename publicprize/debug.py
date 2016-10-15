@@ -38,7 +38,7 @@ def pp_t(fmt_or_msg, fmt_params=None):
 
 class RequestLogger(object):
     """Log all requests and responses to files (in test mode only)"""
-    
+
 
     def __init__(self):
         """If in test mode, create the log dir and then set _app.wsgi_app to self"""
@@ -54,7 +54,7 @@ class RequestLogger(object):
         if self._root_dir:
             # Only register if was able to create directory
             _app.wsgi_app = self
-            
+
 
     def __call__(self, environ, start_response):
         """Catch request and pass it on"""
@@ -81,7 +81,7 @@ class RequestLogger(object):
         try:
             with self._open(suffix) as f:
                 f.write(data)
-        except:
+        except Exception:
             sys.stderr.write('unable log ' + suffix + ':' + str(self._index) + '\n')
 
     def set_log_dir(self, relpath):
@@ -93,7 +93,7 @@ class RequestLogger(object):
             self._curr_dir = d
             self._index = 0
         return d
-        
+
     def _mkdir(self, relpath):
         rp = os.path.normpath(relpath)
         assert not rp.startswith('.')
@@ -101,7 +101,7 @@ class RequestLogger(object):
         try:
             try:
                 shutil.rmtree(d, ignore_errors=True)
-            except:
+            except Exception:
                 pass
             os.makedirs(d)
         except IOError as e:
@@ -151,7 +151,7 @@ class _Response(object):
 
 class TracePrinter(object):
     """Prints message to sys.stderr. TODO: Use Logger interface"""
-    
+
     def __init__(self):
         global _trace_printer
         assert _trace_printer == None, 'TracePrinter already initialized'
@@ -161,12 +161,11 @@ class TracePrinter(object):
             regex = _app.config['PUBLICPRIZE']['TRACE']
             self._regex = re.compile(regex, flags=re.IGNORECASE)
 
-        except:
+        except Exception:
             pass
 
     def _debug_write(self, fmt_or_msg, fmt_params):
         """Use pp_t() instead"""
-        
         frame = None
         try:
             if not self._regex:
@@ -182,7 +181,7 @@ class TracePrinter(object):
             name = frame.f_code.co_name
             prefix = '{}:{}:{} '.format(filename, line, name)
 
-        except:
+        except Exception:
             return
         finally:
             # Avoid cycles in the stack (according to manual)
@@ -192,7 +191,7 @@ class TracePrinter(object):
             msg = fmt_or_msg.format(*fmt_params) if fmt_params else str(fmt_or_msg)
             if self._regex.search(msg):
                 _trace_printer.write(prefix + msg + '\n')
-        except:
+        except Exception:
             _trace_printer.write('format error: ' + prefix + fmt_or_msg + str(fmt_params))
 
     def write(self, msg):

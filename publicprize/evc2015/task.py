@@ -15,6 +15,7 @@ import re
 import werkzeug
 import werkzeug.exceptions
 
+from ..debug import pp_t
 from . import form as pef
 from . import model as pem
 from .. import biv
@@ -144,22 +145,23 @@ class E15Contest(ppc.Task):
         return flask.jsonify(biv_obj.contest_info())
 
     def action_event_vote(biv_obj):
-        nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
-        if biv_obj.is_expired() or E15Contest._user_vote(biv_obj):
-            return '{}'
-        vote = pcm.Vote(
-            user=flask.session.get('user.biv_id'),
-            nominee_biv_id=nominee.biv_id,
-            vote_status='1x',
-        )
-        ppc.db.session.add(vote)
-        ppc.app().logger.warn('user vote: {}'.format({
-            'user_id': flask.session.get('user.biv_id'),
-            'nominee': nominee.biv_id,
-            'user-agent': flask.request.headers.get('User-Agent'),
-            'route': flask.request.access_route[0][:100],
-        }))
-        return '{}'
+        resp = None
+        if not biv_obj.is_event_voting():
+            resp = 'Live voting is over' if biv_obj.is_expired() else 'Live voting has not yet started'
+        else:
+            data = flask.request.get_json()
+            nominee = E15Contest._lookup_nominee_by_biv_uri(biv_obj, data)
+            is_event_voter, vat = pem.E15VoteAtEvent.validate_session(biv_obj)
+            if not is_event_voter:
+                resp = 'You are not allowed to vote'
+            elif vat.nominee_biv_id:
+                resp = None
+            else:
+                vat.nominee_biv_id = nominee.biv_id
+                vat.user_biv_id = flask.session.get('user.biv_id', None)
+                vat.user_agent = flask.request.headers.get('User-Agent')[:100]
+                vat.remote_addr = flask.request.remote_addr
+        return flask.jsonify({'message': resp} if resp else {})
 
     def action_index(biv_obj):
         """Returns angular app home"""
@@ -329,23 +331,16 @@ class E15Contest(ppc.Task):
             random.Random(data['random_value']).shuffle(finalists)
         else:
             random.shuffle(finalists)
-        votes_by_nominee_id = {}
-
-        if pam.Admin.is_admin() or biv_obj.is_registrar():
-            votes = pcm.VoteAtEvent.query.filter(
-                pcm.VoteAtEvent.contest_biv_id == biv_obj.biv_id,
-                pcm.VoteAtEvent.nominee_biv_id != None,
-            ).all()
-            for vote in votes:
-                if vote.nominee_biv_id not in votes_by_nominee_id:
-                    votes_by_nominee_id[vote.nominee_biv_id] = 0
-                votes_by_nominee_id[vote.nominee_biv_id] += 1
         res = []
         for nominee in finalists:
             res.append({
                 'biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
                 'display_name': nominee.display_name,
-                'vote_count': votes_by_nominee_id[nominee.biv_id] if nominee.biv_id in votes_by_nominee_id else 0,
+                'youtube_code': nominee.youtube_code,
+                'nominee_summary': common.summary_text(nominee.nominee_desc),
+                'is_finalist': nominee.is_finalist,
+                'is_semi_finalist': nominee.is_semi_finalist,
+                'is_winner': nominee.is_winner,
             })
         return flask.jsonify({
             'finalists': res,
@@ -376,26 +371,33 @@ class E15Contest(ppc.Task):
     @common.decorator_user_is_registrar
     def action_register_event_voter(biv_obj):
         import pyisemail
-        eop = _is_email_or_phone(flask.request.json['emailOrPhone'])
+        v = flask.request.json['emailOrPhone']
+        if v is None or len(v) == 0:
+            return flask.jsonify({'errors': 'please enter an email or phone'})
+        eop = pem.validate_email_or_phone(v)
         if not eop:
-            return flask.jsonify({'errors': 'invalid phone or email'})
-        if pcm.VoteAtEvent.query.filter_by(
+            return flask.jsonify({'errors': 'invalid email or phone'})
+        m = pem.E15VoteAtEvent.query.filter_by(
             invite_email_or_phone=eop,
-        ).first():
-            return flask.jsonify({'errors': eop + ' was already registered'})
-        m = pcm.VoteAtEvent(
-            contest_biv_id=biv_obj.biv_id,
-            invite_email_or_phone=eop,
-        )
-        ppc.db.session.add(m)
-        pam.db.session.flush()
-        ppc.db.session.add(
-            pam.BivAlias(
-                biv_id=m.biv_id,
-                alias_name=m.invite_nonce,
-            ),
-        )
-        return '{}'
+        ).first()
+        if m:
+            resp = 'Resent invite to {}.'
+        else:
+            resp = '{} registered successfully and invite sent.'
+            m = pem.E15VoteAtEvent(
+                contest_biv_id=biv_obj.biv_id,
+                invite_email_or_phone=eop,
+            )
+            ppc.db.session.add(m)
+            pam.db.session.flush()
+            ppc.db.session.add(
+                pam.BivAlias(
+                    biv_id=m.biv_id,
+                    alias_name=m.invite_nonce,
+                ),
+            )
+        m.send_invite()
+        return flask.jsonify({'message': resp.format(eop)})
 
     def action_rules(biv_obj):
         return flask.redirect('/static/pdf/20160829-evc-rules.pdf')
@@ -408,16 +410,19 @@ class E15Contest(ppc.Task):
         # and will only work for "self"
         logged_in = True if flask.session.get('user.is_logged_in') else False
         vote = E15Contest._user_vote(biv_obj)
+        is_event_voter, vat = pem.E15VoteAtEvent.validate_session(biv_obj) \
+            if biv_obj.is_event_voting() else (False, None)
         return flask.jsonify({
-            'isLoggedIn': logged_in,
+            'canVote': biv_obj.is_public_voting(),
+            'displayName': flask.session.get('user.display_name') if logged_in else '',
+            'eventVote': vat and vat.nominee_biv_id and biv.Id(vat.nominee_biv_id).to_biv_uri(),
             'isAdmin': pam.Admin.is_admin(),
+            'isEventVoter': is_event_voter,
             'isJudge': biv_obj.is_judge(),
-            'isEventVoter': biv_obj.is_event_voter(),
+            'isLoggedIn': logged_in,
             'isRegistrar': biv_obj.is_registrar(),
             'isSemiFinalistSubmitter': biv_obj.is_semi_finalist_submitter(),
-            'displayName': flask.session.get('user.display_name') if logged_in else '',
             'vote': biv.Id(vote.nominee_biv_id).to_biv_uri() if vote else None,
-            'canVote': biv_obj.is_public_voting(),
         })
 
     def get_template():
@@ -495,14 +500,15 @@ class E15Contest(ppc.Task):
         return user_vote
 
 
-def _is_email_or_phone(value):
-    import pyisemail
-    value = value.lower()
-    if pyisemail.is_email(value):
-        return value
-    if '@' in value:
-        return None
-    value = re.sub(r'\D', '', value)
-    if len(value) == 10:
-        return value
-    return None
+class E15VoteAtEvent(ppc.Task):
+    def action_index(biv_obj):
+        """Returns angular app home and sets session"""
+        pp_t('obj={} contest={}', [biv_obj, biv_obj.contest_biv_id])
+        c = biv.load_obj(biv_obj.contest_biv_id)
+        biv_obj.save_to_session()
+        pp_t('contest={}', [c])
+        flask.session['vote_at_event.invite_nonce'] = biv_obj.invite_nonce
+        return flask.redirect(c.format_uri(
+            #action_uri='/',
+            anchor='/event-voting',
+        ))

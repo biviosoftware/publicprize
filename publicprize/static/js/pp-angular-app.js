@@ -45,11 +45,6 @@ app.config(function($routeProvider) {
                 'nominees',
                 'NomineeListController as nomineeList'))
         .when(
-            '/event-registration',
-            route(
-                'event-registration',
-                'EventRegistrationController as eventRegistration'))
-        .when(
             '/event-voting',
             route(
                 'event-voting',
@@ -58,6 +53,11 @@ app.config(function($routeProvider) {
             '/finalists',
             route(
                 'finalists',
+                'NomineeListController as nomineeList'))
+        .when(
+            '/winner',
+            route(
+                'winner',
                 'NomineeListController as nomineeList'))
         .when(
             '/semi-finalists',
@@ -132,6 +132,7 @@ app.factory('contestState', function(serverRequest) {
     self.contestInfo = {
         initializing: true,
         'contestantCount': 0,
+        displayName: '',
         'finalistCount': 0,
         'isEventVoting': false,
         'isJudging': false,
@@ -152,6 +153,9 @@ app.factory('contestState', function(serverRequest) {
 
     self.contestantCount = function() {
         return self.contestInfo.contestantCount;
+    };
+    self.displayName = function() {
+        return self.contestInfo.displayName;
     };
     self.finalistCount = function() {
         return self.contestInfo.finalistCount;
@@ -182,6 +186,9 @@ app.factory('contestState', function(serverRequest) {
     };
     self.showFinalists = function() {
         return self.contestInfo.showFinalists;
+    };
+    self.showWinner = function() {
+        return self.contestInfo.showWinner;
     };
     self.showSemiFinalists = function() {
         return self.contestInfo.showSemiFinalists;
@@ -272,14 +279,14 @@ app.controller('HomeController', function(serverRequest, contestState, userState
             $location.path('/about');
         else if (contestState.isNominating())
             $location.path('/submit-nominee');
-        else if (contestState.isEventVoting() && userState.isEventVoter())
-            $location.path('/event-voting');
         else if (userState.canVote())
             $location.path('/contestants');
         else if (contestState.showSemiFinalists())
             $location.path('/semi-finalists');
         else if (contestState.showFinalists())
             $location.path('/finalists');
+        else if (contestState.showWinner())
+            $location.path('/winner');
         else
             $location.path('/about');
         return '';
@@ -405,57 +412,26 @@ app.controller('NomineeController', function(serverRequest, userState, $route, $
     };
 });
 
-app.controller('EventRegistrationController', function(serverRequest, userState, $location, $scope, $rootScope) {
-    var self = this;
-    self.errorMessage = null;
-    self.linkedInEmail = null;
-    userState.navbarHidden = true;
-
-    function register() {
-        serverRequest.sendRequest(
-            '/register-event-email',
-            function(data) {
-                $('#registerThanks').modal('show');
-                $('#registerThanks').on('hidden.bs.modal', function() {
-                    self.linkedInEmail = null;
-                    self.errorMessage = null;
-                    $scope.$apply();
-                });
-            },
-            {
-                email: self.linkedInEmail,
-            })
-            .error(function() {
-                self.errorMessage = 'There was a problem registering your email. Please contact the event coordinator.';
-            });
-    }
-
-    self.registerEmail = function() {
-        if (! userState.isAdmin()) {
-            $location.path('/');
-            return;
-        }
-        if (self.linkedInEmail && self.linkedInEmail.indexOf('@') > 0) {
-            self.errorMessage = null;
-            register();
-        }
-        else {
-            self.errorMessage = 'Invalid Email Address';
-        }
-    };
-});
-
-app.controller('EventVoteController', function(serverRequest, userState, $location, $rootScope, $timeout) {
+app.controller('EventVoteController', function(serverRequest, userState, $location, $rootScope, $timeout, contestState) {
     var self = this;
     var timer = null;
     self.finalists = [];
     self.confirmNominee = null;
+    self.contestState = contestState;
+    self.userState = userState;
+    self.nomineeDisplayName = '';
 
     function refreshList() {
         serverRequest.sendRequest(
             '/finalist-list',
             function(data) {
                 self.finalists = data.finalists;
+                console.log(self.finalists);
+                self.finalists.forEach(function(nominee) {
+                    if (nominee.biv_id == userState.getEventVote()) {
+                        self.nomineeDisplayName = nominee.display_name;
+                    }
+                });
             },
             {
                 random_value: userState.state.randomValue,
@@ -475,23 +451,30 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
         $('#confirmEventVote').modal('show');
     };
 
+    function errorHandler(data) {
+        $('#confirmEventVote').modal('hide');
+        msg = '';
+        if (data && typeof data == 'object' && data.message) {
+            msg = ': ' + data.message;
+        }
+        $rootScope.$broadcast(
+            'pp.alert',
+            'There was a problem recording your vote' + msg
+                + '.  Please contact the event coordinator.',
+            'danger');
+    }
     self.saveEventVote = function() {
         serverRequest.sendRequest(
             '/event-vote',
-            function() {
+            function(data) {
                 userState.updateState();
                 $('#confirmEventVote').modal('hide');
+                refreshList();
             },
             {
                 nominee_biv_id: self.confirmNominee.biv_id,
             })
-            .error(function() {
-                $('#confirmEventVote').modal('hide');
-                $rootScope.$broadcast(
-                    'pp.alert',
-                    'There was a problem recording your vote. Please contact the event coordinator.',
-                    'danger');
-            });
+            .error(errorHandler);
     };
 
     self.selectNominee = function(nominee) {
@@ -520,14 +503,10 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
 app.controller('NomineeListController', function(serverRequest, userState, contestState, $location) {
     var self = this;
     self.finalists = [];
+    self.winner = [];
     self.semiFinalists = [];
     self.nominees = [];
     self.contestState = contestState;
-
-    // if (userState.isEventVoter() && $location.path().indexOf('finalists') >= 0) {
-    //     $location.path('/event-voting');
-    //     return;
-    // }
 
     serverRequest.sendRequest(
         '/public-nominee-list',
@@ -541,6 +520,9 @@ app.controller('NomineeListController', function(serverRequest, userState, conte
                 }
                 if (n.is_semi_finalist) {
                     self.semiFinalists.push(n);
+                }
+                if (n.is_winner) {
+                    self.winner.push(n);
                 }
             }
         },
@@ -672,6 +654,9 @@ app.controller('RegisterEventVoterController', function(serverRequest, $rootScop
     }
 
     self.submitForm = function() {
+        self.done = '';
+        self.errorMessage = '';
+        $rootScope.$broadcast('pp.alert', '');
         serverRequest.sendRequest(
             '/register-event-voter',
             function(data) {
@@ -679,8 +664,7 @@ app.controller('RegisterEventVoterController', function(serverRequest, $rootScop
                     errorHandler(data, 200);
                     return;
                 }
-                $rootScope.$broadcast(
-                    'pp.alert', self.emailOrPhone + ' registered successfully.');
+                $rootScope.$broadcast('pp.alert', data.message);
                 self.emailOrPhone = '';
             },
             {
@@ -955,7 +939,7 @@ app.controller('AdminScoresController', function(serverRequest, contestState) {
             self.totalVotes += self.scores[i].votes;
             self.totalJudgeRanks += self.scores[i].judge_score;
         }
-        var key = contestState.isEventVoting()
+        var key = contestState.isEventVoting() || contestState.showWinner
             ? function(x) {return x.event_votes;}
             : contestState.isJudging() || contestState.showFinalists()
             ? function(x) {return x.judge_score;}
@@ -1053,7 +1037,6 @@ app.directive('navLinks', function(contestState, userState) {
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href>Log in</a></li>',
             '<li data-ng-show="userState.isAdmin() || userState.isRegistrar()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a>',
               '<ul class="dropdown-menu" role="menu">',
-                '<li data-ng-show="userState.isAdmin()"><a href="#/event-registration">Event Registration</a></li>',
                 '<li data-ng-show="userState.isAdmin()"><a href="#/admin-event-votes">Event Votes</a></li>',
                 '<li data-ng-show="userState.isRegistrar()"><a href="#/register-event-voter">Register Event Voter</a></li>',
                 '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-nominees">Review Nominees</a></li>',
@@ -1084,9 +1067,9 @@ app.directive('alertBox', function($rootScope) {
             });
         },
         template: [
-            '<div class="container">',
+            '<div class="container" data-ng-show="message">',
               '<div class="row">',
-                '<div class="alert alert-{{ level }} alert-dismissible" data-ng-show="message" data-ng-class="{slideDown: message}">',
+                '<div class="alert alert-{{ level }} alert-dismissible" data-ng-class="{slideDown: message}">',
                   '<button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>',
 	          '<strong>{{ message }}</strong>',
 	        '</div>',
@@ -1232,6 +1215,7 @@ app.directive('sectionNav', function($location) {
             '<br />',
             '<ul data-ng-if="! contestInfo().isPreNominating" class="nav nav-justified">',
               '<li data-ng-if="contestInfo().showFinalists" data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ contestInfo().finalistCount }}</span></a></li>',
+              '<li data-ng-if="contestInfo().showWinner" data-ng-class="{\'pp-active-menu\': isSelected(\'winner\') }"><a class="btn btn-default" href="#/winner">Winner </a></li>',
               '<li data-ng-if="contestInfo().showSemiFinalists" data-ng-class="{\'pp-active-menu\': isSelected(\'semi-finalists\') }"><a class="btn btn-default" href="#/semi-finalists">Semi-Finalists <span class="badge">{{ contestInfo().semiFinalistCount }}</span></a></li>',
               '<li data-ng-if="contestInfo().isNominating" data-ng-class="{\'pp-active-menu\': isSelected(\'submit-nominee\') }"><a class="btn btn-default" href="#/submit-nominee">Contest Entry Form</a></li>',
               '<li data-ng-if="contestInfo().showAllContestants" data-ng-class="{\'pp-active-menu\': isSelected(\'contestants\') }"><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestInfo().contestantCount }}</span></a></li>',

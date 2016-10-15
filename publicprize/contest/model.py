@@ -19,10 +19,6 @@ from .. import biv
 from .. import common
 from ..auth import model as pam
 from ..controller import db
-from ..debug import pp_t
-
-
-_NONCE_ATTR = 'vote_at_event.invite_nonce'
 
 
 class ContestBase(common.ModelWithDates):
@@ -294,13 +290,6 @@ class Vote(db.Model, common.ModelWithDates):
     vote_status = db.Column(db.Enum('invalid', '1x', '2x', name='vote_status'), nullable=False)
 
 
-def _invite_nonce():
-    # SystemRandom is cryptographically secure
-    return ''.join(
-        random.SystemRandom().choice(string.ascii_lowercase) for _ in range(24)
-    )
-
-
 def _test_role(contest, clazz):
     """Creates a new test user and clazz models and log in."""
     # will raise an exception unless TEST_USER is configured
@@ -319,46 +308,9 @@ def _test_role(contest, clazz):
     return flask.redirect('/')
 
 
-class VoteAtEvent(db.Model, common.ModelWithDates):
-    """An event vote token
-    """
-    biv_id = db.Column(
-        db.Numeric(18),
-        db.Sequence('voteatevent_s', start=1019, increment=1000),
-        primary_key=True
-    )
-    contest_biv_id = db.Column(db.Numeric(18), nullable=False)
-    invite_email_or_phone = db.Column(db.String(100), nullable=False)
-    # Bit larger than _invite_nonce()
-    invite_nonce = db.Column(db.String(32), unique=True, default=_invite_nonce)
-    nominee_biv_id = db.Column(db.Numeric(18), nullable=True)
-    remote_addr = db.Column(db.String(32), nullable=True)
-    user_agent = db.Column(db.Numeric(18), nullable=True)
-    # Logged in user at the time of vote, may be meaningless
-    user_biv_id = db.Column(db.Numeric(18), nullable=True)
-
-    @classmethod
-    def validate_session(cls, contest):
-        i = flask.session.get(_NONCE_ATTR)
-        if not i:
-            pp_t('no invite_nonce')
-            werkzeug.exceptions.abort(404)
-        self = cls.query.filter_by(invite_nonce=i).first_or_404()
-        if self.contest_biv_id != contest.biv_id:
-            pp_t(
-                'nonce={} expect_contest={} actual_contest={}',
-                [i, contest.biv_id, self.contest_biv_id],
-            )
-            werkzeug.exceptions.abort(404)
-
-    def save_to_session(self):
-        flask.session[_NONCE_ATTR] = self.invite_nonce
-
-
 Founder.BIV_MARKER = biv.register_marker(4, Founder)
 Image.BIV_MARKER = biv.register_marker(17, Image)
 Judge.BIV_MARKER = biv.register_marker(9, Judge)
 Registrar.BIV_MARKER = biv.register_marker(18, Registrar)
 Sponsor.BIV_MARKER = biv.register_marker(8, Sponsor)
 Vote.BIV_MARKER = biv.register_marker(14, Vote)
-VoteAtEvent.BIV_MARKER = biv.register_marker(19, VoteAtEvent)
