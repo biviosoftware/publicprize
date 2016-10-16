@@ -535,21 +535,8 @@ def twitter_handle_update(contest, old, new):
 def upgrade_db():
     """Backs up the db and runs an upgrade"""
     backup_db()
-    m = pe15.E15Contest.query.filter_by(
-        display_name='2016 Esprit Venture Challenge',
-    ).one()
-    nominees = sorted(
-        m.tally_all_scores(),
-        key=lambda x: x['votes'],
-        reverse=True,
-    )
-    # make sure there isn't a tie between 10th and 11th place
-    assert nominees[9]['votes'] > nominees[10]['votes']
-    for i in range(10):
-        assert nominees[i]['votes'] >= nominees[i + 1]['votes']
-        n = pe15.E15Nominee.query.filter_by(biv_id=nominees[i]['biv_id']).one()
-        n.is_semi_finalist = True
-        _add_model(n)
+    pe15.E15VoteAtEvent.__table__.create(bind=db.get_engine(ppc.app()))
+    pcm.Registrar.__table__.create(bind=db.get_engine(ppc.app()))
     db.session.commit()
 
 

@@ -74,6 +74,7 @@ class E15Contest(db.Model, pcm.ContestBase):
             'finalistCount': finalistCount,
             'isEventRegistration': ppdatetime.now_in_range(self.submission_start, self.event_voting_end),
             'isEventVoting': self.is_event_voting(),
+            'isExpired': self.is_expired(),
             'isJudging': self.is_judging(),
             'isNominating': ppdatetime.now_in_range(self.submission_start, self.submission_end),
             'isPreNominating': ppdatetime.now_before_start(self.submission_start),

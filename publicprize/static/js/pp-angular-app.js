@@ -132,7 +132,7 @@ app.factory('contestState', function(serverRequest) {
     self.contestInfo = {
         initializing: true,
         'contestantCount': 0,
-        displayName: '',
+        'displayName': '',
         'finalistCount': 0,
         'isEventVoting': false,
         'isJudging': false,
@@ -162,6 +162,9 @@ app.factory('contestState', function(serverRequest) {
     };
     self.isEventVoting = function() {
         return self.contestInfo.isEventVoting;
+    };
+    self.isExpired = function() {
+        return self.contestInfo.isExpired;
     };
     self.isJudging = function() {
         return self.contestInfo.isJudging;
@@ -426,7 +429,6 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
             '/finalist-list',
             function(data) {
                 self.finalists = data.finalists;
-                console.log(self.finalists);
                 self.finalists.forEach(function(nominee) {
                     if (nominee.biv_id == userState.getEventVote()) {
                         self.nomineeDisplayName = nominee.display_name;

@@ -1,20 +1,28 @@
 <div class="container">
   <div class="row">
     <div class="col-sm-8">
-      <h1>{{ eventVote.contestState.displayName }}</h1>
-      <h2>Live Voting</h2>
-      <div data-ng-show="eventVote.canVoteForFinalist()">
-        <div data-ng-repeat="nominee in eventVote.finalists">
-          <div class="pp-form" data-ng-class="{'pp-selected-nominee': eventVote.userFinalistSelection(nominee) }">
-            <div>
-              <a data-ng-if="eventVote.canVoteForFinalist()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="eventVote.confirmFinalistVote(nominee); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Vote for {{ nominee.display_name }}</a>
+      <h1>{{ eventVote.contestState.displayName() }}</h1>
+      <div data-ng-show="eventVote.contestState.isExpired()">
+        <h2>Contest is over</h2>
+      </div>
+      <div data-ng-hide="eventVote.contestState.isEventVoting()">
+        <h2>Voting has yet to begin</h2>
+      </div>
+      <div data-ng-show="eventVote.contestState.isEventVoting() ">
+        <h2>Live Voting</h2>
+        <div data-ng-show="eventVote.canVoteForFinalist()">
+          <div data-ng-repeat="nominee in eventVote.finalists">
+            <div class="pp-form" data-ng-class="{'pp-selected-nominee': eventVote.userFinalistSelection(nominee) }">
+              <div>
+                <a data-ng-if="eventVote.canVoteForFinalist()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="eventVote.confirmFinalistVote(nominee); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Vote for {{ nominee.display_name }}</a>
+              </div>
+              <div class="clearfix"></div>
             </div>
-            <div class="clearfix"></div>
           </div>
         </div>
-      </div>
-      <div data-ng-hide="eventVote.canVoteForFinalist()">
-        <div data-ng-show="eventVote.nomineeDisplayName">Your vote for <b>{{ eventVote.nomineeDisplayName }}</b> has been recorded. Thank you.</div>
+        <div data-ng-hide="eventVote.canVoteForFinalist()">
+          <div data-ng-show="eventVote.nomineeDisplayName">Your vote for <b>{{ eventVote.nomineeDisplayName }}</b> has been recorded. Thank you.</div>
+        </div>
       </div>
     </div>
     <div data-sponsor-list=""></div>

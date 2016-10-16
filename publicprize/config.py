@@ -37,6 +37,8 @@ class Config(object):
         if PUBLICPRIZE.get(k, None) is None:
             PUBLICPRIZE[k] = PUBLICPRIZE['TEST_MODE']
     MAIL_SUPPRESS_SEND = PUBLICPRIZE['MAIL_SUPPRESS_SEND']
+    if PUBLICPRIZE.get('SERVER_NAME'):
+        SERVER_NAME = PUBLICPRIZE['SERVER_NAME']
     import paypalrestsdk
     paypalrestsdk.configure(PUBLICPRIZE['PAYPAL'])
     SECRET_KEY = PUBLICPRIZE['SECRET_KEY']
