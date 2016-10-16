@@ -330,6 +330,18 @@ def restore_db(dump_file):
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
+def send_event_vote_invites(contest):
+    """Set contest.field to date."""
+    c = biv.load_obj(contest)
+    assert type(c) == pe15.E15Contest
+    _add_model(c)
+    for vae in pe15.E15VoteAtEvent.query.filter_by(
+        contest_biv_id=c.biv_id
+    ).all():
+        vae.send_invite()
+
+
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
 @_MANAGER.option('-d', '--date_time', help='Date/time value')
 @_MANAGER.option('-f', '--field', help='Field to set value to')
 def set_contest_date_time(contest, date_time, field):

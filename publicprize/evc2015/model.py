@@ -196,6 +196,14 @@ class E15Nominee(db.Model, pcm.NomineeBase):
                 count += 2
         return count
 
+    def get_votes(self):
+        return Vote.query.filter(
+            E15VoteAtEvent.nominee_biv_id == self.biv_id
+        ).all()
+
+    def tally_event_votes(self):
+        return len(list(self.get_event_votes()))
+
 
 def _invite_nonce():
     # SystemRandom is cryptographically secure

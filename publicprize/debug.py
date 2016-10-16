@@ -189,8 +189,9 @@ class TracePrinter(object):
 
         try:
             msg = fmt_or_msg.format(*fmt_params) if fmt_params else str(fmt_or_msg)
+            msg = prefix + msg
             if self._regex.search(msg):
-                _trace_printer.write(prefix + msg + '\n')
+                _trace_printer.write(msg + '\n')
         except Exception:
             _trace_printer.write('format error: ' + prefix + fmt_or_msg + str(fmt_params))
 

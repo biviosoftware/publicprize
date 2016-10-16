@@ -935,9 +935,11 @@ app.controller('AdminScoresController', function(serverRequest, contestState) {
         self.scores = data.scores;
         self.totalVotes = 0;
         self.totalJudgeRanks = 0;
+        self.totalEventVotes = 0;
         for (var i = 0; i < self.scores.length; i++) {
             self.totalVotes += self.scores[i].votes;
             self.totalJudgeRanks += self.scores[i].judge_score;
+            self.totalEventVotes += self.scores[i].event_votes;
         }
         var key = contestState.isEventVoting() || contestState.showWinner
             ? function(x) {return x.event_votes;}
@@ -1041,7 +1043,7 @@ app.directive('navLinks', function(contestState, userState) {
                 '<li data-ng-show="userState.isRegistrar()"><a href="#/register-event-voter">Register Event Voter</a></li>',
                 '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-nominees">Review Nominees</a></li>',
                 '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-judges">Review Judges</a></li>',
-                '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-scores">Review Scores</a></li>',
+                '<li data-ng-show="userState.isRegistrar()"><a href="#/admin-review-scores">Review Scores</a></li>',
                 '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-votes">Review Votes</a></li>',
               '</ul>',
             '</li>',

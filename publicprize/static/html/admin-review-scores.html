@@ -9,7 +9,6 @@
               <th>Name</th>
               <th>Public Votes</th>
               <th>Judge Score</th>
-              <th>Judge Ranks</th>
               <th>Event Votes</th>
             </tr>
           </thead>
@@ -18,13 +17,13 @@
               <td>{{ score.display_name }}</td>
               <td class="pp-amount-cell">{{ score.votes }}</td>
               <td class="pp-amount-cell">{{ score.judge_score }}</td>
-              <td class="pp-amount-cell">{{ score.judge_ranks }}</td>
               <td class="pp-amount-cell">{{ score.event_votes }}</td>
             </tr>
             <tr>
               <td></td>
               <td class="pp-amount-cell"><strong>{{ adminScores.totalVotes }}</strong></td>
               <td class="pp-amount-cell"><strong>{{ adminScores.totalJudgeRanks }}</strong></td>
+              <td class="pp-amount-cell"><strong>{{ adminScores.totalEventVotes }}</strong></td>
               <td></td>
               <td></td>
             </tr>
