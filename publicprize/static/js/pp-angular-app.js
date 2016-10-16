@@ -422,7 +422,7 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
     self.confirmNominee = null;
     self.contestState = contestState;
     self.userState = userState;
-    self.nomineeDisplayName = '';
+    self.nominee = null;
 
     function refreshList() {
         serverRequest.sendRequest(
@@ -431,7 +431,7 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
                 self.finalists = data.finalists;
                 self.finalists.forEach(function(nominee) {
                     if (nominee.biv_id == userState.getEventVote()) {
-                        self.nomineeDisplayName = nominee.display_name;
+                        self.nominee = nominee;
                     }
                 });
             },
@@ -443,6 +443,13 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
     function nomineeUrl(nominee) {
         return '/' + nominee.biv_id  + '/contestant';
     }
+
+    self.nomineeDisplayName = function() {
+        if (self.nominee) {
+            return self.nominee.display_name;
+        }
+        return '';
+    };
 
     self.canVoteForFinalist = function() {
         return userState.isEventVoter() && ! userState.getEventVote();

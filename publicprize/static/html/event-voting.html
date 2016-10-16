@@ -21,7 +21,7 @@
           </div>
         </div>
         <div data-ng-hide="eventVote.canVoteForFinalist()">
-          <div data-ng-show="eventVote.nomineeDisplayName">Your vote for <b>{{ eventVote.nomineeDisplayName }}</b> has been recorded. Thank you.</div>
+          <div data-ng-show="eventVote.nomineeDisplayName()">Your vote for <b>{{ eventVote.nomineeDisplayName() }}</b> has been recorded. Thank you.</div>
         </div>
       </div>
     </div>
