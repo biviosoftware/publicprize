@@ -559,6 +559,7 @@ def _add_owner(parent_id, child_id):
 
 
 def _add_role(contest, user, role_class):
+    contest = biv.load_obj(contest)
     user_model = _lookup_user(user)
     role = role_class.query.select_from(pam.BivAccess).filter(
         pam.BivAccess.source_biv_id == user_model.biv_id,
@@ -571,7 +572,7 @@ def _add_role(contest, user, role_class):
     else:
         role_id = _add_model(role_class())
         _add_owner(user_model.biv_id, role_id)
-    _add_owner(contest, role_id)
+    _add_owner(contest.biv_id, role_id)
 
 
 def _create_contest(contest):
