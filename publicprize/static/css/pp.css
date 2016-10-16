@@ -494,6 +494,9 @@ input.pp-agree-checkbox {
 .pp-amount-cell {
   text-align: right;
 }
+.pp-score-cell {
+  text-align: center;
+}
 .pp-question-category {
   color: #555;
   width: 30%;

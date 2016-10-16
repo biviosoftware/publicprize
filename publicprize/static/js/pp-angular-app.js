@@ -38,7 +38,7 @@ app.config(function($routeProvider) {
             '/admin-event-votes',
             route(
                 'admin-event-votes',
-                'EventVoteController as eventVote'))
+                'AdminEventVotesController as adminEventVotes'))
         .when(
             '/contestants',
             route(
@@ -935,15 +935,11 @@ app.controller('AdminScoresController', function(serverRequest, contestState) {
         self.scores = data.scores;
         self.totalVotes = 0;
         self.totalJudgeRanks = 0;
-        self.totalEventVotes = 0;
         for (var i = 0; i < self.scores.length; i++) {
             self.totalVotes += self.scores[i].votes;
             self.totalJudgeRanks += self.scores[i].judge_score;
-            self.totalEventVotes += self.scores[i].event_votes;
         }
-        var key = contestState.isEventVoting() || contestState.showWinner
-            ? function(x) {return x.event_votes;}
-            : contestState.isJudging() || contestState.showFinalists()
+        var key = contestState.isJudging() || contestState.showFinalists()
             ? function(x) {return x.judge_score;}
             : contestState.isPublicVoting() || contestState.showSemiFinalists()
             ? function(x) {return x.votes;}
@@ -951,6 +947,17 @@ app.controller('AdminScoresController', function(serverRequest, contestState) {
         self.scores.sort(
             key ? function(a, b) {return key(b) - key(a);} : undefined
         );
+    });
+});
+
+app.controller('AdminEventVotesController', function(serverRequest, contestState) {
+    var self = this;
+    serverRequest.sendRequest('/admin-event-votes', function(data) {
+        for (var p in data) {
+            if (data.hasOwnProperty(p)) {
+                self[p] = data[p];
+            }
+        }
     });
 });
 
@@ -1039,11 +1046,11 @@ app.directive('navLinks', function(contestState, userState) {
             '<li data-ng-hide="userState.isLoggedIn()"><a rel="nofollow" class="pp-nav-item" data-toggle="modal" data-target="#loginModal" href>Log in</a></li>',
             '<li data-ng-show="userState.isAdmin() || userState.isRegistrar()" class="dropdown"><a class="pp-nav-item pp-nav-important dropdown-toggle" href data-toggle="dropdown">Admin <span class="caret"></span></a>',
               '<ul class="dropdown-menu" role="menu">',
-                '<li data-ng-show="userState.isAdmin()"><a href="#/admin-event-votes">Event Votes</a></li>',
+                '<li data-ng-show="userState.isRegistrar()"><a href="#/admin-event-votes">Event Votes</a></li>',
                 '<li data-ng-show="userState.isRegistrar()"><a href="#/register-event-voter">Register Event Voter</a></li>',
                 '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-nominees">Review Nominees</a></li>',
                 '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-judges">Review Judges</a></li>',
-                '<li data-ng-show="userState.isRegistrar()"><a href="#/admin-review-scores">Review Scores</a></li>',
+                '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-scores">Review Scores</a></li>',
                 '<li data-ng-show="userState.isAdmin()"><a href="#/admin-review-votes">Review Votes</a></li>',
               '</ul>',
             '</li>',

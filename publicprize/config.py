@@ -12,7 +12,11 @@ def _config_from_environ(cfg, prefix):
         if isinstance(cfg[k], dict):
             _config_from_environ(cfg[k], ek)
         elif ek in os.environ:
-            cfg[k] = os.environ[ek]
+            t = type(cfg[k])
+            v = os.environ[ek]
+            if issubclass(t, (int, bool)):
+                v = t(v)
+            cfg[k] = v
 
 
 def _read_json(filename):
@@ -29,11 +33,10 @@ class Config(object):
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
     PUBLICPRIZE = _read_json(os.environ.get('PUBLICPRIZE_JSON', 'config.json'))
     _config_from_environ(PUBLICPRIZE, 'PUBLICPRIZE')
-    for k in ['DEBUG', 'ALL_PUBLIC_CONTESTANTS', 'TEST_USER', 'MAIL_DEBUG']:
+    for k in ['DEBUG', 'ALL_PUBLIC_CONTESTANTS', 'TEST_USER', 'MAIL_DEBUG', 'MAIL_SUPPRESS_SEND']:
         if PUBLICPRIZE.get(k, None) is None:
             PUBLICPRIZE[k] = PUBLICPRIZE['TEST_MODE']
-    if PUBLICPRIZE.setdefault('MAIL_SUPPRESS_SEND', PUBLICPRIZE['TEST_MODE']):
-        os.environ['MAIL_SUPPRESS_SEND'] = '1'
+    MAIL_SUPPRESS_SEND = PUBLICPRIZE['MAIL_SUPPRESS_SEND']
     import paypalrestsdk
     paypalrestsdk.configure(PUBLICPRIZE['PAYPAL'])
     SECRET_KEY = PUBLICPRIZE['SECRET_KEY']

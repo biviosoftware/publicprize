@@ -9,22 +9,20 @@
               <th>Name</th>
               <th>Public Votes</th>
               <th>Judge Score</th>
-              <th>Event Votes</th>
+              <th>Judge Ranks</th>
             </tr>
           </thead>
           <tbody>
             <tr data-ng-repeat="score in adminScores.scores">
               <td>{{ score.display_name }}</td>
-              <td class="pp-amount-cell">{{ score.votes }}</td>
-              <td class="pp-amount-cell">{{ score.judge_score }}</td>
-              <td class="pp-amount-cell">{{ score.event_votes }}</td>
+              <td class="pp-score-cell">{{ score.votes }}</td>
+              <td class="pp-score-cell">{{ score.judge_score }}</td>
+              <td class="pp-score-cell">{{ score.judge_ranks }}</td>
             </tr>
             <tr>
               <td></td>
-              <td class="pp-amount-cell"><strong>{{ adminScores.totalVotes }}</strong></td>
-              <td class="pp-amount-cell"><strong>{{ adminScores.totalJudgeRanks }}</strong></td>
-              <td class="pp-amount-cell"><strong>{{ adminScores.totalEventVotes }}</strong></td>
-              <td></td>
+              <td class="pp-score-cell"><strong>{{ adminScores.totalVotes }}</strong></td>
+              <td class="pp-score-cell"><strong>{{ adminScores.totalJudgeRanks }}</strong></td>
               <td></td>
             </tr>
           </tbody>

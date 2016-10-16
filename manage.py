@@ -234,6 +234,28 @@ def refresh_founder_avatars():
     print('refreshed {} founder avatars'.format(count))
 
 
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-i', '--input_file', help='input file')
+def register_event_voters(contest, input_file):
+    """Load voter emails/phones from a file; invites NOT sent"""
+    c = biv.load_obj(contest)
+    assert type(c) == pe15.E15Contest
+    _add_model(c)
+    with open(input_file) as f:
+        for l in f:
+            l = l.rstrip()
+            eop, err = pe15.validate_email_or_phone(l)
+            if err:
+                print('{}: invalid email or phone'.format(l))
+            else:
+                vae, created = pe15.E15VoteAtEvent.create_unless_exists(c, eop)
+                if created:
+                    _add_model(vae)
+                else:
+                    print('{}: already registered'.format(vae.invite_email_or_phone))
+
+
+
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 def remove_admin(user):
     """Remove the User model to an Admin model."""
@@ -330,15 +352,30 @@ def restore_db(dump_file):
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
-def send_event_vote_invites(contest):
-    """Set contest.field to date."""
+@_MANAGER.option('-f', '--force', action='store_true', help='force invites to go out')
+@_MANAGER.option('-e', '--email_or_phone', help='send only one invite')
+def send_event_vote_invites(contest, force=False, email_or_phone=None):
+    """Send invites to people not sent to, else force
+
+    To force if there are more than MAX_INVITES_SENT::
+
+        PUBLICPRIZE_MAX_INVITES_SENT=99 python manage.py send_event_vote_invites \
+            -c esprit-venture-challenge -f -e 1111111111
+    """
     c = biv.load_obj(contest)
     assert type(c) == pe15.E15Contest
     _add_model(c)
-    for vae in pe15.E15VoteAtEvent.query.filter_by(
-        contest_biv_id=c.biv_id
-    ).all():
-        vae.send_invite()
+    query = dict(contest_biv_id=c.biv_id)
+    if email_or_phone:
+        eop, err = pe15.validate_email_or_phone(email_or_phone)
+        if err:
+            raise AssertionError(email_or_phone + ': ' + err)
+        query['invite_email_or_phone'] = eop
+    sent = 0
+    for vae in pe15.E15VoteAtEvent.query.filter_by(**query).all():
+        sent += int(bool(vae.send_invite(force=force)))
+        _add_model(vae)
+    print('Sent {} invites'.format(sent))
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
