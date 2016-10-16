@@ -350,7 +350,10 @@ class E15VoteAtEvent(db.Model, common.ModelWithDates):
         if not i:
             pp_t('no invite_nonce')
             return False, None
-        self = cls.query.filter_by(invite_nonce=i).first_or_404()
+        self = cls.query.filter_by(invite_nonce=i).first()
+        if not self:
+            pp_t('invite nonce not found, another db?')
+            return False, None
         if self.contest_biv_id != contest.biv_id:
             pp_t(
                 'nonce={} expect_contest={} actual_contest={}',
