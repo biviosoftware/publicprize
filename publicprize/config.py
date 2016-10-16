@@ -28,6 +28,8 @@ def _read_json(filename):
 
 class Config(object):
     """Configuration driven off environment variables"""
+    # DO NOT set cfg['SERVER_NAME'] it breaks uwsgi so nothing is found
+    # see code in manager.send_event_vote_invites so it can use url_for.
     import locale
     locale.setlocale(locale.LC_ALL, '')
     SQLALCHEMY_COMMIT_ON_TEARDOWN = True
@@ -37,8 +39,6 @@ class Config(object):
         if PUBLICPRIZE.get(k, None) is None:
             PUBLICPRIZE[k] = PUBLICPRIZE['TEST_MODE']
     MAIL_SUPPRESS_SEND = PUBLICPRIZE['MAIL_SUPPRESS_SEND']
-    if PUBLICPRIZE.get('SERVER_NAME'):
-        SERVER_NAME = PUBLICPRIZE['SERVER_NAME']
     import paypalrestsdk
     paypalrestsdk.configure(PUBLICPRIZE['PAYPAL'])
     SECRET_KEY = PUBLICPRIZE['SECRET_KEY']

@@ -362,6 +362,9 @@ def send_event_vote_invites(contest, force=False, email_or_phone=None):
         PUBLICPRIZE_MAX_INVITES_SENT=99 python manage.py send_event_vote_invites \
             -c esprit-venture-challenge -f -e 1111111111
     """
+    server_name = ppc.app().config['PUBLICPRIZE'].get('SERVER_NAME')
+    if server_name:
+        ppc.app().config['SERVER_NAME'] = server_name
     c = biv.load_obj(contest)
     assert type(c) == pe15.E15Contest
     _add_model(c)
