@@ -157,3 +157,12 @@ Also needed:
 ```bash
 sudo yum install -y libffi-devel
 ```
+
+
+## uwsgi & nginx
+
+```bash
+cd publicprize
+docker run --net=host --rm --volume=$PWD/nginx-dev.conf:/etc/nginx/nginx.conf nginx
+PUBLICPRIZE_TRACE=. uwsgi --ini=uwsgi-dev.ini
+```

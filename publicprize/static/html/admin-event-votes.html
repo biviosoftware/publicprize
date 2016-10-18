@@ -1,8 +1,8 @@
 <div class="container">
+  <h1>{{ adminEventVotes.contest }}</h1>
   <div class="row">
-    <div class="col-sm-8">
-      <div>{{ eventVote.startRefreshTimer() }}</div>
-      <h1>Event Votes</h1>
+    <div class="col-sm-4">
+      <h3>Event Votes ({{ adminEventVotes.total_votes }})</h1>
       <table class="table table-hover">
         <thead>
           <tr>
@@ -17,9 +17,7 @@
           </tr>
           <tr>
             <td></td>
-            <td class="pp-score-cell"><strong>{{ adminEventVotes.total_count }}</strong></td>
-            <td></td>
-            <td></td>
+            <td class="pp-score-cell"><strong></strong></td>
           </tr>
         </tbody>
       </table>
@@ -27,7 +25,7 @@
   </div>
   <div class="row">
     <div class="col-sm-8">
-      <h1>Votes</h1>
+      <h3>Registered Voters ({{ adminEventVotes.total_votes }})</h1>
       <table class="table table-hover">
         <thead>
           <tr>

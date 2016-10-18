@@ -265,8 +265,16 @@ app.factory('userState', function(serverRequest, $rootScope, $location) {
             $rootScope.$broadcast('pp.alert', 'You have successfully logged out.');
         });
     };
-    self.updateState = function() {
-        serverRequest.sendRequest('/user-state', updateUserState);
+    self.updateState = function(callback) {
+        serverRequest.sendRequest(
+            '/user-state',
+            function(data) {
+                updateUserState(data);
+                if (callback) {
+                    callback();
+                }
+            }
+        );
     }
     self.updateState();
     return self;
@@ -476,9 +484,8 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
         serverRequest.sendRequest(
             '/event-vote',
             function(data) {
-                userState.updateState();
                 $('#confirmEventVote').modal('hide');
-                refreshList();
+                userState.updateState(refreshList);
             },
             {
                 nominee_biv_id: self.confirmNominee.biv_id,
@@ -488,18 +495,6 @@ app.controller('EventVoteController', function(serverRequest, userState, $locati
 
     self.selectNominee = function(nominee) {
         $location.path(nomineeUrl(nominee));
-    };
-
-    self.startRefreshTimer = function() {
-        if (! timer) {
-            timer = $timeout(
-                function() {
-                    refreshList();
-                    timer = null;
-                    self.startRefreshTimer();
-                },
-                5000);
-        }
     };
 
     self.userFinalistSelection = function(nominee) {
@@ -961,13 +956,16 @@ app.controller('AdminScoresController', function(serverRequest, contestState) {
 
 app.controller('AdminEventVotesController', function(serverRequest, contestState) {
     var self = this;
-    serverRequest.sendRequest('/admin-event-votes', function(data) {
-        for (var p in data) {
-            if (data.hasOwnProperty(p)) {
-                self[p] = data[p];
+    function refreshList() {
+        serverRequest.sendRequest('/admin-event-votes', function(data) {
+            for (var p in data) {
+                if (data.hasOwnProperty(p)) {
+                    self[p] = data[p];
+                }
             }
-        }
-    });
+        });
+    }
+    refreshList();
 });
 
 app.controller('AdminVotesController', function(serverRequest) {

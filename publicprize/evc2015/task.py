@@ -378,7 +378,7 @@ class E15Contest(ppc.Task):
         vae, created = pem.E15VoteAtEvent.create_unless_exists(biv_obj, eop)
         resp = '{eop} registered successfully and invite sent.' if created \
             else 'Resent invite to {eop}.'
-        resp += 'Link {uri}'
+        resp += ' Link: {uri}'
         uri = vae.send_invite(force=True)
         if not uri:
             resp = '{eop} already registered. Have user check their spam'

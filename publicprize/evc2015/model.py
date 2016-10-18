@@ -19,6 +19,27 @@ from ..auth import model as pam
 from ..controller import db
 from .. import ppdatetime
 
+_SEND_INVITE_MAIL_SUBJECT = '{contest}'
+
+_SEND_INVITE_SMS_BODY = 'Vote at {contest} here: {uri}'
+
+_SEND_INVITE_MAIL_BODY = '''{contest} Voter:
+
+Please help choose the next {contest} winner. Your personal voting link is:
+
+{uri}
+
+This link may only be used one time.
+
+Thank you for encouraging entrepreneurship in Boulder.
+
+Cheers,
+Your Public Prize Support Team
+support@publicprize
+303.417.0919
+'''
+
+
 def is_email(v):
     """Only works for validated emails; Differentiating from phone"""
     return '@' in v
@@ -159,16 +180,18 @@ class E15Contest(db.Model, pcm.ContestBase):
                 display_name=f.display_name,
                 count=0,
             )
-        total = 0
         votes = []
+        total_votes = 0
+        total_votes_used = 0
         for vae in E15VoteAtEvent.query.filter(
              E15VoteAtEvent.contest_biv_id == self.biv_id,
         ).order_by(
             E15VoteAtEvent.invite_email_or_phone,
         ).all():
-            total += 1
             v = dict(invite_email_or_phone=vae.invite_email_or_phone, nominee='')
+            total_votes += 1
             if vae.nominee_biv_id:
+                total_votes_used += 1
                 n = nominees[vae.nominee_biv_id]
                 n['count'] += 1
                 v['nominee'] = n['display_name']
@@ -179,8 +202,10 @@ class E15Contest(db.Model, pcm.ContestBase):
                 key=lambda x: x['count'],
                 reverse=True,
             ),
-            total_count=total,
+            total_votes=total_votes,
+            total_votes_used=total_votes_used,
             votes=votes,
+            contest=self.display_name,
         )
 
     def tally_all_scores(self):
@@ -312,35 +337,41 @@ class E15VoteAtEvent(db.Model, common.ModelWithDates):
 
     def send_invite(self, force):
         """Email or SMS voting link"""
+        uri = self.format_absolute_uri()
         if (
             self.invites_sent > 0 and not force
             or self.invites_sent >= ppc.app().config['PUBLICPRIZE']['MAX_INVITES_SENT']
         ):
-            pp_t('NOT sending to={}', [self.invite_email_or_phone])
+            pp_t('NOT sending to={} uri={}', [self.invite_email_or_phone, uri])
             return None
-        uri = self.format_absolute_uri()
-        body = 'Vote at {} here: {}'.format(self.contest.display_name, uri)
+        pp_cfg = ppc.app().config['PUBLICPRIZE']
+        assert pp_cfg['TEST_MODE'] or not re.search('/localhost|/127', uri), \
+            'uri={}: uri contains local host'
         pp_t('to={} uri={}', [self.invite_email_or_phone, uri])
+        msg_args = dict(
+            contest=self.contest.display_name,
+            uri=uri,
+        )
         if is_email(self.invite_email_or_phone):
             import flask_mail
             msg = flask_mail.Message(
-                subject='Esprit Venture Challenge Voting Link',
-                sender=ppc.app().config['PUBLICPRIZE']['SUPPORT_EMAIL'],
+                subject=_SEND_INVITE_MAIL_SUBJECT.format(**msg_args),
+                sender=(self.contest.display_name, pp_cfg['SUPPORT_EMAIL']),
                 recipients=[self.invite_email_or_phone],
-                body=body,
+                body=_SEND_INVITE_MAIL_BODY.format(**msg_args),
             )
             ppc.mail().send(msg)
         else:
             import twilio.rest
-            pp_cfg = ppc.app().config['PUBLICPRIZE']
             cfg = pp_cfg['TWILIO']
             c = twilio.rest.TwilioRestClient(**cfg['auth'])
+            sms_args = dict(
+                to=self.invite_email_or_phone,
+                from_=cfg['from'],
+                body=_SEND_INVITE_SMS_BODY.format(**msg_args),
+            )
             if not pp_cfg['MAIL_SUPPRESS_SEND']:
-                c.sms.messages.create(
-                    to=self.invite_email_or_phone,
-                    from_=cfg['from'],
-                    body=body,
-                )
+                c.sms.messages.create(**sms_args)
         self.invites_sent += 1
         return uri
 
