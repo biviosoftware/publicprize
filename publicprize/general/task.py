@@ -56,7 +56,7 @@ class General(controller.Task):
         return oauth.authorize_complete('google')
 
     def action_home(biv_obj):
-        x = pe15.E15Contest.query.all()
+        x = pe15.E15Contest.query.order_by('biv_id').all()
         return flask.render_template(
             "general/home.html",
             evc16_contest=x[1],
