@@ -352,36 +352,6 @@ def restore_db(dump_file):
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
-@_MANAGER.option('-f', '--force', action='store_true', help='force invites to go out')
-@_MANAGER.option('-e', '--email_or_phone', help='send only one invite')
-def send_event_vote_invites(contest, force=False, email_or_phone=None):
-    """Send invites to people not sent to, else force
-
-    To force if there are more than MAX_INVITES_SENT::
-
-        PUBLICPRIZE_MAX_INVITES_SENT=99 python manage.py send_event_vote_invites \
-            -c esprit-venture-challenge -f -e 1111111111
-    """
-    server_name = ppc.app().config['PUBLICPRIZE'].get('SERVER_NAME')
-    if server_name:
-        ppc.app().config['SERVER_NAME'] = server_name
-    c = biv.load_obj(contest)
-    assert type(c) == pe15.E15Contest
-    _add_model(c)
-    query = dict(contest_biv_id=c.biv_id)
-    if email_or_phone:
-        eop, err = pe15.validate_email_or_phone(email_or_phone)
-        if err:
-            raise AssertionError(email_or_phone + ': ' + err)
-        query['invite_email_or_phone'] = eop
-    sent = 0
-    for vae in pe15.E15VoteAtEvent.query.filter_by(**query).all():
-        sent += int(bool(vae.send_invite(force=force)))
-        _add_model(vae)
-    print('Sent {} invites'.format(sent))
-
-
-@_MANAGER.option('-c', '--contest', help='Contest biv_id')
 @_MANAGER.option('-d', '--date_time', help='Date/time value')
 @_MANAGER.option('-f', '--field', help='Field to set value to')
 def set_contest_date_time(contest, date_time, field):

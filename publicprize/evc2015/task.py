@@ -124,6 +124,17 @@ class E15Contest(ppc.Task):
 
     @common.decorator_login_required
     @common.decorator_user_is_admin
+    def action_admin_send_invites(biv_obj):
+        query = dict(contest_biv_id=biv_obj.biv_id)
+        sent = 0
+        force = 'force' in (flask.request.pp_request['path_info'] or '')
+        for vae in pem.E15VoteAtEvent.query.filter_by(**query).all():
+            sent += int(bool(vae.send_invite(force=force)))
+            ppc.db.session.add(vae)
+        return flask.jsonify({'sent': sent})
+
+    @common.decorator_login_required
+    @common.decorator_user_is_admin
     def action_admin_set_nominee_visibility(biv_obj):
         data = flask.request.get_json()
         nominee_biv_id = data['biv_id']
