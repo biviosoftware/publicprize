@@ -352,6 +352,8 @@ class E15VoteAtEvent(db.Model, common.ModelWithDates):
             contest=self.contest.display_name,
             uri=uri,
         )
+        if pp_cfg['MAIL_SUPPRESS_SEND']:
+            pp_t('MAIL_SUPPRESS_SEND=True')
         if is_email(self.invite_email_or_phone):
             import flask_mail
             msg = flask_mail.Message(

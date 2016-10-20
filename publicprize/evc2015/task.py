@@ -495,7 +495,10 @@ class E15VoteAtEvent(ppc.Task):
         biv_obj.save_to_session()
         pp_t('contest={}', [c])
         flask.session['vote_at_event.invite_nonce'] = biv_obj.invite_nonce
-        return flask.redirect(c.format_uri(
-            #action_uri='/',
-            anchor='/event-voting',
-        ))
+        pp_t('{}', c.format_uri(anchor='/event-voting'));
+        return _template.render_template(
+            biv_obj,
+            'javascript-redirect',
+            redirect_uri=c.format_uri(anchor='/event-voting'),
+            base_template=None,
+        )
