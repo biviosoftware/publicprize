@@ -56,3 +56,8 @@ class Config(object):
     MAIL_DEFAULT_SENDER = PUBLICPRIZE['SUPPORT_EMAIL']
     MAIL_DEBUG = PUBLICPRIZE['MAIL_DEBUG']
     PROPAGATE_EXCEPTIONS = True
+    PUBLICPRIZE['APP_VERSION'] = '20170509.135500'
+    if PUBLICPRIZE['TEST_MODE']:
+        import datetime
+        PUBLICPRIZE['APP_VERSION'] = datetime.datetime.utcnow().strftime(
+            '%Y%m%d.%H%M%S')

@@ -2,10 +2,13 @@
  * EVC 2015 style
  */
 
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
 body {
   color: #222;
-  background-color: #eeeeee;
+  background-color: #ffffff;
   font-size: 16px;
+  font-family: 'Open Sans', sans-serif;
 }
 .navbar {
   margin-bottom: 0;
@@ -28,11 +31,9 @@ div.input-group {
 }
 
 .pp-jumbo-bg {
-  background: url("/static/img/evc15-background-1572x375-3.jpg") no-repeat scroll center center rgba(0, 0, 0, 0);
-  height: 380px;
   z-index: -1;
-  margin-bottom: -380px;
-  background-size: cover;
+  max-width: 100%;
+  height: auto;
 }
 .pp-jumbo-text {
   padding-left: 15px;
@@ -40,7 +41,7 @@ div.input-group {
 }
 div.pp-jumbo-text h1 {
   font-size: 42px;
-  font-family: 'Lato', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   font-weight: 300;
   color: #fff;
   text-shadow: 1px 1px 5px #000;
@@ -160,6 +161,27 @@ div.pp-jumbo-text h1 {
   background-color: #fcf8e3;
 }
 
+ul.pp-menu {
+  list-style-type: none;
+  max-width: none;
+  width: 100%;
+}
+
+ul.pp-menu a.btn {
+/*
+    red:
+    black: 231f20
+    white: fff
+*/
+  border-radius: .5em;
+  border: 1px solid black;
+  color: #ffffff;
+  background-color: #aa1e28;
+  font-weight: bold;
+  font-size: 24px;
+}
+
 li.pp-active-menu a.btn {
-  background-color: #eee;
+  color: #aa1e28;
+  background-color: #ffffff;
 }

@@ -98,7 +98,7 @@ class URI(str):
     def __new__(cls, biv_uri_or_id):
         if isinstance(biv_uri_or_id, cls):
             return biv_uri_or_id
-        if isinstance(biv_uri_or_id, decimal.Decimal):
+        if isinstance(biv_uri_or_id, (decimal.Decimal, int)):
             biv_uri_or_id = Id(biv_uri_or_id)
         if isinstance(biv_uri_or_id, Id):
             self = super().__new__(cls, cls.__encode(biv_uri_or_id))

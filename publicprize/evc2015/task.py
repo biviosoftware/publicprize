@@ -184,7 +184,7 @@ class E15Contest(ppc.Task):
         return _template.render_template(
             biv_obj,
             'index',
-            version='20161022',
+            version=ppc.app().config['PUBLICPRIZE']['APP_VERSION'],
             base_template=None,
         )
 
