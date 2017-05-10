@@ -36,7 +36,7 @@ table.sortable div.mozilla span.sign {
 .pp-nav-logo {
   line-height: 80%;
   font-family: Arial Black;
-  color: #068587;
+  color: #aa1e28;
   font-size: 24px;
   padding: 10px 0;
   display: inline-block;
@@ -62,7 +62,7 @@ table.sortable div.mozilla span.sign {
 }
 nav.navbar div.navbar-collapse li.dropdown a.pp-nav-important {
   background-color: #FCE00C;
-  color: #068587;
+  color: #aa1e28;
 }
 
 .pp-modal-header {
@@ -219,13 +219,13 @@ a.pp-selected-menu-button:hover {
 .pp-main > .pp-heading {
   font-size: 120%;
   font-weight: bold;
-  color: #068587;
+  color: #aa1e28;
   margin-bottom: 10px;
 }
 .pp-about-page > .pp-section {
   font-size: 100%;
   font-weight: bold;
-  color: #068587;
+  color: #aa1e28;
   margin-top: 15px;
   margin-bottom: 5px;
 }
@@ -283,7 +283,7 @@ a.pp-selected-menu-button:hover {
 }
 .pp-judge .pp-name {
   font-size: 16px;
-  color: #068587;
+  color: #aa1e28;
   font-style: italic;
   font-weight: bold;
 }
@@ -372,7 +372,7 @@ button.pp-amount-bar {
   text-align: center;
 }
 .pp-contest-desc:hover {
-  color: #068587;
+  color: #aa1e28;
 }
 .pp-contest-more,
 .pp-contest-desc {
@@ -395,7 +395,7 @@ a.pp-contestant-desc:focus {
   margin-left: 10px;
 }
 a.pp-title-link:hover {
-  color: #068587;
+  color: #aa1e28;
 }
 .pp-pending-review {
   padding: 15px;
@@ -437,7 +437,7 @@ input.pp-agree-checkbox {
 }
 .pp-back-this-startup .pp-heading {
   font-size: 24px;
-  color: #068587;
+  color: #aa1e28;
 }
 .pp-contestant .pp-title {
   margin-top: 20px;
@@ -458,7 +458,7 @@ input.pp-agree-checkbox {
 }
 .pp-contestant .pp-heading {
   margin-top: 30px;
-  color: #068587;
+  color: #aa1e28;
 }
 .pp-contestant-bottom-amount-bar {
   margin-top: 30px;

@@ -2,13 +2,21 @@
  * EVC 2015 style
  */
 
-@import url('https://fonts.googleapis.com/css?family=Open+Sans');
+/*
+    red: aa1e28
+    black: 231f20
+    white: fff
+*/
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,700italic,400,600,700');
 
 body {
   color: #222;
   background-color: #ffffff;
   font-size: 16px;
   font-family: 'Open Sans', sans-serif;
+}
+.navbar-default .navbar-nav>li>a {
+  color: #aa1e28;
 }
 .navbar {
   margin-bottom: 0;
@@ -29,22 +37,89 @@ div.carousel-caption {
 div.input-group {
   width: 100%;
 }
+ul.pp-menu a.btn {
+  border-radius: .5em;
+  border: 1px solid black;
+  color: #ffffff;
+  background-color: #aa1e28;
+  font-weight: bold;
+  font-size: 18px;
+}
 
+ul.pp-menu {
+  list-style-type: none;
+  width: none;
+  margin: 10px auto;
+  width: 100%;
+  padding: 0 10px;
+}
+
+ul.pp-menu li {
+  text-align: center;
+}
+li.pp-active-menu a.btn {
+  color: #aa1e28;
+  background-color: #ffffff;
+}
+
+div.pp-contest {
+  margin: 0;
+  max-width: 1200px;
+}
+.pp-contest .pp-body {
+  padding: 0 10px;
+  margin: auto;
+  margin-top: 3ex;
+}
 .pp-jumbo-bg {
   z-index: -1;
   max-width: 100%;
   height: auto;
+  display: block;
 }
+.pp-sponsor-copera {
+  display: block;
+  margin: auto;
+  padding: 2ex 0;
+  text-align: center;
+}
+.pp-contest-sidebar {
+  float: right;
+  text-align: center;
+  margin-left: 2em;
+}
+.pp-top-img {
+  border: 2px solid black;
+}
+.pp-bottom-img {
+  padding-top: 3ex;
+}
+.pp-contest-sidebar img,
+.pp-contest-sidebar a {
+  display: block;
+  text-align: center;
+  margin: auto;
+}
+.pp-section-hdr {
+  color: #aa1e28;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
 .pp-jumbo-text {
   padding-left: 15px;
   margin-bottom: 15px;
 }
+
 div.pp-jumbo-text h1 {
   font-size: 42px;
   font-family: 'Open Sans', sans-serif;
   font-weight: 300;
   color: #fff;
   text-shadow: 1px 1px 5px #000;
+}
+.pp-strong {
+  font-weight: bold;
 }
 .pp-logo {
   /*  margin-left: 15px; */
@@ -85,6 +160,22 @@ div.pp-jumbo-text h1 {
 }
 .pp-sponsor-images {
   text-align: center;
+}
+.pp17-footer {
+  padding-top: 0.5ex;
+  color: #aa1e28;
+  text-align: center;
+  margin-top: 3ex;
+  width: 100%;
+}
+.pp17-footer p:last-child {
+  margin-bottom: 0;
+}
+.pp17-footer-item {
+  padding: 0 10px;
+}
+.pp17-footer-item a {
+  color: #aa1e28;
 }
 
 .pp-form {
@@ -152,6 +243,7 @@ div.pp-jumbo-text h1 {
   color: #fcb03c;
 }
 .pp-comment-icon {
+  max-width:
   margin-top: -0.5ex;
   vertical-align: top;
   display: inline-block;
@@ -159,29 +251,4 @@ div.pp-jumbo-text h1 {
 
 .pp-selected-nominee {
   background-color: #fcf8e3;
-}
-
-ul.pp-menu {
-  list-style-type: none;
-  max-width: none;
-  width: 100%;
-}
-
-ul.pp-menu a.btn {
-/*
-    red:
-    black: 231f20
-    white: fff
-*/
-  border-radius: .5em;
-  border: 1px solid black;
-  color: #ffffff;
-  background-color: #aa1e28;
-  font-weight: bold;
-  font-size: 24px;
-}
-
-li.pp-active-menu a.btn {
-  color: #aa1e28;
-  background-color: #ffffff;
 }
