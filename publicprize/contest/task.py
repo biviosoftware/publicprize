@@ -15,9 +15,7 @@ import io
 
 class Founder(controller.Task):
     """Founder actions"""
-    def action_founder_avatar(biv_obj):
-        """Founder avatar image"""
-        return _send_image_data(biv_obj, 'founder_avatar', 'avatar_type')
+    pass
 
 
 class Sponsor(controller.Task):

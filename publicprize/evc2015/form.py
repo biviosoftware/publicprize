@@ -56,18 +56,18 @@ class Nominate(flask_wtf.Form):
 
     def execute(self, contest):
         """Validates website url and adds it to the database"""
-        if self.validate():
-            nominee = self._create_models(contest)
-            return {
-                'nominee_biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
-            }
-        res = {}
+        nominee = self._create_or_update_models(contest, is_valid=self.validate())
+        nid = biv.Id(nominee.biv_id).to_biv_uri()
+        res = {
+            'nominee_biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
+        }
+        if nominee.is_valid:
+            return res
+        res['errors'] = {}
         for field in self:
             if field.errors:
-                res[field.name] = field.errors[0]
-        return {
-            'errors': res,
-        }
+                res['errors'][field.name] = field.errors[0]
+        return res;
 
     def help_text(self, field):
         return HELP_TEXT.get(field)
@@ -82,8 +82,14 @@ class Nominate(flask_wtf.Form):
         return not self.errors
 
     #TODO(pjm): copied from evc
-    def _add_founder(self, nominee, founder):
+    def _add_founder(self, nominee, name, desc):
         """Creates the founder and links it to the nominee."""
+        if not name.data:
+            return
+        self._add_founder(nominee, pcm.Founder(
+            display_name=str(name.data),
+            founder_desc=str(desc.data),
+        ))
         ppc.db.session.add(founder)
         ppc.db.session.flush()
         ppc.db.session.add(
@@ -94,45 +100,43 @@ class Nominate(flask_wtf.Form):
         )
 
     #TODO(pjm): copied from evc
-    def _add_founders(self, nominee):
+    def _add_founders(self, nominee, is_create):
         """Add the current user as a founder and any optional founders."""
-        self._add_founder(nominee, pcm.Founder(
-            display_name=str(self.founder_name.data),
-            founder_desc=str(self.founder_desc.data),
-        ))
-        if self.founder2_name.data:
-            self._add_founder(nominee, pcm.Founder(
-                display_name=str(self.founder2_name.data),
-                founder_desc=str(self.founder2_desc.data),
-            ))
-        if self.founder3_name.data:
-            self._add_founder(nominee, pcm.Founder(
-                display_name=str(self.founder3_name.data),
-                founder_desc=str(self.founder3_desc.data),
-            ))
+        pcm.Founder.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == nominee.biv_id,
+            pam.BivAccess.target_biv_id == pcm.Founder.biv_id
+        ).all()
+        self._add_founder(nominee, is_create, self.founder_name, self_founder_desc)
+        self._add_founder(nominee, is_create, self.founder2_name, self_founder2_desc)
+        self._add_founder(nominee, is_create, self.founder3_name, self_founder3_desc)
 
-    def _create_models(self, contest):
-        nominee = pem.E15Nominee()
+    def _create_or_update_models(self, contest, is_valid):
+        nominee = self._unchecked_load_nominee(contest)
+        is_create = not nominee
+        if is_create:
+            nominee = pem.E15Nominee()
         self.populate_obj(nominee)
         nominee.youtube_code = self._youtube_code()
         nominee.is_public = False
+        nominee.is_valid = is_valid
         nominee.is_finalist = False
         nominee.is_semi_finalist = False
         nominee.is_winner = False
         ppc.db.session.add(nominee)
         ppc.db.session.flush()
-        ppc.db.session.add(
-            pam.BivAccess(
-                source_biv_id=contest.biv_id,
-                target_biv_id=nominee.biv_id
+        if is_create:
+            ppc.db.session.add(
+                pam.BivAccess(
+                    source_biv_id=contest.biv_id,
+                    target_biv_id=nominee.biv_id
+                )
             )
-        )
-        ppc.db.session.add(
-            pam.BivAccess(
-                source_biv_id=flask.session['user.biv_id'],
-                target_biv_id=nominee.biv_id
+            ppc.db.session.add(
+                pam.BivAccess(
+                    source_biv_id=flask.session['user.biv_id'],
+                    target_biv_id=nominee.biv_id
+                )
             )
-        )
         self._add_founders(nominee)
         return nominee
 

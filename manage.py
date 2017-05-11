@@ -581,6 +581,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
             del nominee['Vote']
             nominee.update({
                 'is_public': True,
+                'is_valid': True,
                 'is_semi_finalist': False,
                 'is_finalist': False,
                 'is_winner': False,

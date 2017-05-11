@@ -267,7 +267,7 @@ class E15Contest(ppc.Task):
         #TODO(pjm): need decorator for this
         if not flask.session.get('user.is_logged_in'):
             werkzeug.exceptions.abort(403)
-        return flask.jsonify(pef.Nominate().execute(biv_obj))
+        return flask.jsonify(pef.Nominate().execute())
 
     def action_nominee_info(biv_obj):
         data = flask.request.json

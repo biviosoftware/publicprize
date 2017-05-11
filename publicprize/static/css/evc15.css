@@ -37,7 +37,11 @@ div.carousel-caption {
 div.input-group {
   width: 100%;
 }
-ul.pp-menu a.btn {
+.pp-enter-btn {
+  margin-left: 5em;
+}
+.pp-enter-btn .btn,
+.pp-menu .btn {
   border-radius: .5em;
   border: 1px solid black;
   color: #ffffff;
@@ -45,8 +49,7 @@ ul.pp-menu a.btn {
   font-weight: bold;
   font-size: 18px;
 }
-
-ul.pp-menu {
+.pp-menu {
   list-style-type: none;
   width: none;
   margin: 10px auto;
@@ -54,10 +57,10 @@ ul.pp-menu {
   padding: 0 10px;
 }
 
-ul.pp-menu li {
+.pp-menu li {
   text-align: center;
 }
-li.pp-active-menu a.btn {
+.pp-active-menu .btn {
   color: #aa1e28;
   background-color: #ffffff;
 }

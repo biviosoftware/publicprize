@@ -110,8 +110,6 @@ class Founder(db.Model, common.ModelWithDates):
         biv_id: primary ID
         display_name: donor full name
         fouder_desc: founder's short bio
-        founder_avatar: avatar image blob
-        avatar_type: image type (gif, png, jpeg)
     """
     biv_id = db.Column(
         db.Numeric(18),
@@ -121,10 +119,15 @@ class Founder(db.Model, common.ModelWithDates):
     display_name = db.Column(db.String(100), nullable=False)
     founder_desc = db.Column(db.String)
     image_biv_id = db.Column(db.Numeric(18))
-    #TODO(pjm): remove these fields after next release
-    founder_avatar = db.Column(db.LargeBinary)
-    avatar_type = db.Column(db.Enum('gif', 'png', 'jpeg', name='avatar_type'))
 
+    def delete_all(nominee):
+        db.session.delete(
+            pam.BivAccess.query.filter(
+                pam.BivAccess.source_biv_id == user_biv_id,
+                pam.BivAccess.target_biv_id == admin.biv_id
+            ).one()
+        )
+        db.session.delete(admin)
 
 class Image(db.Model, common.Model):
     """Image file"""

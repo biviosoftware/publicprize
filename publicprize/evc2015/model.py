@@ -260,6 +260,7 @@ class E15Nominee(db.Model, pcm.NomineeBase):
         db.Sequence('e15nominee_s', start=1016, increment=1000),
         primary_key=True
     )
+    is_valid = db.Column(db.Boolean, nullable=False)
     youtube_code = db.Column(db.String(500))
     nominee_desc = db.Column(db.String)
     is_semi_finalist = db.Column(db.Boolean, nullable=False)

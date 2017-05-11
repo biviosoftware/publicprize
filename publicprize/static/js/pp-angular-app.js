@@ -1206,14 +1206,14 @@ app.directive('sectionNav', function($location) {
     return {
         scope: {},
         template: [
-            '<ul data-ng-if="! contestInfo().isPreNominating" class="pp-menu nav-justified">',
+            // was on <ul> but why? data-ng-if="! contestInfo().isPreNominating"
+            '<ul class="pp-menu nav-justified">',
+              '<li data-ng-class="{\'pp-active-menu\': isSelected(\'about\') }"><a class="btn btn-default" href="#/about">About</a></li>',
+              '<li data-ng-if="contestInfo().isNominating" data-ng-class="{\'pp-active-menu\': isSelected(\'enter-the-challenge\') || isSelected(\'submit-nominee\') }"><a class="btn btn-default" href="#/enter-the-challenge">Enter the Challenge</a></li>',
               '<li data-ng-if="contestInfo().showFinalists" data-ng-class="{\'pp-active-menu\': isSelected(\'finalists\') }"><a class="btn btn-default" href="#/finalists">Finalists <span class="badge">{{ contestInfo().finalistCount }}</span></a></li>',
               '<li data-ng-if="contestInfo().showWinner" data-ng-class="{\'pp-active-menu\': isSelected(\'winner\') }"><a class="btn btn-default" href="#/winner">Winner </a></li>',
               '<li data-ng-if="contestInfo().showSemiFinalists" data-ng-class="{\'pp-active-menu\': isSelected(\'semi-finalists\') }"><a class="btn btn-default" href="#/semi-finalists">Semi-Finalists <span class="badge">{{ contestInfo().semiFinalistCount }}</span></a></li>',
-              '<li data-ng-if="contestInfo().isNominating" data-ng-class="{\'pp-active-menu\': isSelected(\'submit-nominee\') }"><a class="btn btn-default" href="#/submit-nominee">Contest Entry Form</a></li>',
               '<li data-ng-if="contestInfo().showAllContestants" data-ng-class="{\'pp-active-menu\': isSelected(\'contestants\') }"><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestInfo().contestantCount }}</span></a></li>',
-              '<li data-ng-class="{\'pp-active-menu\': isSelected(\'about\') }"><a class="btn btn-default" href="#/about">About</a></li>',
-              '<li data-ng-class="{\'pp-active-menu\': isSelected(\'enter-the-challenge\') }"><a class="btn btn-default" href="#/enter-the-challenge">Enter the Challenge</a></li>',
               '<li><a class="btn btn-default" href="/esprit-venture-challenge/rules" target="_blank">Official Rules</a></li>',
               '<li><a class="btn btn-default" href="#">Past Winners</a></li>',
               '<li><a class="btn btn-default" href="http://boulderchamber.com" target="_blank">Boulder Chamber</a></li>',
