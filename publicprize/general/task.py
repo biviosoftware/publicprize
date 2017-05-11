@@ -11,23 +11,14 @@ import flask
 from . import oauth
 from .. import controller
 from ..auth import model as pam
-from ..evc import model as pem
 from ..evc2015 import model as pe15
-from ..nextup import model as pnm
 
 class General(controller.Task):
     """Global tasks"""
     def action_index(biv_obj):
         """Site index"""
         redirect = controller.app().config['PUBLICPRIZE']['INDEX_URI']
-        if redirect:
-            return flask.redirect(redirect)
-        return flask.render_template(
-            "general/index.html",
-            evc_contests=pem.Contest.query.all(),
-            nextup_contests=pnm.NUContest.query.all(),
-            evc15_contests=pe15.E15Contest.query.all(),
-        )
+        return flask.redirect(redirect)
 
     def action_facebook_login(biv_obj):
         """Login with facebook."""
@@ -54,16 +45,6 @@ class General(controller.Task):
     def action_google_authorized(biv_obj):
         """Google login response"""
         return oauth.authorize_complete('google')
-
-    def action_home(biv_obj):
-        x = pe15.E15Contest.query.order_by('biv_id').all()
-        return flask.render_template(
-            "general/home.html",
-            evc16_contest=x[1],
-            evc15_contest=x[0],
-            evc14_contest=pem.Contest.query.first(),
-            nextup_contest=pnm.NUContest.query.first(),
-        )
 
     def action_linkedin_authorized(biv_obj):
         """LinkedIn login response"""

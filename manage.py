@@ -18,9 +18,7 @@ import publicprize.auth.model as pam
 import publicprize.biv as biv
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
-import publicprize.evc.model as pem
 import publicprize.evc2015.model as pe15
-import publicprize.nextup.model as pnm
 import pytz
 import re
 import subprocess
@@ -565,74 +563,6 @@ def _create_database(is_production=False, is_prompt_forced=False):
     drop_db(auto_force=is_prompt_forced)
     create_db()
     data = json.load(open('data/test_data.json', 'r'))
-
-    for contest in data['Contest']:
-        contest_id = _add_model(_create_contest(contest))
-        if 'Alias' in contest:
-            _add_model(pam.BivAlias(
-                biv_id=contest_id,
-                alias_name=contest['Alias']['name']
-            ))
-
-        for sponsor in contest['Sponsor']:
-            add_sponsor(contest_id, sponsor['display_name'],
-                        sponsor['website'], sponsor['logo_filename'])
-
-        if is_production:
-            break
-
-        for contestant in contest['Contestant']:
-            contestant_id = _add_model(pem.Contestant(
-                # TODO(pjm): there must be a way to do this in a map()
-                display_name=contestant['display_name'],
-                youtube_code=contestant['youtube_code'],
-                slideshow_code=contestant['slideshow_code'],
-                contestant_desc=contestant['contestant_desc'],
-                website=contestant['website'],
-                is_public=True,
-                is_under_review=False
-            ))
-            _add_owner(contest_id, contestant_id)
-
-            for founder in contestant['Founder']:
-                founder_id = _add_model(_create_founder(founder))
-                _add_owner(contestant_id, founder_id)
-
-            for donor in contestant['Donor']:
-                donor_id = _add_model(pem.Donor(
-                    amount=donor['amount'],
-                    donor_state='executed'
-                ))
-                _add_owner(contestant_id, donor_id)
-
-    for contest in data['NUContest']:
-        contest_id = _add_model(
-            pnm.NUContest(
-                display_name=contest['display_name'],
-                end_date=datetime.datetime.strptime(
-                    contest['end_date'], '%m/%d/%Y').date(),
-                )
-            )
-        if 'Alias' in contest:
-            _add_model(pam.BivAlias(
-                biv_id=contest_id,
-                alias_name=contest['Alias']['name']
-            ))
-
-        for sponsor in contest['Sponsor']:
-            add_sponsor(contest_id, sponsor['display_name'],
-                        sponsor['website'], sponsor['logo_filename'])
-
-        for nominee in contest['Nominee']:
-            _add_owner(
-                contest_id,
-                _add_model(pnm.Nominee(
-                        display_name=nominee['display_name'],
-                        url=nominee['url'],
-                        category=nominee['category'],
-                        is_public=True,
-                        is_under_review=False
-                        )))
 
     for contest in data['E15Contest']:
         contest_id = _add_model(pe15.E15Contest(**(_e15contest_kwargs(contest))))
