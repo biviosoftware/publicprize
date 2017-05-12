@@ -135,6 +135,19 @@ class E15Contest(db.Model, pcm.ContestBase):
     def is_semi_finalist_submitter(self):
         return len(E15Contest.semi_finalist_nominees_for_user(self)) > 0
 
+    def nominee_pending_for_user(self):
+        access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
+        for n in E15Nominee.query.select_from(pam.BivAccess, access_alias).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == E15Nominee.biv_id,
+            pam.BivAccess.target_biv_id == access_alias.target_biv_id,
+            access_alias.source_biv_id == flask.session['user.biv_id'],
+        ).all():
+            # Only should be one application at a time
+            if not n.is_valid:
+                return n, True
+        return E15Nominee(), False
+
     def public_nominees(self):
         return E15Nominee.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == self.biv_id,

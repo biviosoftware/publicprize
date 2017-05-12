@@ -587,8 +587,14 @@ app.controller('SubmitNomineeController', function(serverRequest, userState, con
         };
         serverRequest.sendRequest('/nominee-form-metadata', function(data) {
             self.formFields = data.form_metadata;
-            for (var i = 0; i < self.formFields.length; i++)
-                self.formFields[i].visible = hidden[self.formFields[i].name] ? false : true;
+            self.formFields.forEach(function(field) {
+                self.formData[field.name] = field.value;
+                if (!(field.visible = !hidden[field.name])) {
+                    if (field.value != null) {
+                        field.visible = true
+                    }
+                }
+            });
             //TODO(pjm): timeout is a hack
             setTimeout(
                 function() {
@@ -1106,8 +1112,8 @@ function formFieldTemplate(includeHelp) {
           '<div data-ng-show="controller.hasError(f.name)" class="clearfix"></div>',
             (includeHelp ? '<div class="input-group">' : ''),
               '<div data-ng-switch-when="CSRFTokenField"></div>',
-              '<textarea data-ng-switch-when="TextAreaField" class="form-control" data-ng-class="{slideDown: f.visible}" rows="5" placeholder="{{ f.label }}" data-ng-model="controller.formData[f.name]"></textarea>',
-              '<input data-ng-switch-default class="form-control" type="text" value="" data-ng-class="{slideDown: f.visible}" placeholder="{{ f.label }}" data-ng-model="controller.formData[f.name]">',
+              '<textarea data-ng-switch-when="TextAreaField" class="form-control" data-ng-class="{slideDown: f.visible}" rows="5" placeholder="{{ f.label }}" data-ng-model="controller.formData[f.name]">{{ f.value }}</textarea>',
+              '<input data-ng-switch-default class="form-control" type="text" data-ng-class="{slideDown: f.visible}" placeholder="{{ f.label }}" data-ng-model="controller.formData[f.name]">',
               (includeHelp ? '<span class="input-group-addon"><span class= "pp-tooltip" data-toggle="tooltip" title="{{ f.helpText }}"><span class="glyphicon glyphicon-info-sign text-primary"></span></span></span>' : ''),
             (includeHelp ? '</div>' : ''),
           '</div>',

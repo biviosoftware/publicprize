@@ -142,6 +142,8 @@ class E15Contest(ppc.Task):
         nominee = pem.E15Nominee.query.filter_by(
             biv_id=nominee_biv_id,
         ).first_or_404()
+        assert nominee.is_valid, \
+            '{}: invalid nominee cannot make public'.format(nominee)
         nominee.is_public = is_public
         ppc.db.session.add(nominee)
         return '{}'
@@ -254,20 +256,31 @@ class E15Contest(ppc.Task):
     def action_nominee_form_metadata(biv_obj):
         form = pef.Nominate()
         res = []
+        fields = {}
         for field in form:
-            res.append({
+            fields[field.name] = {
                 'name': field.name,
                 'type': field.type,
                 'label': field.label.text,
+                'value': None,
                 'helpText': form.help_text(field.name),
-            })
+            }
+            res.append(fields[field.name])
+        if flask.session.get('user.is_logged_in'):
+            n, ok = biv_obj.nominee_pending_for_user()
+            pp_t('nominee={} ok={}', [n, ok])
+            if ok:
+                for k, v in fields.items():
+                    if hasattr(n, k):
+                        v['value'] = getattr(n, k)
+        pp_t('res={}', [res])
         return flask.jsonify(form_metadata=res)
 
     def action_nominee_form_submit(biv_obj):
         #TODO(pjm): need decorator for this
         if not flask.session.get('user.is_logged_in'):
             werkzeug.exceptions.abort(403)
-        return flask.jsonify(pef.Nominate().execute())
+        return flask.jsonify(pef.Nominate().execute(biv_obj))
 
     def action_nominee_info(biv_obj):
         data = flask.request.json

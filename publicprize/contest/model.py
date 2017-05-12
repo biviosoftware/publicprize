@@ -120,14 +120,6 @@ class Founder(db.Model, common.ModelWithDates):
     founder_desc = db.Column(db.String)
     image_biv_id = db.Column(db.Numeric(18))
 
-    def delete_all(nominee):
-        db.session.delete(
-            pam.BivAccess.query.filter(
-                pam.BivAccess.source_biv_id == user_biv_id,
-                pam.BivAccess.target_biv_id == admin.biv_id
-            ).one()
-        )
-        db.session.delete(admin)
 
 class Image(db.Model, common.Model):
     """Image file"""
@@ -197,6 +189,20 @@ class NomineeBase(common.ModelWithDates):
     display_name = db.Column(db.String(100), nullable=False)
     url = db.Column(db.String(100), nullable=False)
     is_public = db.Column(db.Boolean, nullable=False)
+
+    def delete_all_founders(self):
+        founders = [f.biv_id for f in Founder.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == Founder.biv_id
+        ).all()]
+        if not founders:
+            return
+        pam.BivAccess.query.filter(
+            pam.BivAccess.target_biv_id.in_(founders),
+        ).delete()
+        Founder.query.filter(
+            Founder.biv_id.in_(founders),
+        ).delete()
 
     def get_judge_ranks(self):
         ranks = JudgeRank.query.filter_by(

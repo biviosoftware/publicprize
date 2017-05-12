@@ -57,7 +57,6 @@ class Nominate(flask_wtf.Form):
     def execute(self, contest):
         """Validates website url and adds it to the database"""
         nominee = self._create_or_update_models(contest, is_valid=self.validate())
-        nid = biv.Id(nominee.biv_id).to_biv_uri()
         res = {
             'nominee_biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
         }
@@ -86,10 +85,10 @@ class Nominate(flask_wtf.Form):
         """Creates the founder and links it to the nominee."""
         if not name.data:
             return
-        self._add_founder(nominee, pcm.Founder(
+        founder = pcm.Founder(
             display_name=str(name.data),
             founder_desc=str(desc.data),
-        ))
+        )
         ppc.db.session.add(founder)
         ppc.db.session.flush()
         ppc.db.session.add(
@@ -100,22 +99,20 @@ class Nominate(flask_wtf.Form):
         )
 
     #TODO(pjm): copied from evc
-    def _add_founders(self, nominee, is_create):
+    def _add_founders(self, nominee):
         """Add the current user as a founder and any optional founders."""
-        pcm.Founder.query.select_from(pam.BivAccess).filter(
-            pam.BivAccess.source_biv_id == nominee.biv_id,
-            pam.BivAccess.target_biv_id == pcm.Founder.biv_id
-        ).all()
-        self._add_founder(nominee, is_create, self.founder_name, self_founder_desc)
-        self._add_founder(nominee, is_create, self.founder2_name, self_founder2_desc)
-        self._add_founder(nominee, is_create, self.founder3_name, self_founder3_desc)
+        nominee.delete_all_founders()
+        self._add_founder(nominee, self.founder_name, self.founder_desc)
+        self._add_founder(nominee, self.founder2_name, self.founder2_desc)
+        self._add_founder(nominee, self.founder3_name, self.founder3_desc)
 
     def _create_or_update_models(self, contest, is_valid):
-        nominee = self._unchecked_load_nominee(contest)
-        is_create = not nominee
-        if is_create:
-            nominee = pem.E15Nominee()
+        nominee, is_update = contest.nominee_pending_for_user()
         self.populate_obj(nominee)
+        if not nominee.display_name:
+            nominee.display_name = 'n/a'
+        if not nominee.url:
+            nominee.url = 'n/a'
         nominee.youtube_code = self._youtube_code()
         nominee.is_public = False
         nominee.is_valid = is_valid
@@ -124,7 +121,8 @@ class Nominate(flask_wtf.Form):
         nominee.is_winner = False
         ppc.db.session.add(nominee)
         ppc.db.session.flush()
-        if is_create:
+        self._add_founders(nominee)
+        if not is_update:
             ppc.db.session.add(
                 pam.BivAccess(
                     source_biv_id=contest.biv_id,
@@ -137,16 +135,15 @@ class Nominate(flask_wtf.Form):
                     target_biv_id=nominee.biv_id
                 )
             )
-        self._add_founders(nominee)
         return nominee
 
-
-    #TODO(pjm): copied from evc
     def _youtube_code(self):
         """Ensure the youtube url contains a VIDEO_ID"""
         value = self.youtube_url.data
         # http://youtu.be/a1Y73sPHKxw
         # or https://www.youtube.com/watch?v=a1Y73sPHKxw
+        if not value:
+            return None
         if re.search(r'\?', value) and re.search(r'v\=', value):
             match = re.search(r'(?:\?|\&)v\=(.*?)(&|$)', value)
             if match:
@@ -157,7 +154,6 @@ class Nominate(flask_wtf.Form):
                 return match.group(1)
         return None
 
-    #TODO(pjm): copied from evc
     def _validate_website(self):
         """Ensures the website exists"""
         if self.url.errors:
@@ -166,7 +162,7 @@ class Nominate(flask_wtf.Form):
             if not common.get_url_content(self.url.data, want_decode=False):
                 self.url.errors = ['Website invalid or unavailable.']
 
-    #TODO(pjm): copied from evc
+
     def _validate_youtube(self):
         """Ensures the YouTube video exists"""
         if self.youtube_url.errors:
