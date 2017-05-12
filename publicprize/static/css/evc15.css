@@ -1,30 +1,27 @@
 /*
- * EVC 2015 style
- */
-
-/*
     red: aa1e28
     black: 231f20
     white: fff
 */
 @import url('https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,700italic,400,600,700');
 
+/*
+ * Bootstrap overrides
+ */
+html {
+  position: relative;
+  min-height: 100%;
+}
 body {
   color: #222;
+  margin-bottom: 50px;
   background-color: #ffffff;
   font-size: 16px;
   font-family: 'Open Sans', sans-serif;
 }
-.navbar-default .navbar-nav>li>a {
-  color: #aa1e28;
+.container > div.navbar-header {
+  margin-left: 0;
 }
-.navbar {
-  margin-bottom: 0;
-}
-.navbar-default {
-  border: 0;
-}
-
 div.carousel-caption {
   left: 5px;
   right: inherit;
@@ -32,10 +29,76 @@ div.carousel-caption {
   padding-bottom: 0;
   max-width: 310px;
 }
-
+.nav > li > a.pp-nav-item {
+  font-weight: 500;
+}
+.navbar {
+  margin-bottom: 0;
+}
+.navbar-default {
+  border: 0;
+}
+nav.navbar div.navbar-collapse li.dropdown a.pp-nav-important {
+  background-color: #FCE00C;
+  color: #aa1e28;
+}
+.navbar-default .navbar-nav>li>a {
+  color: #aa1e28;
+}
+table.sortable div.mozilla span.sign {
+  right: -2px;
+}
+.input-group-addon {
+  background-color: #fafafa;
+  vertical-align: top;
+  padding-top: 1ex;
+}
 /* fix for chrome layout bug */
 div.input-group {
   width: 100%;
+}
+/*
+ * Application
+ */
+.pp-agree-to-terms {
+  font-size: 14px;
+  margin-bottom: 2ex;
+}
+
+.pp-amount-cell {
+  text-align: right;
+}
+.pp-comment-icon {
+  max-width:
+  margin-top: -0.5ex;
+  vertical-align: top;
+  display: inline-block;
+}
+div.pp-contest {
+  margin: 0;
+  max-width: 1200px;
+}
+.pp-contest .pp-body {
+  padding: 0 2em;
+  margin: auto;
+  margin-top: 3ex;
+}
+.pp-contest-sidebar {
+  float: right;
+  text-align: center;
+  margin-left: 2em;
+}
+.pp-contest-sidebar img,
+.pp-contest-sidebar a {
+  display: block;
+  text-align: center;
+  margin: auto;
+}
+.pp-contest-sidebar-img-top {
+  border: 2px solid black;
+}
+.pp-contest-sidebar-img-bottom {
+  padding-top: 3ex;
 }
 .pp-enter-btn {
   margin-left: 5em;
@@ -47,32 +110,43 @@ div.input-group {
   color: #ffffff;
   background-color: #aa1e28;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 1.2vw;
 }
-.pp-menu {
-  list-style-type: none;
-  width: none;
-  margin: 10px auto;
-  width: 100%;
-  padding: 0 10px;
-}
-
-.pp-menu li {
-  text-align: center;
-}
-.pp-active-menu .btn {
+.pp-footer {
+  padding-top: 0.5ex;
   color: #aa1e28;
-  background-color: #ffffff;
-}
-
-div.pp-contest {
-  margin: 0;
-  max-width: 1200px;
-}
-.pp-contest .pp-body {
-  padding: 0 10px;
-  margin: auto;
+  text-align: center;
   margin-top: 3ex;
+  width: 100%;
+}
+.pp-footer p:last-child {
+  margin-bottom: 0;
+}
+.pp-footer-item {
+  padding: 0 10px;
+}
+.pp-footer-item a {
+  color: #aa1e28;
+}
+.pp-form {
+  background-color: #f5f5f5;
+  background-color: white;
+  border-radius: 8px;
+  margin-left: 15px;
+  margin-top: 15px;
+  padding: 2ex;
+}
+.pp-form h1 {
+  margin-top: 0;
+}
+.pp-form-error {
+    float: right;
+}
+.pp-founder-bio {
+  margin-bottom: 1ex;
+}
+.pp-has-comment {
+  color: #fcb03c;
 }
 .pp-jumbo-bg {
   z-index: -1;
@@ -80,130 +154,56 @@ div.pp-contest {
   height: auto;
   display: block;
 }
-.pp-sponsor-copera {
-  display: block;
-  margin: auto;
-  padding: 2ex 0;
-  text-align: center;
+.pp-learn-more {
+  margin-top: 1ex;
 }
-.pp-contest-sidebar {
-  float: right;
-  text-align: center;
-  margin-left: 2em;
+.pp-login-body {
+  margin-top: 1ex;
+  margin-bottom: 6ex;
 }
-.pp-top-img {
-  border: 2px solid black;
+.pp-login-body img {
+  margin-right: 0.5em;
 }
-.pp-bottom-img {
-  padding-top: 3ex;
-}
-.pp-contest-sidebar img,
-.pp-contest-sidebar a {
-  display: block;
-  text-align: center;
-  margin: auto;
-}
-.pp-section-hdr {
-  color: #aa1e28;
-  text-decoration: underline;
-  font-weight: bold;
-}
-
-.pp-jumbo-text {
-  padding-left: 15px;
-  margin-bottom: 15px;
-}
-
-div.pp-jumbo-text h1 {
-  font-size: 42px;
-  font-family: 'Open Sans', sans-serif;
+.pp-nominee-name {
   font-weight: 300;
-  color: #fff;
-  text-shadow: 1px 1px 5px #000;
+  font-size: 21px;
+  vertical-align: middle;
+  display: table-cell;
+  padding-left: 0.5ex;
 }
-.pp-strong {
-  font-weight: bold;
-}
-.pp-logo {
-  /*  margin-left: 15px; */
-  background: url("/static/img/evc15-logo.gif");
-  display: inline-block;
-  width: 398px;
-  height: 296px;
-  border-left: 5px solid #d5d5d5;
-  border-right: 5px solid #d5d5d5;
-  border-bottom: 5px solid #d5d5d5;
-}
-
-@media (max-width: 767px) {
-  body {
-    font-size: 14px;
-  }
-  .pp-logo {
-    background: url("/static/img/evc15-logo-sm.gif");
-    width: 298px;
-    height: 215px;
-  }
-  div.pp-jumbo-text h1 {
-    font-size: 36px;
-  }
-}
-
-.pp-sidebar-module-inset {
-  padding: 0;
-  border: 8px solid white;
-  background-color: white;
-}
-.pp-bottom-border {
-  border-bottom: 1px solid #ddd;
-}
-.pp-bottom-border-sidebar {
-  border-bottom: 1px solid #ddd;
-  margin-left: -15px;
-}
-.pp-sponsor-images {
-  text-align: center;
-}
-.pp17-footer {
-  padding-top: 0.5ex;
-  color: #aa1e28;
-  text-align: center;
-  margin-top: 3ex;
-  width: 100%;
-}
-.pp17-footer p:last-child {
-  margin-bottom: 0;
-}
-.pp17-footer-item {
-  padding: 0 10px;
-}
-.pp17-footer-item a {
-  color: #aa1e28;
-}
-
-.pp-form {
-  background-color: white;
-  margin-left: 0;
-}
-
-.pp-agree-to-terms {
-  font-size: 14px;
-  margin-bottom: 2ex;
-}
-
-.pp-founder-bio {
-  margin-bottom: 1ex;
-}
-
 .pp-nominee-summary-box {
   cursor: pointer;
 }
 .pp-nominee-text {
   white-space: pre-line;
 }
-
-.pp-rank-row {
-  display: table;
+.pp-menu {
+  list-style-type: none;
+  width: none;
+  margin: 2ex auto;
+  width: 100%;
+  padding: 0 2em;
+}
+.pp-menu li {
+  text-align: center;
+}
+.pp-menu-active .btn {
+  color: #aa1e28;
+  background-color: #ffffff;
+}
+.pp-modal-header {
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+.pp-rank {
+  font-size: 16px;
+  line-height: 16px;
+}
+.pp-rank-btn:focus,
+.pp-rank-btn:active:focus, .pp-rank-btn.active:focus,
+.pp-rank-btn.focus,
+.pp-rank-btn.focus:active, .pp-rank-btn.active.focus {
+  outline: none;
 }
 .pp-rank-btn, .nav-pills > li > a.pp-rank-btn {
   min-width: 4em;
@@ -224,34 +224,67 @@ div.pp-jumbo-text h1 {
   display: table-cell;
   background-color: #222;
 }
-.pp-nominee-name {
-  font-weight: 300;
-  font-size: 21px;
-  vertical-align: middle;
-  display: table-cell;
-  padding-left: 0.5ex;
+.pp-rank-row {
+  display: table;
 }
-.pp-rank {
-  font-size: 16px;
-  line-height: 16px;
+.pp-score-cell {
+  text-align: center;
 }
-.pp-rank-btn:focus,
-.pp-rank-btn:active:focus, .pp-rank-btn.active:focus,
-.pp-rank-btn.focus,
-.pp-rank-btn.focus:active, .pp-rank-btn.active.focus {
-  outline: none;
+.pp-social-icon img {
+  margin: 1ex 0.5em;
+  border-radius: 6px;
 }
-
-.pp-has-comment {
-  color: #fcb03c;
+.pp-sponsor-copera {
+  display: block;
+  margin: auto;
+  padding: 2ex 0;
+  text-align: center;
 }
-.pp-comment-icon {
-  max-width:
-  margin-top: -0.5ex;
-  vertical-align: top;
-  display: inline-block;
+.pp-section-hdr {
+  color: #aa1e28;
+  text-decoration: underline;
+  font-weight: bold;
 }
-
 .pp-selected-nominee {
   background-color: #fcf8e3;
+}
+.pp-strong {
+  font-weight: bold;
+}
+img.pp-video-thumbnail {
+    width: 100%;
+    margin-bottom: 0.5ex;
+}
+img.pp-video-play {
+    height: auto;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    overflow: auto;
+    position: absolute;
+    right: 0;
+    top: 0;
+    opacity: 0.8;
+}
+img.pp-video-play:hover {
+    opacity: 1;
+}
+@media (max-width: 767px) {
+  body {
+    font-size: 12px;
+  }
+  .pp-enter-btn .btn,
+  .pp-menu .btn {
+    font-size: 12px;
+  }
+}
+@media (min-width: 1200px) {
+  .pp-enter-btn .btn,
+  .pp-menu .btn {
+    font-size: 16px;
+  }
+  /* Bootstrap overrides. */
+  .container {
+    width: 970px;
+  }
 }
