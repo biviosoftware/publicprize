@@ -25,7 +25,7 @@ from ..auth import model as pam
 from ..general import oauth
 from ..contest import model as pcm
 
-_template = common.Template('evc2015')
+_template = common.Template('evc')
 
 
 class E15Contest(ppc.Task):

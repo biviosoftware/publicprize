@@ -1,6 +1,6 @@
 // Copyright (c) 2015 bivio Software, Inc.  All rights reserved.
 'use strict';
-var app = angular.module('EVC2015App', ['ngRoute', 'ngAnimate']);
+var app = angular.module('PPApp', ['ngRoute', 'ngAnimate']);
 
 app.config(function($routeProvider) {
     function route(page, controller) {

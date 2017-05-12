@@ -11,7 +11,6 @@ import flask
 from . import oauth
 from .. import controller
 from ..auth import model as pam
-from ..evc2015 import model as pe15
 
 class General(controller.Task):
     """Global tasks"""

@@ -18,7 +18,7 @@ import publicprize.auth.model as pam
 import publicprize.biv as biv
 import publicprize.contest.model as pcm
 import publicprize.controller as ppc
-import publicprize.evc2015.model as pe15
+import publicprize.evc.model as pem
 import pytz
 import re
 import subprocess
@@ -86,11 +86,11 @@ def add_event_vote(contest, user, nominee):
         raise Exception('missing nominee')
     if not re.search(r'\@', user):
         raise Exception('user must be an email address')
-    nominee_biv_id = pe15.E15Nominee.query.filter_by(
+    nominee_biv_id = pem.E15Nominee.query.filter_by(
         display_name=nominee
     ).one().biv_id
     db.session.add(
-        pe15.E15EventVoter(
+        pem.E15EventVoter(
             contest_biv_id=contest,
             user_email=user.lower(),
             nominee_biv_id=nominee_biv_id,
@@ -204,7 +204,7 @@ def drop_db(auto_force=False):
 def nominee_comments(nominee):
     """Output comments for nominee"""
     n = biv.load_obj(nominee)
-    assert type(n) == pe15.E15Nominee
+    assert type(n) == pem.E15Nominee
     print('\n\n'.join(n.get_comments_only()))
 
 
@@ -237,16 +237,16 @@ def refresh_founder_avatars():
 def register_event_voters(contest, input_file):
     """Load voter emails/phones from a file; invites NOT sent"""
     c = biv.load_obj(contest)
-    assert type(c) == pe15.E15Contest
+    assert type(c) == pem.E15Contest
     _add_model(c)
     with open(input_file) as f:
         for l in f:
             l = l.rstrip()
-            eop, err = pe15.validate_email_or_phone(l)
+            eop, err = pem.validate_email_or_phone(l)
             if err:
                 print('{}: invalid email or phone'.format(l))
             else:
-                vae, created = pe15.E15VoteAtEvent.create_unless_exists(c, eop)
+                vae, created = pem.E15VoteAtEvent.create_unless_exists(c, eop)
                 if created:
                     _add_model(vae)
                 else:
@@ -355,7 +355,7 @@ def restore_db(dump_file):
 def set_contest_date_time(contest, date_time, field):
     """Set contest.field to date."""
     c = biv.load_obj(contest)
-    assert type(c) == pe15.E15Contest
+    assert type(c) == pem.E15Contest
     dt = _local_date_time_as_utc(c, date_time)
     assert hasattr(c, field), \
         '{}: has no attr {}'.format(c, field)
@@ -367,7 +367,7 @@ def set_contest_date_time(contest, date_time, field):
 def setup_event_voting(contest):
     """Set contest.field to date."""
     c = biv.load_obj(contest)
-    assert type(c) == pe15.E15Contest
+    assert type(c) == pem.E15Contest
     dt = datetime.datetime.utcnow()
     setattr(c, 'event_voting_start', dt)
     _add_model(c)
@@ -383,7 +383,7 @@ def setup_event_voting(contest):
 def toggle_nominee_flag(nominee, field):
     """Set contest.field to date."""
     n = biv.load_obj(nominee)
-    assert type(n) == pe15.E15Nominee
+    assert type(n) == pem.E15Nominee
     assert hasattr(n, field), \
         '{}: has no attr {}'.format(n, field)
     v = getattr(n, field)
@@ -402,7 +402,7 @@ def twitter_votes(contest):
     #TODO(robnagler) Add ability to count tweets for non-matching
     # that is assign the tweet to a contestant manually
     c = biv.load_obj(contest)
-    assert type(c) == pe15.E15Contest
+    assert type(c) == pem.E15Contest
     cfg = ppc.app().config['PUBLICPRIZE']['TWITTER']
     ignore_list = ppc.app().config['PUBLICPRIZE']['TWEETS']['ignore_list']
     client = application_only_auth.Client(**cfg)
@@ -487,7 +487,7 @@ def twitter_votes(contest):
 def twitter_handle_update(contest, old, new):
     """update or invalidat"""
     c = biv.load_obj(contest)
-    assert type(c) == pe15.E15Contest
+    assert type(c) == pem.E15Contest
     all_nominees = [n.biv_id for n in c.public_nominees()]
     all_votes = pcm.Vote.query.filter(
         pcm.Vote.nominee_biv_id.in_(all_nominees),
@@ -506,7 +506,7 @@ def twitter_handle_update(contest, old, new):
 def upgrade_db():
     """Backs up the db and runs an upgrade"""
     backup_db()
-    pe15.E15VoteAtEvent.__table__.create(bind=db.get_engine(ppc.app()))
+    pem.E15VoteAtEvent.__table__.create(bind=db.get_engine(ppc.app()))
     pcm.Registrar.__table__.create(bind=db.get_engine(ppc.app()))
     db.session.commit()
 
@@ -546,18 +546,6 @@ def _add_role(contest, user, role_class):
     _add_owner(contest.biv_id, role_id)
 
 
-def _create_contest(contest):
-    """Creates a SQLAlchemy model Contest with optional logo file"""
-    model = pem.Contest(
-        display_name=contest['display_name'],
-        tag_line=contest['tag_line'],
-        end_date=datetime.datetime.strptime(
-            contest['end_date'], '%m/%d/%Y').date(),
-        is_scoring_completed=False
-    )
-    return model
-
-
 def _create_database(is_production=False, is_prompt_forced=False):
     """Recreate the database and import data from json data file."""
     drop_db(auto_force=is_prompt_forced)
@@ -565,7 +553,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
     data = json.load(open('data/test_data.json', 'r'))
 
     for contest in data['E15Contest']:
-        contest_id = _add_model(pe15.E15Contest(**(_e15contest_kwargs(contest))))
+        contest_id = _add_model(pem.E15Contest(**(_e15contest_kwargs(contest))))
         _add_model(pam.BivAlias(
             biv_id=contest_id,
             alias_name=contest['Alias']['name']
@@ -586,7 +574,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
                 'is_finalist': False,
                 'is_winner': False,
             })
-            nominee_id = _add_model(pe15.E15Nominee(**nominee))
+            nominee_id = _add_model(pem.E15Nominee(**nominee))
             _add_owner(
                 contest_id,
                 nominee_id,
@@ -608,7 +596,6 @@ def _create_database(is_production=False, is_prompt_forced=False):
     db.session.commit()
 
 
-# TODO(pjm): normalize up binary fields, combine with _create_contest()
 def _create_founder(founder):
     """Creates a SQLAlchemy model Founder with optional avatar file"""
     model = pcm.Founder(
