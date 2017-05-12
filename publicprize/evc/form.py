@@ -116,7 +116,6 @@ class Nominate(flask_wtf.Form):
                 'type': field.type,
                 'value': _empty_to_none(value(field.name)),
             })
-        pp_t('res={}', [res])
         return res
 
 

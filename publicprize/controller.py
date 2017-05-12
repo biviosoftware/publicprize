@@ -126,7 +126,12 @@ def _dispatch_action(name, biv_obj):
     there is no uri."""
     if len(name) == 0:
         name = _DEFAULT_ACTION_NAME
-    return _action_uri_to_function(name, biv_obj)(biv_obj)
+    try:
+        return _action_uri_to_function(name, biv_obj)(biv_obj)
+    except Exception as e:
+        import traceback
+        pp_t('{}', [traceback.format_exc()])
+        raise
 
 
 def _parse_path(path):

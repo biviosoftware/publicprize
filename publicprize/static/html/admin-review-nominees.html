@@ -9,7 +9,7 @@
             <div class="pull-right">
               <div class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href>{{ nominee.is_public ? '' : 'Not'}} Public <span class="caret"></span></a>
-                <ul class="dropdown-menu">
+                <ul data-ng-show="nominee.is_valid"_code class="dropdown-menu">
                   <li data-ng-class="{active: nominee.is_public}"><a href data-ng-click="adminReview.setPublic(nominee, true)">Public</a></li>
                   <li data-ng-class="{active: ! nominee.is_public}"><a href data-ng-click="adminReview.setPublic(nominee, false)">Not Public</a></li>
                 </ul>
