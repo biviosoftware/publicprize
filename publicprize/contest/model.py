@@ -15,6 +15,7 @@ import sqlalchemy.orm
 import string
 import werkzeug.exceptions
 
+from ..debug import pp_t
 from .. import biv
 from .. import common
 from ..auth import model as pam
@@ -54,7 +55,6 @@ class ContestBase(common.ModelWithDates):
         if hours > 0:
             return hours
         return 0
-
     def is_admin(self):
         """Shortcut to Admin.is_admin"""
         return pam.Admin.is_admin()
@@ -197,12 +197,29 @@ class NomineeBase(common.ModelWithDates):
         ).all()]
         if not founders:
             return
+        pp_t('founders={}', [founders])
+        # sqlalchemy.exc.InvalidRequestError: Could not evaluate current criteria in Python.
+        # Specify 'fetch' or False for the synchronize_session parameter.
         pam.BivAccess.query.filter(
             pam.BivAccess.target_biv_id.in_(founders),
-        ).delete()
+        ).delete(synchronize_session='fetch')
         Founder.query.filter(
             Founder.biv_id.in_(founders),
-        ).delete()
+        ).delete(synchronize_session='fetch')
+
+    def founders_as_list(self):
+        founders = Founder.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == self.biv_id,
+            pam.BivAccess.target_biv_id == Founder.biv_id
+        ).all()
+        res = []
+        for founder in founders:
+            res.append({
+                'biv_id': founder.biv_id,
+                'display_name': founder.display_name,
+                'founder_desc': founder.founder_desc,
+            })
+        return res
 
     def get_judge_ranks(self):
         ranks = JudgeRank.query.filter_by(

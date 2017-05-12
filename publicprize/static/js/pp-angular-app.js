@@ -576,7 +576,6 @@ app.controller('SubmitNomineeController', function(serverRequest, userState, con
     self.formFields = [];
     self.formErrors = {};
     self.founderCount = 1;
-    loadFormMetadata();
 
     function loadFormMetadata() {
         var hidden = {
@@ -588,13 +587,15 @@ app.controller('SubmitNomineeController', function(serverRequest, userState, con
         serverRequest.sendRequest('/nominee-form-metadata', function(data) {
             self.formFields = data.form_metadata;
             self.formFields.forEach(function(field) {
+                field.visible = !hidden[field.name];
                 self.formData[field.name] = field.value;
-                if (!(field.visible = !hidden[field.name])) {
-                    if (field.value != null) {
-                        field.visible = true
-                    }
-                }
             });
+            if (self.formData['founder2_name'] != null || self.formData['founder2_desc'] != null) {
+                self.addFounder();
+            }
+            if (self.formData['founder3_name'] != null || self.formData['founder3_desc'] != null) {
+                self.addFounder();
+            }
             //TODO(pjm): timeout is a hack
             setTimeout(
                 function() {
@@ -650,6 +651,7 @@ app.controller('SubmitNomineeController', function(serverRequest, userState, con
                     self.formErrors.display_name = 'Log in to nominate a company';
             });
     };
+    loadFormMetadata();
 });
 
 app.controller('RegisterEventVoterController', function(serverRequest, $rootScope) {

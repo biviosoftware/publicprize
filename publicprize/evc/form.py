@@ -11,6 +11,7 @@ import flask_wtf
 import wtforms
 import wtforms.validators as wtfv
 
+from ..debug import pp_t
 from . import model as pem
 from .. import biv
 from .. import common
@@ -23,6 +24,9 @@ HELP_TEXT = {
     'youtube_url': 'A video that tells that story to a general audience (think "Kickstarter")',
 }
 
+
+# See _empty_to_none()
+_EMPTY_FIELD = ' '
 
 class Nominate(flask_wtf.Form):
     """Accept a new nominee."""
@@ -68,6 +72,54 @@ class Nominate(flask_wtf.Form):
                 res['errors'][field.name] = field.errors[0]
         return res;
 
+    def metadata_and_values(self, contest):
+        fv = None
+        nominee = None
+        if flask.session.get('user.is_logged_in'):
+            nominee, ok = contest.nominee_pending_for_user()
+            if ok:
+                founders = nominee.founders_as_list()
+            else:
+                nominee = None
+
+        def _value(n):
+            if n == 'youtube_url':
+                if not nominee.youtube_code:
+                    return None
+                return 'https://youtu.be/' + nominee.youtube_code
+            if hasattr(nominee, n):
+                return getattr(nominee, n)
+            m = re.search(r'^founder(\d*)_(?:desc|name)$', n)
+            if m:
+                i = int(m.group(1) or 1) - 1
+                if i >= len(founders):
+                    return None
+                n = 'display_name' if 'name' in n else 'founder_desc'
+                return founders[i][n]
+            if n in ('csrf_token'):
+                return None
+            raise AssertionError('{}: unknown field name'.format(n))
+
+        def _empty_to_none(v):
+            # POSIT _EMPTY_FIELD is white space
+            if not v or not v.strip():
+                return None
+            return v
+
+        res = []
+        value = _value if nominee else lambda x: None
+        for field in self:
+            res.append({
+                'helpText': self.help_text(field.name),
+                'label': field.label.text,
+                'name': field.name,
+                'type': field.type,
+                'value': _empty_to_none(value(field.name)),
+            })
+        pp_t('res={}', [res])
+        return res
+
+
     def help_text(self, field):
         return HELP_TEXT.get(field)
 
@@ -83,11 +135,11 @@ class Nominate(flask_wtf.Form):
     #TODO(pjm): copied from evc
     def _add_founder(self, nominee, name, desc):
         """Creates the founder and links it to the nominee."""
-        if not name.data:
+        if not (name.data or desc.data):
             return
         founder = pcm.Founder(
-            display_name=str(name.data),
-            founder_desc=str(desc.data),
+            display_name=name.data or _EMPTY_FIELD,
+            founder_desc=desc.data or _EMPTY_FIELD,
         )
         ppc.db.session.add(founder)
         ppc.db.session.flush()
@@ -110,9 +162,9 @@ class Nominate(flask_wtf.Form):
         nominee, is_update = contest.nominee_pending_for_user()
         self.populate_obj(nominee)
         if not nominee.display_name:
-            nominee.display_name = 'n/a'
+            nominee.display_name = _EMPTY_FIELD
         if not nominee.url:
-            nominee.url = 'n/a'
+            nominee.url = _EMPTY_FIELD
         nominee.youtube_code = self._youtube_code()
         nominee.is_public = False
         nominee.is_valid = is_valid

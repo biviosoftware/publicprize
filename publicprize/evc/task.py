@@ -73,7 +73,7 @@ class E15Contest(ppc.Task):
             res.append({
                 'biv_id': nominee.biv_id,
                 'display_name': nominee.display_name,
-                'founders': E15Contest._founder_info_for_nominee(nominee),
+                'founders': nominee.founders_as_list(),
                 'is_public': nominee.is_public,
                 'nominee_desc': nominee.nominee_desc,
                 'submitter_display_name': submitter.display_name,
@@ -254,27 +254,9 @@ class E15Contest(ppc.Task):
         return pcm.Registrar.new_test_registrar(biv_obj)
 
     def action_nominee_form_metadata(biv_obj):
-        form = pef.Nominate()
-        res = []
-        fields = {}
-        for field in form:
-            fields[field.name] = {
-                'name': field.name,
-                'type': field.type,
-                'label': field.label.text,
-                'value': None,
-                'helpText': form.help_text(field.name),
-            }
-            res.append(fields[field.name])
-        if flask.session.get('user.is_logged_in'):
-            n, ok = biv_obj.nominee_pending_for_user()
-            pp_t('nominee={} ok={}', [n, ok])
-            if ok:
-                for k, v in fields.items():
-                    if hasattr(n, k):
-                        v['value'] = getattr(n, k)
-        pp_t('res={}', [res])
-        return flask.jsonify(form_metadata=res)
+        return flask.jsonify(
+            form_metadata=pef.Nominate().metadata_and_values(biv_obj),
+        )
 
     def action_nominee_form_submit(biv_obj):
         #TODO(pjm): need decorator for this
@@ -291,7 +273,7 @@ class E15Contest(ppc.Task):
             'url': nominee.url,
             'youtube_code': nominee.youtube_code,
             'nominee_desc': nominee.nominee_desc,
-            'founders': E15Contest._founder_info_for_nominee(nominee),
+            'founders': nominee.founders_as_list(),
         })
 
     @common.decorator_login_required
@@ -438,20 +420,6 @@ class E15Contest(ppc.Task):
 
     def get_template():
         return _template
-
-    def _founder_info_for_nominee(nominee):
-        founders = pcm.Founder.query.select_from(pam.BivAccess).filter(
-            pam.BivAccess.source_biv_id == nominee.biv_id,
-            pam.BivAccess.target_biv_id == pcm.Founder.biv_id
-        ).all()
-        res = []
-        for founder in founders:
-            res.append({
-                'biv_id': founder.biv_id,
-                'display_name': founder.display_name,
-                'founder_desc': founder.founder_desc,
-            })
-        return res
 
     def _lookup_nominee_by_biv_uri(contest, data):
         nominee_biv_id = biv.URI(data['nominee_biv_id']).biv_id
