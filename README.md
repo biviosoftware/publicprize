@@ -47,6 +47,7 @@ Exit your shell and restart.
 cd ~/src/biviosoftware
 gcl publicprize
 cd publicprize
+ln -s config-dev.json config.json
 pyenv install 3.4.1
 pyenv virtualenv 3.4.1 pp
 pyenv activate pp

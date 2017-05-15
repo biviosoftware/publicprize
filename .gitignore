@@ -1,4 +1,5 @@
 *.pg_dump
+config.json
 debug/
 
 .eggs/

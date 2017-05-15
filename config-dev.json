@@ -1,0 +1,55 @@
+{
+    "ADMIN_EMAIL": "vagrant@localhost.localdomain",
+    "ALL_PUBLIC_CONTESTANTS": null,
+    "INDEX_URI": "",
+    "MAIL_DEBUG": null,
+    "MAIL_SUPPRESS_SEND": null,
+    "MAX_INVITES_SENT": 2,
+    "SECRET_KEY": "ppsecret",
+    "SERVER_NAME": "localhost:8000",
+    "SQLALCHEMY_ECHO": null,
+    "SUPPORT_EMAIL": "vagrant@localhost.localdomain",
+    "TEST_MODE": true,
+    "TEST_USER": null,
+    "TRACE": ".",
+    "WTF_CSRF_ENABLED": false,
+    "WTF_CSRF_TIME_LIMIT": null,
+    "DATABASE": {
+        "name": "pp",
+        "user": "ppuser",
+        "password": "pppass",
+        "host": "",
+        "postgres_pass": "postpass"
+    },
+    "FACEBOOK": {
+        "app_id": "n/a",
+        "app_secret": "n/a"
+    },
+    "GOOGLE": {
+        "app_id": "n/a",
+        "app_secret": "n/a"
+    },
+    "LINKEDIN": {
+        "app_id": "n/a",
+        "app_secret": "n/a"
+    },
+    "PAYPAL": {
+        "mode": "sandbox",
+        "client_id": "n/a",
+        "client_secret": "n/a"
+    },
+    "TWEETS": {
+        "ignore_list": ["robnagler"]
+    },
+    "TWILIO": {
+        "auth": {
+            "account": "n/a",
+            "token": "n/a"
+        },
+        "from": "(303) 555.1212"
+    },
+    "TWITTER": {
+        "consumer_key": "n/a",
+        "consumer_secret": "n/a"
+    }
+}
