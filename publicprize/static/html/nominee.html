@@ -1,77 +1,70 @@
 <div data-contest-page="">
-<div class="container">
-  <div class="row">
-    <div class="col-sm-12">
-      <a href="#/home"><div class="pp-logo"></div></a>
-    </div>
-  </div>
-</div>
-<div class="container">
-  <div class="row">
-    <div class="col-sm-8">
-      <div data-section-nav=""></div>
-      <div class="pp-form">
-        <h3><span data-ng-if="nominee.userSelection()" class="glyphicon glyphicon-check"></span> {{ nominee.info.display_name }} <small data-ng-if="nominee.info.url"><a target="_blank" data-ng-href="{{ nominee.formatURL() }}">{{ nominee.info.url }}</a></small></h3>
-        <div style="position: relative; margin: 1ex;">
-          <div class="embed-responsive embed-responsive-16by9">
-            <iframe style="width: 100%;" class="embed-responsive-item" data-ng-if="nominee.info.youtube_code"
-                    data-ng-src="{{ nominee.videoURL() }}" allowfullscreen></iframe>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-8">
+        <div class="pp-form">
+          <h3><span data-ng-if="nominee.userSelection()" class="glyphicon glyphicon-check"></span> {{ nominee.info.display_name }} <small data-ng-if="nominee.info.url"><a target="_blank" data-ng-href="{{ nominee.formatURL() }}">{{ nominee.info.url }}</a></small></h3>
+          <div style="position: relative; margin: 1ex;">
+            <div class="embed-responsive embed-responsive-16by9">
+              <iframe style="width: 100%;" class="embed-responsive-item" data-ng-if="nominee.info.youtube_code"
+                      data-ng-src="{{ nominee.videoURL() }}" allowfullscreen></iframe>
+            </div>
           </div>
-        </div>
-        <a data-ng-if="nominee.canVote()" class="pull-right pp-learn-more btn btn-primary btn-lg" href data-ng-click="nominee.castVote(); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
-        <div class="pp-nominee-text">{{ nominee.info.nominee_desc }}</div>
-        <div>
-          <h4>Founders</h4>
-          <div class="pp-founder-bio" data-ng-repeat="founder in nominee.info.founders">
-            <em>{{ founder.display_name }}:</em> <span class="pp-nominee-text">{{ founder.founder_desc }}</span>
+          <a data-ng-if="nominee.canVote()" class="pull-right pp-learn-more btn btn-primary btn-lg" href data-ng-click="nominee.castVote(); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
+          <div class="pp-nominee-text">{{ nominee.info.nominee_desc }}</div>
+          <div>
+            <h4>Founders</h4>
+            <div class="pp-founder-bio" data-ng-repeat="founder in nominee.info.founders">
+              <em>{{ founder.display_name }}:</em> <span class="pp-nominee-text">{{ founder.founder_desc }}</span>
+            </div>
           </div>
-        </div>
-        <div>
-          <a data-ng-if="nominee.canVote()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nominee.castVote(); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
-          <a data-ng-show="nominee.isJudge()" class="pp-learn-more text-center btn btn-primary btn-lg" href="#/judging">Return to the Judging List</a>
-          <a data-ng-hide="nominee.isJudge()" class="pp-learn-more text-center btn btn-primary btn-lg" href="#/home">Return to the Contestant List</a>
+          <div>
+            <a data-ng-if="nominee.canVote()" class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nominee.castVote(); $event.stopPropagation()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
+            <a data-ng-show="nominee.isJudge()" class="pp-learn-more text-center btn btn-primary btn-lg" href="#/judging">Return to the Judging List</a>
+            <a data-ng-hide="nominee.isJudge()" class="pp-learn-more text-center btn btn-primary btn-lg" href="#/home">Return to the Contestant List</a>
+          </div>
         </div>
       </div>
+      <div data-sponsor-list=""></div>
     </div>
-    <div data-sponsor-list=""></div>
   </div>
-</div>
 
-<div data-login-modal="loginAndVoteModal" data-login-text="Log in and Vote!" data-next-url="nominee.voteUrl"></div>
-<div class="modal fade" id="voteModal" tabindex="-1" role="dialog">',
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header pp-modal-header bg-success">
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-        <h4 class="modal-title">Vote for {{ nominee.info.display_name }}</h4>
-      </div>
-      <div class="modal-body text-center">
-        <div class="lead">{{ nominee.info.display_name }}</div>
-        <p>Once your vote has been placed, you will not be able to change it.</p>
-        <br />
-        <a class="btn btn-primary btn-lg" href data-ng-click="nominee.saveVote()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
-        <button type="button" data-dismiss="modal" class="btn btn-default btn-lg">Cancel</a>
+  <div data-login-modal="loginAndVoteModal" data-login-text="Log in and Vote!" data-next-url="nominee.voteUrl"></div>
+  <div class="modal fade" id="voteModal" tabindex="-1" role="dialog">',
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header pp-modal-header bg-success">
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          <h4 class="modal-title">Vote for {{ nominee.info.display_name }}</h4>
+        </div>
+        <div class="modal-body text-center">
+          <div class="lead">{{ nominee.info.display_name }}</div>
+          <p>Once your vote has been placed, you will not be able to change it.</p>
+          <br />
+          <a class="btn btn-primary btn-lg" href data-ng-click="nominee.saveVote()"><span class="glyphicon glyphicon-check"></span> Cast Your Vote!</a>
+          <button type="button" data-dismiss="modal" class="btn btn-default btn-lg">Cancel</a>
+        </div>
       </div>
     </div>
   </div>
-</div>
-<div class="modal fade" id="tweetModal" tabindex="-1" role="dialog">',
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header pp-modal-header bg-success">
-        <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
-        <h4 class="modal-title">Thanks for voting!</h4>
-      </div>
-      <div class="modal-body text-center">
-        <p><strong>{{ nominee.info.display_name }}</strong> thanks you for your vote.</p>
-        <p class="text-left">Now share your vote on twitter and your vote will count twice! Let us know your twitter handle so we can credit your tweet.</p>
-        <form>
-          <div class="form-group">
-            <input type="text" class="form-control" data-ng-model="nominee.twitterHandle" placeholder="Your @TwitterHandle">
-          </div>
-        </form>
-        <a id="pp-tweet-link" data-ng-disabled="! nominee.twitterHandle" class="btn btn-primary btn-lg" target="_blank" href="https://twitter.com/intent/tweet?text={{ nominee.tweetText() | urlEncode }}" data-ng-click="nominee.tweetVote()">Share on Twitter</a>
-        <button type="button" data-dismiss="modal" class="btn btn-default btn-lg">Cancel</a>
+  <div class="modal fade" id="tweetModal" tabindex="-1" role="dialog">',
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header pp-modal-header bg-success">
+          <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+          <h4 class="modal-title">Thanks for voting!</h4>
+        </div>
+        <div class="modal-body text-center">
+          <p><strong>{{ nominee.info.display_name }}</strong> thanks you for your vote.</p>
+          <p class="text-left">Now share your vote on twitter and your vote will count twice! Let us know your twitter handle so we can credit your tweet.</p>
+          <form>
+            <div class="form-group">
+              <input type="text" class="form-control" data-ng-model="nominee.twitterHandle" placeholder="Your @TwitterHandle">
+            </div>
+          </form>
+          <a id="pp-tweet-link" data-ng-disabled="! nominee.twitterHandle" class="btn btn-primary btn-lg" target="_blank" href="https://twitter.com/intent/tweet?text={{ nominee.tweetText() | urlEncode }}" data-ng-click="nominee.tweetVote()">Share on Twitter</a>
+          <button type="button" data-dismiss="modal" class="btn btn-default btn-lg">Cancel</a>
+        </div>
       </div>
     </div>
   </div>

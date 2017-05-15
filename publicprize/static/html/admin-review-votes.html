@@ -1,36 +1,37 @@
 <div data-contest-page="">
-<div class="container">
-  <div class="row">
-    <div class="col-sm-12">
-      <div class="pp-form">
-        <h1>Votes</h1>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Name</th>
-              <th>Twitter Handle</th>
-              <th>Nominee</th>
-              <th>Vote Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr data-ng-repeat="vote in adminVotes.votes">
-              <td>{{ vote.creation_date_time }}</td>
-              <td>{{ vote.user_display_name }}</td>
-              <td>{{ vote.twitter_handle }}</td>
-              <td>{{ vote.nominee_display_name }}</td>
-              <td>
-                <div class="dropdown pp-amount-cell">
-                  <a class="dropdown-toggle" data-toggle="dropdown" href>{{ vote.vote_status }}<span class="caret"></span></a>
-                  <ul class="dropdown-menu">
-                    <li data-ng-repeat="voteValue in ['1x', '2x', 'invalid']" data-ng-class="{active: vote.vote_status == voteValue}"><a href data-ng-click="adminVotes.updateVoteStatus(vote, voteValue)">{{ voteValue }}</a></li>
-                  </ul>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="pp-form">
+          <h1>Votes</h1>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Name</th>
+                <th>Twitter Handle</th>
+                <th>Nominee</th>
+                <th>Vote Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-ng-repeat="vote in adminVotes.votes">
+                <td>{{ vote.creation_date_time }}</td>
+                <td>{{ vote.user_display_name }}</td>
+                <td>{{ vote.twitter_handle }}</td>
+                <td>{{ vote.nominee_display_name }}</td>
+                <td>
+                  <div class="dropdown pp-amount-cell">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href>{{ vote.vote_status }}<span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                      <li data-ng-repeat="voteValue in ['1x', '2x', 'invalid']" data-ng-class="{active: vote.vote_status == voteValue}"><a href data-ng-click="adminVotes.updateVoteStatus(vote, voteValue)">{{ voteValue }}</a></li>
+                    </ul>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

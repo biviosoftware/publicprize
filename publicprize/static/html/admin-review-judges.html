@@ -1,25 +1,26 @@
 <div data-contest-page="">
-<div class="container">
-  <div class="row">
-    <div class="col-sm-12">
-      <div class="pp-form">
-        <h1>Judges</h1>
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Rank Count</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr data-ng-repeat="judge in adminJudges.judges">
-              <td>{{ judge.display_name }}</td>
-              <td>{{ judge.user_email }}</td>
-              <td class="pp-amount-cell">{{ judge.rank_count }}</td>
-            </tr>
-          </tbody>
-        </table>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="pp-form">
+          <h1>Judges</h1>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Rank Count</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-ng-repeat="judge in adminJudges.judges">
+                <td>{{ judge.display_name }}</td>
+                <td>{{ judge.user_email }}</td>
+                <td class="pp-amount-cell">{{ judge.rank_count }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

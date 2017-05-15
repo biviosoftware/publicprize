@@ -1,23 +1,23 @@
 <div data-contest-page="">
-<div class="container">
-  <div class="row">
-    <div class="col-sm-8">
-      <div data-section-nav=""></div>
-      <div data-ng-repeat="nominee in nomineeList.semiFinalists">
-        <div class="pp-form pp-nominee-summary-box" data-ng-click="nomineeList.selectNominee(nominee)" data-ng-class="{'pp-selected-nominee': nomineeList.userSelection(nominee) }">
-          <div class="pull-right" style="position: relative; margin: 1ex;">
-              <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
-              <img class="pp-video-play" alt="Play" src="/static/img/play.png" data-ng-click="nomineeList.selectNominee(nominee, true)">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-8">
+        <div data-ng-repeat="nominee in nomineeList.semiFinalists">
+          <div class="pp-form pp-nominee-summary-box" data-ng-click="nomineeList.selectNominee(nominee)" data-ng-class="{'pp-selected-nominee': nomineeList.userSelection(nominee) }">
+            <div class="pull-right" style="position: relative; margin: 1ex;">
+                <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
+                <img class="pp-video-play" alt="Play" src="/static/img/play.png" data-ng-click="nomineeList.selectNominee(nominee, true)">
+            </div>
+            <h3>{{ nominee.display_name }}</h3>
+            <div class="pp-nominee-text">{{ nominee.nominee_summary }}</div>
+            <div>
+              <a class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nomineeList.selectNominee(nominee)">Learn More</a>
+            </div>
+            <div class="clearfix"></div>
           </div>
-          <h3>{{ nominee.display_name }}</h3>
-          <div class="pp-nominee-text">{{ nominee.nominee_summary }}</div>
-          <div>
-            <a class="pp-learn-more text-center btn btn-primary btn-lg" href data-ng-click="nomineeList.selectNominee(nominee)">Learn More</a>
-          </div>
-          <div class="clearfix"></div>
         </div>
       </div>
+      <div data-sponsor-list=""></div>
     </div>
-    <div data-sponsor-list=""></div>
   </div>
 </div>

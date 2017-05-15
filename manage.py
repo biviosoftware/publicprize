@@ -506,9 +506,14 @@ def twitter_handle_update(contest, old, new):
 @_MANAGER.command
 def upgrade_db():
     """Backs up the db and runs an upgrade"""
+    import publicprize.db_upgrade
+
     backup_db()
-    pem.E15VoteAtEvent.__table__.create(bind=db.get_engine(ppc.app()))
-    pcm.Registrar.__table__.create(bind=db.get_engine(ppc.app()))
+    publicprize.db_upgrade.add_column(
+        pem.E15Nominee,
+        pem.E15Nominee.is_valid,
+        default_value=True,
+    )
     db.session.commit()
 
 

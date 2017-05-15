@@ -1,14 +1,15 @@
 <div data-contest-page="">
-<div class="container">
-  <div class="row">
-    <div class="col-sm-12" data-ng-cloak="">
-      <div data-ng-if="! comments.hasComments()"><br />There were no judge comments.</div>
-      <h1 data-ng-if="comments.hasComments()">Comments for <span class="text-warning">{{ comments.nominee_display_name }}</span></h1>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12" data-ng-cloak="">
+        <div data-ng-if="! comments.hasComments()"><br />There were no judge comments.</div>
+        <h1 data-ng-if="comments.hasComments()">Comments for <span class="text-warning">{{ comments.nominee_display_name }}</span></h1>
+      </div>
     </div>
-  </div>
-  <div data-ng-if="comments.hasComments()"class="col-sm-8">
-    <div class="panel panel-default" data-ng-repeat="comment in comments.comments">
-      <div class="panel-body" style="white-space: pre-line">{{ comment.judge_comment }}</div>
+    <div data-ng-if="comments.hasComments()"class="col-sm-8">
+      <div class="panel panel-default" data-ng-repeat="comment in comments.comments">
+        <div class="panel-body" style="white-space: pre-line">{{ comment.judge_comment }}</div>
+      </div>
     </div>
   </div>
 </div>

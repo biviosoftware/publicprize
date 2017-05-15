@@ -1,46 +1,47 @@
 <div data-contest-page="">
-<div class="container">
-  <h1>{{ adminEventVotes.contest }}</h1>
-  <div class="row">
-    <div class="col-sm-4">
-      <h3>Event Votes ({{ adminEventVotes.total_votes_used }})</h1>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>Finalist</th>
-            <th>Votes</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr data-ng-repeat="nominee in adminEventVotes.nominees">
-            <td>{{ nominee.display_name }}</td>
-            <td class="pp-score-cell">{{ nominee.count }}</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td class="pp-score-cell"><strong></strong></td>
-          </tr>
-        </tbody>
-      </table>
+  <div class="container">
+    <h1>{{ adminEventVotes.contest }}</h1>
+    <div class="row">
+      <div class="col-sm-4">
+        <h3>Event Votes ({{ adminEventVotes.total_votes_used }})</h1>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Finalist</th>
+              <th>Votes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-ng-repeat="nominee in adminEventVotes.nominees">
+              <td>{{ nominee.display_name }}</td>
+              <td class="pp-score-cell">{{ nominee.count }}</td>
+            </tr>
+            <tr>
+              <td></td>
+              <td class="pp-score-cell"><strong></strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col-sm-8">
-      <h3>Registered Voters ({{ adminEventVotes.total_votes }})</h1>
-      <table class="table table-hover">
-        <thead>
-          <tr>
-            <th>Email/Phone</th>
-            <th>Vote</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr data-ng-repeat="vote in adminEventVotes.votes">
-            <td>{{ vote.invite_email_or_phone }}</td>
-            <td>{{ vote.nominee }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="row">
+      <div class="col-sm-8">
+        <h3>Registered Voters ({{ adminEventVotes.total_votes }})</h1>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Email/Phone</th>
+              <th>Vote</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-ng-repeat="vote in adminEventVotes.votes">
+              <td>{{ vote.invite_email_or_phone }}</td>
+              <td>{{ vote.nominee }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
