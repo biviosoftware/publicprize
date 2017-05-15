@@ -162,6 +162,25 @@ def biv_info(biv_id):
         print('{:>24} = {}'.format(k, getattr(b, k)))
 
 
+@_MANAGER.option('-j', '--json_file', help='contest.json')
+def create_evc_contest(json_file):
+    """Create a contest from json"""
+    data = json.load(open(json_file, 'r'))
+    contest = pem.E15Contest(**(_e15contest_kwargs(data)))
+    contest_id = _add_model(contest)
+    db.session.flush()
+    a = pam.BivAlias.query.filter(
+        pam.BivAlias.alias_name == data['Alias']['name'],
+    ).first()
+    if a:
+        db.session.delete(a)
+        db.session.flush()
+    _add_model(pam.BivAlias(
+        biv_id=contest_id,
+        alias_name=data['Alias']['name'],
+    ))
+
+
 @_MANAGER.command
 def create_db():
     """Create the postgres user, database, and publicprize schema"""
