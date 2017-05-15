@@ -568,7 +568,7 @@ app.controller('NomineeListController', function(serverRequest, userState, conte
     };
 });
 
-app.controller('SubmitNomineeController', function(serverRequest, userState, contestState, $location) {
+app.controller('SubmitNomineeController', function(serverRequest, userState, contestState, $location, $rootScope, $anchorScroll) {
     var MAX_FOUNDERS = 3;
     var self = this;
     self.userState = userState;
@@ -640,6 +640,12 @@ app.controller('SubmitNomineeController', function(serverRequest, userState, con
                 ladda.stop();
                 if (data.errors) {
                     self.formErrors = data.errors;
+                    $rootScope.$broadcast(
+                        'pp.alert',
+                        'Your data contains errors (see below). Any valid data was saved on the server.',
+                        'warning'
+                    );
+                    $anchorScroll();
                     return;
                 }
                 $location.path('/' + data.nominee_biv_id  + '/nominate-thank-you');

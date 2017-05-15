@@ -6,6 +6,7 @@
 """
 
 from publicprize.controller import db
+from publicprize.debug import pp_t
 import datetime
 import flask
 import flask_script as fes
@@ -548,12 +549,15 @@ def _add_role(contest, user, role_class):
 
 def _create_database(is_production=False, is_prompt_forced=False):
     """Recreate the database and import data from json data file."""
+    import publicprize.general.model as pgm
+
     drop_db(auto_force=is_prompt_forced)
     create_db()
     data = json.load(open('data/test_data.json', 'r'))
 
     for contest in data['E15Contest']:
-        contest_id = _add_model(pem.E15Contest(**(_e15contest_kwargs(contest))))
+        contest_m = pem.E15Contest(**(_e15contest_kwargs(contest)))
+        contest_id = _add_model(contest_m)
         _add_model(pam.BivAlias(
             biv_id=contest_id,
             alias_name=contest['Alias']['name']
@@ -563,6 +567,7 @@ def _create_database(is_production=False, is_prompt_forced=False):
                         sponsor['website'], sponsor['logo_filename'])
 
         for nominee in contest['E15Nominee']:
+            user_id = _add_model(pgm.General.new_test_user(contest_m))
             founders = nominee['Founder']
             del nominee['Founder']
             votes = nominee['Vote']
@@ -575,14 +580,19 @@ def _create_database(is_production=False, is_prompt_forced=False):
                 'is_winner': False,
             })
             nominee_id = _add_model(pem.E15Nominee(**nominee))
+            db.session.flush()
             _add_owner(
                 contest_id,
                 nominee_id,
             )
+            db.session.flush()
+            _add_owner(user_id, nominee_id)
+            db.session.flush()
             for founder in founders:
+                f = _add_model(_create_founder(founder))
                 _add_owner(
                     nominee_id,
-                    _add_model(_create_founder(founder)))
+                    f)
             for twitter_handle in votes:
                 user_id = _create_user()
                 _add_model(

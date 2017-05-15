@@ -11,6 +11,7 @@ import flask
 from . import oauth
 from .. import controller
 from ..auth import model as pam
+from . import model as pgm
 
 class General(controller.Task):
     """Global tasks"""
@@ -74,31 +75,11 @@ class General(controller.Task):
 
     def action_new_test_admin(biv_obj):
         """Create a new test user, logs in, sets Admin status."""
-        General.action_new_test_user(biv_obj)
-        admin = pam.Admin()
-        pam.db.session.add(admin)
-        pam.db.session.flush()
-        pam.db.session.add(pam.BivAccess(
-            source_biv_id=flask.session['user.biv_id'],
-            target_biv_id=admin.biv_id
-        ))
-        return flask.redirect('/')
+        return General._user(biv_obj, pgm.General.new_test_admin)
 
     def action_new_test_user(biv_obj):
         """Creates a new test user model and log in."""
-        if not controller.app().config['PUBLICPRIZE']['TEST_USER']:
-            raise Exception("TEST_USER not enabled")
-        name = 'F{} L{}'.format(
-            werkzeug.security.gen_salt(6).lower(),
-            werkzeug.security.gen_salt(8).lower())
-        user = pam.User(
-            display_name=name,
-            user_email='{}@localhost'.format(name.lower().replace(' ', '')),
-            oauth_type='test',
-            oauth_id=werkzeug.security.gen_salt(64)
-        )
-        oauth.add_user_to_session(user)
-        return flask.redirect('/')
+        return General._user(biv_obj, pgm.General.new_test_user)
 
     def action_privacy(biv_obj):
         return flask.redirect('/static/pdf/privacy.pdf')
@@ -113,3 +94,8 @@ class General(controller.Task):
 
     def action_vote(biv_obj):
         return flask.redirect('/esprit-venture-challenge#/vote');
+
+    def _user(contest, op):
+        user = op(contest)
+        oauth.add_user_to_session(user)
+        return flask.redirect('/')

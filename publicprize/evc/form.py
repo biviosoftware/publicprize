@@ -131,7 +131,6 @@ class Nominate(flask_wtf.Form):
         common.log_form_errors(self, True)
         return not self.errors
 
-    #TODO(pjm): copied from evc
     def _add_founder(self, nominee, name, desc):
         """Creates the founder and links it to the nominee."""
         if not (name.data or desc.data):
@@ -149,7 +148,6 @@ class Nominate(flask_wtf.Form):
             )
         )
 
-    #TODO(pjm): copied from evc
     def _add_founders(self, nominee):
         """Add the current user as a founder and any optional founders."""
         nominee.delete_all_founders()

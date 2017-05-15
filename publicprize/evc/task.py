@@ -70,11 +70,13 @@ class E15Contest(ppc.Task):
         res = []
         for nominee in nominees:
             submitter = E15Contest._nominee_submitter(nominee)
+            pp_t('{}', [nominee])
             res.append({
                 'biv_id': nominee.biv_id,
                 'display_name': nominee.display_name,
                 'founders': nominee.founders_as_list(),
                 'is_public': nominee.is_public,
+                'is_valid': nominee.is_valid,
                 'nominee_desc': nominee.nominee_desc,
                 'submitter_display_name': submitter.display_name,
                 'submitter_email': submitter.user_email,
