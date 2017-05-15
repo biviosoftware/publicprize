@@ -1,5 +1,6 @@
 *.pg_dump
-config.json
+config*.json
+!config-dev.json
 debug/
 
 .eggs/
