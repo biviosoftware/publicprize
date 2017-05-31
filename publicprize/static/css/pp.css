@@ -87,6 +87,13 @@ div.pp-contest {
   text-align: center;
   margin: auto;
 }
+.pp-img-winner {
+  display: block;
+  text-align: center;
+  margin: auto;
+  padding: 3ex 0;
+  max-width: 100%;
+}
 .pp-contest-sidebar-img-top {
   border: 2px solid black;
 }
@@ -163,6 +170,10 @@ div.pp-contest {
   vertical-align: middle;
   display: table-cell;
   padding-left: 0.5ex;
+}
+.pp-nominee-img {
+  position: relative;
+  margin: 1ex;
 }
 .pp-nominee-summary-box {
   cursor: pointer;

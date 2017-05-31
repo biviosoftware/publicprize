@@ -189,7 +189,7 @@ def _route_favicon():
     )
 
 
-@_app.route("/")
+@_app.route('/')
 def _route_root():
     """Routes to index."""
     return _route('')

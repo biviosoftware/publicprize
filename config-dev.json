@@ -1,7 +1,7 @@
 {
     "ADMIN_EMAIL": "vagrant@localhost.localdomain",
     "ALL_PUBLIC_CONTESTANTS": null,
-    "INDEX_URI": "",
+    "INDEX_URI": "/esprit-venture-challenge",
     "MAIL_DEBUG": null,
     "MAIL_SUPPRESS_SEND": null,
     "MAX_INVITES_SENT": 2,

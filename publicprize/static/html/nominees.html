@@ -2,7 +2,7 @@
   <p data-ng-if="nomineeList.contestState.isNominating()"><a href="#/enter-the-challenge">Learn how to enter the Esprit Venture Challenge.</a></p>
   <div data-ng-repeat="nominee in nomineeList.nominees">
     <div class="pp-form pp-nominee-summary-box" data-ng-click="nomineeList.selectNominee(nominee)" data-ng-class="{'pp-selected-nominee': nomineeList.userSelection(nominee) }">
-      <div class="pull-right" style="position: relative; margin: 1ex;">
+      <div class="pull-right pp-nominee-img">
           <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
           <img class="pp-video-play" alt="Play" src="/static/img/play.png" data-ng-click="nomineeList.selectNominee(nominee, true)">
       </div>

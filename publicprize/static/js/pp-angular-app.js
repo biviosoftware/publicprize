@@ -58,6 +58,10 @@ app.config(function($routeProvider) {
             route(
                 'finalists',
                 'NomineeListController as nomineeList'))
+        .when('/past-winners',
+            route(
+                'past-winners',
+                'HomeController as pastWinners'))
         .when(
             '/winner',
             route(
@@ -1217,7 +1221,7 @@ app.directive('sectionNav', function($location) {
               '<li data-ng-if="contestInfo().showSemiFinalists" data-ng-class="{\'pp-menu-active\': isSelected(\'semi-finalists\') }"><a class="btn btn-default" href="#/semi-finalists">Semi-Finalists <span class="badge">{{ contestInfo().semiFinalistCount }}</span></a></li>',
               '<li data-ng-if="contestInfo().showAllContestants" data-ng-class="{\'pp-menu-active\': isSelected(\'contestants\') }"><a class="btn btn-default" href="#/contestants">Contestants <span class="badge">{{ contestInfo().contestantCount }}</span></a></li>',
               '<li><a class="btn btn-default" href="/esprit-venture-challenge/rules" target="_blank">Official Rules</a></li>',
-              '<li><a class="btn btn-default" href="#">Past Winners</a></li>',
+              '<li data-ng-class="{\'pp-menu-active\': isSelected(\'past-winners\') }"><a class="btn btn-default" href="#/past-winners">Past Winners</a></li>',
               '<li><a class="btn btn-default" href="http://boulderchamber.com" target="_blank">Boulder Chamber</a></li>',
               '<li><a class="btn btn-default" href="http://cm.boulderchamber.com/events/register/8596" target="_blank">Esprit Event Registration</a></li>',
             '</ul>',
