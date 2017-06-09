@@ -533,6 +533,17 @@ def upgrade_db():
         pem.E15Nominee.is_valid,
         default_value=True,
     )
+    publicprize.db_upgrade.add_column(
+        pem.E15Nominee,
+        pem.E15Nominee.contact_phone,
+        default_value='',
+    )
+    publicprize.db_upgrade.add_column(
+        pem.E15Nominee,
+        pem.E15Nominee.contact_address,
+        default_value='',
+    )
+    create_evc_contest('data/evc2017.json')
     db.session.commit()
 
 

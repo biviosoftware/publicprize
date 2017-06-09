@@ -275,6 +275,8 @@ class E15Nominee(db.Model, pcm.NomineeBase):
     )
     is_valid = db.Column(db.Boolean, nullable=False)
     youtube_code = db.Column(db.String(500))
+    contact_phone = db.Column(db.String(20))
+    contact_address = db.Column(db.String(100))
     nominee_desc = db.Column(db.String)
     is_semi_finalist = db.Column(db.Boolean, nullable=False)
     is_finalist = db.Column(db.Boolean, nullable=False)

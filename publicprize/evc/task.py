@@ -78,6 +78,8 @@ class E15Contest(ppc.Task):
                 'is_public': nominee.is_public,
                 'is_valid': nominee.is_valid,
                 'nominee_desc': nominee.nominee_desc,
+                'contact_phone': nominee.contact_phone,
+                'contact_address': nominee.contact_address,
                 'submitter_display_name': submitter.display_name,
                 'submitter_email': submitter.user_email,
                 'url': nominee.url,

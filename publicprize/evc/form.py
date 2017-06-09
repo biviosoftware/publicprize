@@ -37,6 +37,12 @@ class Nominate(flask_wtf.Form):
     url = wtforms.StringField(
         'Company Website',
         validators=[wtfv.DataRequired(), wtfv.Length(max=100)])
+    contact_phone = wtforms.StringField(
+        'Contact phone',
+        validators=[wtfv.DataRequired(), wtfv.Length(max=20)])
+    contact_address = wtforms.StringField(
+        'Contact address',
+        validators=[wtfv.DataRequired(), wtfv.Length(max=100)])
     youtube_url = wtforms.StringField(
         'YouTube Video URL',
         validators=[wtfv.DataRequired(), wtfv.Length(max=500)])
