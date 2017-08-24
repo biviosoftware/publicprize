@@ -17,21 +17,19 @@
               </div>
               <h3>{{ nominee.display_name }} <small><a data-ng-href="{{ nominee.url }}">{{ nominee.url }}</a></small></h3>
               <div><small>Submitted by <a data-ng-href="mailto:{{nominee.submitter_email}}">{{ nominee.submitter_display_name }}</a></small></div>
-              <div data-ng-show="nominee.is_public">
-                <div class="pull-right" style="position: relative; margin: 1ex;">
-                  <a href data-ng-click="adminReview.selectNominee(nominee)">
-                    <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
-                    <img class="pp-video-play" alt="Play" src="/static/img/play.png">
-                  </a>
-                </div>
-                {{ nominee.nominee_desc }}
-                <div>{{ nominee.contact_phone }}</div>
-                <div>{{ nominee.contact_address }}</div>
-                <div>
-                  <h4>Founders</h4>
-                  <div class="pp-founder-bio" data-ng-repeat="founder in nominee.founders">
-                    <em>{{ founder.display_name }}:</em> {{ founder.founder_desc }}
-                  </div>
+              <div class="pull-right" style="position: relative; margin: 1ex;">
+                <a href data-ng-click="adminReview.selectNominee(nominee)">
+                  <img class="pp-video-thumbnail" alt="{{ nominee.display_name }}" data-ng-src="https://img.youtube.com/vi/{{ nominee.youtube_code }}/mqdefault.jpg">
+                  <img class="pp-video-play" alt="Play" src="/static/img/play.png">
+                </a>
+              </div>
+              {{ nominee.nominee_desc }}
+              <div>{{ nominee.contact_phone }}</div>
+              <div>{{ nominee.contact_address }}</div>
+              <div>
+                <h4>Founders</h4>
+                <div class="pp-founder-bio" data-ng-repeat="founder in nominee.founders">
+                  <em>{{ founder.display_name }}:</em> {{ founder.founder_desc }}
                 </div>
               </div>
             </div>
