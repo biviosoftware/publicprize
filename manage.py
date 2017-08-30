@@ -220,6 +220,35 @@ def drop_db(auto_force=False):
             env=e)
 
 
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+def list_nominees(contest):
+    """Set contest.field to date."""
+    c = biv.load_obj(contest)
+    assert type(c) == pem.E15Contest
+    import csv
+    f = open('nominees.csv', 'w', newline='')
+    w = csv.writer(f)
+    w.writerow(['Contestant', 'Link', 'Submitter', 'Email', 'Phone', 'Address', 'Public?', 'Valid?', 'Id'])
+    for n in pem.E15Nominee.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == c.biv_id,
+            pam.BivAccess.target_biv_id == pem.E15Nominee.biv_id,
+        ).all():
+        submitter = n.submitter()
+        w.writerow([
+            n.display_name,
+            n.url,
+            submitter.display_name,
+            submitter.user_email,
+            n.contact_phone,
+            n.contact_address,
+            'Y' if n.is_public else 'N',
+            'Y' if n.is_valid else 'N',
+            biv.Id(n.biv_id).to_biv_uri(),
+        ])
+    f.close()
+    print('wrote nominees.csv')
+
+
 @_MANAGER.option('-n', '--nominee', help='Nominee biv_id')
 def nominee_comments(nominee):
     """Output comments for nominee"""
@@ -528,22 +557,15 @@ def upgrade_db():
     import publicprize.db_upgrade
 
     backup_db()
-    publicprize.db_upgrade.add_column(
-        pem.E15Nominee,
-        pem.E15Nominee.is_valid,
-        default_value=True,
-    )
-    publicprize.db_upgrade.add_column(
-        pem.E15Nominee,
-        pem.E15Nominee.contact_phone,
-        default_value='',
-    )
-    publicprize.db_upgrade.add_column(
-        pem.E15Nominee,
-        pem.E15Nominee.contact_address,
-        default_value='',
-    )
-    create_evc_contest('data/evc2017.json')
+    for field, date in (
+        ("submission_start", "6/16/2017 12:0:0"),
+        ("submission_end", "9/7/2017 12:0:0"),
+        ("public_voting_start", "9/8/2017 12:0:0"),
+        ("public_voting_end", "9/15/2017 12:0:0"),
+        ("judging_start", "9/27/2017 12:0:0"),
+        ("judging_end", "9/27/2017 19:0:0"),
+    ):
+        set_contest_date_time('esprit-venture-challenge', date, field)
     db.session.commit()
 
 

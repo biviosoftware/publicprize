@@ -1,3 +1,4 @@
+*.csv
 *.pg_dump
 config*.json
 !config-dev.json

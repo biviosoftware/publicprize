@@ -69,7 +69,7 @@ class E15Contest(ppc.Task):
         nominees = sorted(nominees, key=lambda nominee: nominee.display_name)
         res = []
         for nominee in nominees:
-            submitter = E15Contest._nominee_submitter(nominee)
+            submitter = nominee.submitter()
             pp_t('{}', [nominee])
             res.append({
                 'biv_id': nominee.biv_id,
@@ -397,7 +397,7 @@ class E15Contest(ppc.Task):
         })
 
     def action_rules(biv_obj):
-        return flask.redirect('/static/pdf/20170615-evc-rules.pdf')
+        return flask.redirect('/static/pdf/20170830-evc-rules.pdf')
 
     def action_sponsors(biv_obj):
         return flask.jsonify(sponsors=biv_obj.get_sponsors())
@@ -434,12 +434,6 @@ class E15Contest(ppc.Task):
         ).first_or_404()
         return pem.E15Nominee.query.filter_by(
             biv_id=nominee_biv_id,
-        ).first_or_404()
-
-    def _nominee_submitter(nominee):
-        return  pam.User.query.select_from(pam.BivAccess).filter(
-            pam.BivAccess.source_biv_id == pam.User.biv_id,
-            pam.BivAccess.target_biv_id == nominee.biv_id,
         ).first_or_404()
 
     def _judge_ranks_and_comments_for_nominees(user_id, nominees):
