@@ -652,6 +652,7 @@ app.controller('SubmitNomineeController', function(serverRequest, userState, con
                     $anchorScroll();
                     return;
                 }
+                $rootScope.$broadcast('pp.alert', '');
                 $location.path('/' + data.nominee_biv_id  + '/nominate-thank-you');
             },
             self.formData)

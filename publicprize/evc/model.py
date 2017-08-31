@@ -143,8 +143,8 @@ class E15Contest(db.Model, pcm.ContestBase):
             pam.BivAccess.target_biv_id == access_alias.target_biv_id,
             access_alias.source_biv_id == flask.session['user.biv_id'],
         ).all():
-            # Only should be one application at a time
-            if not n.is_valid:
+            # Only should be one public application at a time
+            if not (n.is_valid and n.is_public):
                 return n, True
         return E15Nominee(), False
 
