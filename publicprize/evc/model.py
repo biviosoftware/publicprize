@@ -282,6 +282,12 @@ class E15Nominee(db.Model, pcm.NomineeBase):
     is_finalist = db.Column(db.Boolean, nullable=False)
     is_winner = db.Column(db.Boolean, nullable=False)
 
+    def contest(self):
+        return  E15Contest.query.select_from(pam.BivAccess).filter(
+            pam.BivAccess.source_biv_id == E15Contest.biv_id,
+            pam.BivAccess.target_biv_id == self.biv_id,
+        ).first_or_404()
+
     def submitter(self):
         return  pam.User.query.select_from(pam.BivAccess).filter(
             pam.BivAccess.source_biv_id == pam.User.biv_id,

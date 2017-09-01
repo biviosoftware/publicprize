@@ -477,6 +477,23 @@ class E15Contest(ppc.Task):
         return user_vote
 
 
+class E15Nominee(ppc.Task):
+    def action_index(biv_obj):
+        """Returns angular app home and sets session"""
+        pp_t('obj={}', [biv_obj])
+        c = biv_obj.contest()
+        pp_t('contest={}', [c])
+        return _template.render_template(
+            biv_obj,
+            'javascript-redirect',
+            redirect_uri=c.format_uri(
+                # angular route
+                anchor=biv_obj.format_uri() + '/contestant',
+            ),
+            base_template=None,
+        )
+
+
 class E15VoteAtEvent(ppc.Task):
     def action_index(biv_obj):
         """Returns angular app home and sets session"""
