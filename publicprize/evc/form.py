@@ -163,6 +163,12 @@ class Nominate(flask_wtf.Form):
 
     def _create_or_update_models(self, contest, is_valid):
         nominee, is_update = contest.nominee_pending_for_user()
+        if not is_valid:
+            for f in self.errors:
+                fv = getattr(self, f)
+                for v in fv.validators:
+                    if isinstance(v, wtfv.Length) and len(fv.data) > v.max:
+                        fv.data = fv.data[0:v.max]
         self.populate_obj(nominee)
         if not nominee.display_name:
             nominee.display_name = _EMPTY_FIELD
