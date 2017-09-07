@@ -167,7 +167,7 @@ class Nominate(flask_wtf.Form):
             for f in self.errors:
                 fv = getattr(self, f)
                 for v in fv.validators:
-                    if isinstance(v, wtfv.Length) and len(fv.data) > v.max:
+                    if isinstance(v, wtfv.Length) and not fv.data is None and len(fv.data) > v.max:
                         fv.data = fv.data[0:v.max]
         self.populate_obj(nominee)
         if not nominee.display_name:
