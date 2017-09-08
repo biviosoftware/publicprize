@@ -66,12 +66,19 @@ class Nominate(flask_wtf.Form):
 
     def execute(self, contest):
         """Validates website url and adds it to the database"""
-        nominee = self._create_or_update_models(contest, is_valid=self.validate())
-        res = {
-            'nominee_biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
-        }
-        if nominee.is_valid:
-            return res
+        if contest.is_nominating():
+            nominee = self._create_or_update_models(contest, is_valid=self.validate())
+            if nominee:
+                res = {
+                    'nominee_biv_id': biv.Id(nominee.biv_id).to_biv_uri(),
+                }
+                if nominee.is_valid:
+                    return res
+        else:
+            self.display_name.errors = [
+                'Submissions have ended. You cannot submit or update an entry.',
+            ]
+            common.log_form_errors(self, True)
         res['errors'] = {}
         for field in self:
             if field.errors:

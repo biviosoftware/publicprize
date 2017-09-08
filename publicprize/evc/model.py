@@ -97,7 +97,7 @@ class E15Contest(db.Model, pcm.ContestBase):
             'isEventVoting': self.is_event_voting(),
             'isExpired': self.is_expired(),
             'isJudging': self.is_judging(),
-            'isNominating': ppdatetime.now_in_range(self.submission_start, self.submission_end),
+            'isNominating': self.is_nominating(),
             'isPreNominating': ppdatetime.now_before_start(self.submission_start),
             'isPublicVoting': self.is_public_voting(),
             'semiFinalistCount': semiFinalistCount,
@@ -128,6 +128,9 @@ class E15Contest(db.Model, pcm.ContestBase):
 
     def is_judging(self):
         return ppdatetime.now_in_range(self.judging_start, self.judging_end)
+
+    def is_nominating(self):
+        return ppdatetime.now_in_range(self.submission_start, self.submission_end);
 
     def is_public_voting(self):
         return ppdatetime.now_in_range(self.public_voting_start, self.public_voting_end)
