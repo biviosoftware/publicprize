@@ -432,9 +432,11 @@ class E15Contest(ppc.Task):
             source_biv_id=contest.biv_id,
             target_biv_id=nominee_biv_id,
         ).first_or_404()
-        return pem.E15Nominee.query.filter_by(
+        res = pem.E15Nominee.query.filter_by(
             biv_id=nominee_biv_id,
         ).first_or_404()
+        res.assert_is_public_or_404()
+        return res
 
     def _judge_ranks_and_comments_for_nominees(user_id, nominees):
         nominee_ids = []

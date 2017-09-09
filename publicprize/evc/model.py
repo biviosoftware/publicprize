@@ -10,6 +10,7 @@ import random
 import re
 import sqlalchemy.orm
 import string
+import werkzeug.exceptions
 from ..debug import pp_t
 from .. import biv
 from .. import common
@@ -284,6 +285,10 @@ class E15Nominee(db.Model, pcm.NomineeBase):
     is_semi_finalist = db.Column(db.Boolean, nullable=False)
     is_finalist = db.Column(db.Boolean, nullable=False)
     is_winner = db.Column(db.Boolean, nullable=False)
+
+    def assert_is_public_or_404(self):
+        if not self.is_public:
+            werkzeug.exceptions.abort(404)
 
     def contest(self):
         return  E15Contest.query.select_from(pam.BivAccess).filter(

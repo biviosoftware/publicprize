@@ -54,6 +54,9 @@ app.config(function($routeProvider) {
                 'event-voting',
                 'EventVoteController as eventVote'))
         .when(
+            '/error',
+            route('error'))
+        .when(
             '/finalists',
             route(
                 'finalists',
@@ -130,6 +133,7 @@ app.factory('serverRequest', function($http, $location) {
             callback(data);
         }).error(function(data, status) {
             console.log(url, ' failed: ', status);
+            $location.path('/error');
         });
     };
     return self;
