@@ -157,6 +157,7 @@ def _register_globals():
 def _route(path):
     """Routes the uri to the appropriate biv_obj"""
     biv_obj, action, path_info = _parse_path(path)
+    pp_t('user_id={} is_logged_in={}', [flask.session.get('user.biv_id'), flask.session.get('user.is_logged_in')])
     _register_globals()
     flask.request.pp_request = {
         'biv_obj': biv_obj,
