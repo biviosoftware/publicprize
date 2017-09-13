@@ -233,7 +233,7 @@ app.factory('userState', function(serverRequest, $rootScope, $location) {
     }
 
     self.canVote = function() {
-        return self.state.canVote ? true : false;
+        return self.state.canVote && ! self.hasVoted();
     };
     self.getEventVote = function() {
         return self.state.eventVote;
@@ -405,7 +405,7 @@ app.controller('NomineeController', function(serverRequest, userState, $route, $
     };
 
     self.tweetText = function() {
-        return 'I just voted for ' + self.info.display_name + ' in the #EspritVentureChallenge sponsored by @BoulderChamber';
+        return 'I just voted for ' + self.info.display_name + ' in the #EspritVentureChallenge sponsored by @BoulderChamber! Vote: 2pp.us/' + self.info.biv_id;
     };
 
     self.tweetVote = function() {
@@ -551,7 +551,7 @@ app.controller('NomineeListController', function(serverRequest, userState, conte
     }
 
     self.canVote = function() {
-        return userState.canVote() && ! userState.hasVoted();
+        return userState.canVote();
     };
 
     self.castVote = function(nominee) {
