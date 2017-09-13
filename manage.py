@@ -471,7 +471,7 @@ def twitter_votes(contest):
     all_votes = pcm.Vote.query.filter(
         pcm.Vote.nominee_biv_id.in_(list(nominees.values())),
     ).all()
-    all_votes = dict([(v.biv_id, v) for v in all_votes if v.twitter_handle])
+    votes_map = dict([(v.biv_id, v) for v in all_votes if v.twitter_handle])
     #print(all_votes)
     events = {}
     ignore_handles = set()
@@ -492,11 +492,11 @@ def twitter_votes(contest):
                     twitter_handle=sn,
                 ).all()
                 if len(votes) == 1:
-                    if votes[0].biv_id in all_votes:
+                    if votes[0].biv_id in votes_map:
                         if votes[0].vote_status != '2x':
                             votes[0].vote_status = '2x'
                             _add_model(votes[0])
-                        del all_votes[votes[0].biv_id]
+                        del votes_map[votes[0].biv_id]
                         ignore_handles.add(sn)
                         #print('{}: updated'.format(votes[0]))
                         continue
@@ -516,7 +516,7 @@ def twitter_votes(contest):
                 err, sn, m and m.group(1), sn, s['id'], s['text'])
 
     # print('\nVotes not found')
-    for v in all_votes.values():
+    for v in votes_map.values():
         # Ignore invalidated handles and already counted votes
         if not ('!' in v.twitter_handle or v.vote_status == '2x' or v.twitter_handle in ignore_list):
             u = biv.load_obj(biv.Id(v.user).to_biv_uri())

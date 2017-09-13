@@ -26,7 +26,7 @@ from .debug import pp_t
 def decorator_login_required(func):
     """Method decorator which requires a logged in user."""
     @functools.wraps(func)
-    def decorated_function(*args, **kwargs):
+    def _login_required(*args, **kwargs):
         """If user is not logged in, redirects to the appropriate oauth task"""
         if not flask.session.get('user.is_logged_in'):
             uri = flask.g.pub_obj.get_login_uri()
@@ -36,41 +36,44 @@ def decorator_login_required(func):
                 })
             )
         return func(*args, **kwargs)
-    return decorated_function
+    return _login_required
 
 
 def decorator_user_is_admin(func):
     """Require the current user is an administrator."""
     @functools.wraps(func)
-    def decorated_function(*args, **kwargs):
+    def _user_is_admin(*args, **kwargs):
         """Forbidden unless allowed."""
         import publicprize.auth.model
         if publicprize.auth.model.Admin.is_admin():
             return func(*args, **kwargs)
+        pp_t('{}: not admin', [flask.session['user.biv_id']])
         werkzeug.exceptions.abort(403)
-    return decorated_function
+    return _user_is_admin
 
 
 def decorator_user_is_judge(func):
     """Require the current user is a contest judge."""
     @functools.wraps(func)
-    def decorated_function(*args, **kwargs):
+    def _user_is_judge(*args, **kwargs):
         """Forbidden unless allowed."""
         if args[0].is_judge():
             return func(*args, **kwargs)
+        pp_t('{}: not judge', [flask.session['user.biv_id']])
         werkzeug.exceptions.abort(403)
-    return decorated_function
+    return _user_is_judge
 
 
 def decorator_user_is_registrar(func):
     """Require the current user is a contest registrar."""
     @functools.wraps(func)
-    def decorated_function(*args, **kwargs):
+    def _user_is_registrar(*args, **kwargs):
         """Forbidden unless allowed."""
         if args[0].is_registrar():
             return func(*args, **kwargs)
+        pp_t('{}: not registrar', [flask.session['user.biv_id']])
         werkzeug.exceptions.abort(403)
-    return decorated_function
+    return _user_is_registrar
 
 
 class Model(object):

@@ -118,6 +118,7 @@ def _action_uri_to_function(name, biv_obj):
         werkzeug.exceptions.abort(404)
     func = getattr(biv_obj.task_class, name)
     assert inspect.isfunction(func), name + ': action not a function in ' + biv_obj
+    pp_t('{}.{}.{}', [biv_obj.task_class.__module__, biv_obj.task_class.__name__, name])
     return func
 
 
