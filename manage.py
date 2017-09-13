@@ -462,7 +462,8 @@ def twitter_votes(contest):
     def _strip(name):
         return strip_re.sub('', name.lower())[0:5]
 
-    tweet_re = re.compile(r'I.*voted for (.+) in the')
+    tweet_re = re.compile(r'for (.+) in')
+    tweet_re2 = re.compile(r'2pp.us/(\w+)')
     nominees = {}
     nominees_by_id = {}
     for nominee in c.public_nominees():
@@ -472,6 +473,7 @@ def twitter_votes(contest):
         pcm.Vote.nominee_biv_id.in_(list(nominees.values())),
     ).all()
     votes_map = dict([(v.biv_id, v) for v in all_votes if v.twitter_handle])
+    vote_not_found = {}
     #print(all_votes)
     events = {}
     ignore_handles = set()
@@ -481,40 +483,55 @@ def twitter_votes(contest):
             continue
         dt = s['created_at'][4:].replace('+0000 ', '')
         dt = datetime.datetime.strptime(dt, '%b %d %H:%M:%S %Y')
-        m = tweet_re.search(s['text'])
         err = None
-        #print('https://twitter.com/{}/status/{}'.format(sn, s['id']))
+        m = tweet_re2.search(s['text'])
+        nominee_id = None
         if m:
-            guess = _strip(m.group(1))
-            if guess in nominees:
-                votes = pcm.Vote.query.filter_by(
-                    nominee_biv_id=nominees[guess],
-                    twitter_handle=sn,
-                ).all()
-                if len(votes) == 1:
-                    if votes[0].biv_id in votes_map:
-                        if votes[0].vote_status != '2x':
-                            votes[0].vote_status = '2x'
-                            _add_model(votes[0])
-                        del votes_map[votes[0].biv_id]
-                        ignore_handles.add(sn)
-                        #print('{}: updated'.format(votes[0]))
-                        continue
-                    else:
-                        err = '{}: duplicate vote'.format(votes[0])
-                        continue
-                elif len(votes) > 1:
-                    err = '{}: strange vote count, votes='.format(len(votes), votes)
-                else:
-                    err = 'vote not found'
+            guess = m.group(1)
+            try:
+                nominee_id = nominees_by_id[biv.URI(guess).biv_id]
+            except Exception:
+                m = None
+        #print('https://twitter.com/{}/status/{}'.format(sn, s['id']))
+        if not nominee_id:
+            m2 = tweet_re.search(s['text'])
+            if m2:
+                guess = _strip(m2.group(1))
+                nominee_id = nominees.get(guess)
+                m = m2
             else:
-                err = '{}: guess={} not found in {}'.format(m.group(1), guess, nominees.keys())
+                err = 'tweet did not match regexes'
+        if nominee_id:
+            votes = pcm.Vote.query.filter_by(
+                nominee_biv_id=nominee_id,
+                twitter_handle=sn,
+            ).all()
+            if len(votes) == 1:
+                if votes[0].biv_id in votes_map:
+                    if votes[0].vote_status != '2x':
+                        votes[0].vote_status = '2x'
+                        _add_model(votes[0])
+                    del votes_map[votes[0].biv_id]
+                    ignore_handles.add(sn)
+                    #print('{}: updated'.format(votes[0]))
+                    continue
+                else:
+                    err = '{}: duplicate vote'.format(votes[0])
+                    continue
+            elif len(votes) > 1:
+                err = '{}: strange vote count, votes='.format(len(votes), votes)
+            else:
+                err = 'vote not found'
+                vote_not_found[dt.replace(microsecond=0)] = dict(nominee_id=nominee_id, sn=sn)
+        elif m:
+            err = '{}: guess={} not found in nominees'.format(m.group(1), guess)
         else:
-            err = 'tweet did not match {}'.format(s['text'], tweet_re)
+            err = '{}: does not match regexes'.format(s['text'])
         if not sn in ignore_handles:
             events[dt] = '{}\n    {} => {}\n    https://twitter.com/{}/status/{}\n    {}'.format(
                 err, sn, m and m.group(1), sn, s['id'], s['text'])
 
+    sec = datetime.timedelta(seconds=1)
     # print('\nVotes not found')
     for v in votes_map.values():
         # Ignore invalidated handles and already counted votes
@@ -526,8 +543,19 @@ def twitter_votes(contest):
                 u.user_email,
                 nominees_by_id[v.nominee_biv_id],
             )
+            vdt = v.creation_date_time.replace(microsecond=0)
+            vnf = None
+            for i in range(120):
+                vnf = vote_not_found.get(vdt)
+                if vnf and vnf['nominee_id'] == v.nominee_biv_id:
+                    events[v.creation_date_time] += '\npython manage.py twitter_handle_update -c {} -o {} -n {}'.format(
+                        c.biv_id, v.twitter_handle, vnf['sn'])
+                    print(vnf)
+                    break
+                vdt += sec
+            print('{} {}'.format(vdt, v.twitter_handle))
     for k in reversed(sorted(events.keys())):
-        print('{} {}'.format(k.strftime('%d %H:%M'), events[k]))
+        print('{} {}'.format(k.strftime('%d %H:%M:%S'), events[k]))
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
