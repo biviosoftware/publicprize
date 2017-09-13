@@ -407,6 +407,8 @@ class E15Contest(ppc.Task):
         # and will only work for "self"
         logged_in = True if flask.session.get('user.is_logged_in') else False
         vote = E15Contest._user_vote(biv_obj)
+        vote_biv_uri = biv.Id(vote.nominee_biv_id).to_biv_uri() if vote else None
+        pp_t('vote {}', [vote_biv_uri])
         is_event_voter, vae = pem.E15VoteAtEvent.validate_session(biv_obj) \
             if biv_obj.is_event_voting() else (False, None)
         return flask.jsonify({
@@ -419,7 +421,7 @@ class E15Contest(ppc.Task):
             'isLoggedIn': logged_in,
             'isRegistrar': biv_obj.is_registrar(),
             'isSemiFinalistSubmitter': biv_obj.is_semi_finalist_submitter(),
-            'vote': biv.Id(vote.nominee_biv_id).to_biv_uri() if vote else None,
+            'vote': vote_biv_uri,
         })
 
     def get_template():
