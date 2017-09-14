@@ -549,11 +549,9 @@ def twitter_votes(contest):
                 vnf = vote_not_found.get(vdt)
                 if vnf and vnf['nominee_id'] == v.nominee_biv_id:
                     events[v.creation_date_time] += '\npython manage.py twitter_handle_update -c {} -o {} -n {}'.format(
-                        c.to_biv_uri(), v.twitter_handle, vnf['sn'])
-                    print(vnf)
+                        biv.Id(c.biv_id).to_biv_uri(), v.twitter_handle, vnf['sn'])
                     break
                 vdt += sec
-            print('{} {}'.format(vdt, v.twitter_handle))
     for k in reversed(sorted(events.keys())):
         print('{} {}'.format(k.strftime('%d %H:%M:%S'), events[k]))
 

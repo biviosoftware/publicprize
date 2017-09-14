@@ -58,12 +58,13 @@
           <p><strong>{{ nominee.info.display_name }}</strong> thanks you for your vote.</p>
           <p class="text-left">Double your vote: FIRST enter your Twitter handle</p>
           <form>
+            <p class="text-left text-warning" data-show="twitterHandleError">{{ nominee.twitterHandleError }}</p>
             <div class="form-group">
-              <input type="text" class="form-control" data-ng-model="nominee.twitterHandle" placeholder="Enter JUST Your @TwitterHandle">
+              <input type="text" data-twitter-handle class="form-control" data-ng-model="nominee.twitterHandle" placeholder="Enter JUST Your @TwitterHandle">
             </div>
           </form>
           <p class="text-left">THEN enter your tweet on the NEXT PAGE to double your vote.</p>
-          <a id="pp-tweet-link" data-ng-disabled="! nominee.twitterHandle" class="btn btn-primary btn-lg" target="_blank" href="https://twitter.com/intent/tweet?text={{ nominee.tweetText() | urlEncode }}" data-ng-click="nominee.tweetVote()">Go To Twitter</a>
+          <a id="pp-tweet-link" data-ng-disabled="! nominee.twitterHandle || nominee.twitterHandleError" class="btn btn-primary btn-lg" target="_blank" href="https://twitter.com/intent/tweet?text={{ nominee.tweetText() | urlEncode }}" data-ng-click="nominee.tweetVote()">Go To Twitter</a>
           <button type="button" data-dismiss="modal" class="btn btn-default btn-lg">No Twitter Handle</a>
         </div>
       </div>

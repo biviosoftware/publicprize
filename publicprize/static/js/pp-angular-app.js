@@ -329,6 +329,7 @@ app.controller('NomineeController', function(serverRequest, userState, $route, $
     var voting = $route.current.params.vote ? true: false;
     self.info = {};
     self.twitterHandle = '';
+    self.twitterHandleError = '';
     loadNominee();
 
     function loadNominee() {
@@ -418,8 +419,8 @@ app.controller('NomineeController', function(serverRequest, userState, $route, $
             {
                 twitter_handle: self.twitterHandle,
                 nominee_biv_id: nominee_biv_id,
-            })
-
+            },
+        );
     };
 
     self.userSelection = function() {
@@ -1044,6 +1045,27 @@ app.controller('VoteController', function(serverRequest, userState, $location, $
         else {
             self.errorMessage = 'Invalid Email Address';
         }
+    };
+});
+
+app.directive('twitterHandle', function() {
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        link: function(scope, element, attrs, ngModel) {
+            ngModel.$validators.isValid = function(value) {
+                console.log(scope.nominee);
+                scope.nominee.twitterHandleError = '';
+                if (value == null || value.length == 0) {
+                    return true;
+                }
+                if (! value.match(/^[a-zA-Z0-9_]{1,15}$/)) {
+                    scope.nominee.twitterHandleError = 'Invalid Twitter handle';
+                    return false;
+                }
+                return true;
+            };
+        },
     };
 });
 
