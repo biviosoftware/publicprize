@@ -97,7 +97,6 @@ def add_event_vote(contest, user, nominee):
             nominee_biv_id=nominee_biv_id,
         ))
 
-
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
 @_MANAGER.option('-u', '--user', help='User biv_id or email')
 def add_judge(contest, user):
@@ -247,6 +246,27 @@ def list_nominees(contest):
         ])
     f.close()
     print('wrote nominees.csv')
+
+
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+@_MANAGER.option('-f', '--field', help='votes or judge_score')
+def list_scores(contest, field):
+    """list scores as csv """
+    c, scores = _scores(contest, field)
+    import csv
+    f = open('scores.csv', 'w', newline='')
+    w = csv.writer(f)
+    w.writerow(['Contestant', 'Votes', 'Judge Rank', 'URL'])
+    for n in scores:
+        w.writerow([
+            n['display_name'],
+            n['votes'],
+            n['judge_score'],
+            '2pp.us/' + biv.Id(n['biv_id']).to_biv_uri(),
+        ])
+    f.close()
+    print('wrote scores.csv')
+
 
 
 @_MANAGER.option('-n', '--nominee', help='Nominee biv_id')
@@ -413,18 +433,17 @@ def set_contest_date_time(contest, date_time, field):
 
 
 @_MANAGER.option('-c', '--contest', help='Contest biv_id')
-def setup_event_voting(contest):
-    """Set contest.field to date."""
-    c = biv.load_obj(contest)
-    assert type(c) == pem.E15Contest
-    dt = datetime.datetime.utcnow()
-    setattr(c, 'event_voting_start', dt)
-    _add_model(c)
-    nominees = sorted(list(c.public_nominees()), key=lambda x: x.display_name)
-    for n in nominees[0:3]:
-        n.is_finalist = True
-        _add_model(n)
-        print(n.display_name)
+def setup_finalists(contest):
+    """Set as finalist for top scores."""
+    c, scores = _scores(contest, 'judge_score')
+    _setup_xxx_ists(c, scores, 3, 'is_finalist')
+
+
+@_MANAGER.option('-c', '--contest', help='Contest biv_id')
+def setup_semi_finalists(contest):
+    """List semi finalists and potentially update"""
+    c, scores = _scores(contest, 'votes')
+    _setup_xxx_ists(c, scores, 10, 'is_semi_finalist')
 
 
 @_MANAGER.option('-n', '--nominee', help='Nominee biv_id')
@@ -527,7 +546,7 @@ def twitter_votes(contest):
             err = '{}: guess={} not found in nominees'.format(m.group(1), guess)
         else:
             err = '{}: does not match regexes'.format(s['text'])
-        if not sn in ignore_handles:
+        if not s['text'].startswith('RT '):
             events[dt] = '{}\n    {} => {}\n    https://twitter.com/{}/status/{}\n    {}'.format(
                 err, sn, m and m.group(1), sn, s['id'], s['text'])
 
@@ -537,10 +556,11 @@ def twitter_votes(contest):
         # Ignore invalidated handles and already counted votes
         if not ('!' in v.twitter_handle or v.vote_status == '2x' or v.twitter_handle in ignore_list):
             u = biv.load_obj(biv.Id(v.user).to_biv_uri())
-            events[v.creation_date_time] = '{}: {} {} {}'.format(
+            events[v.creation_date_time] = '{} {} {} {} {}: no tweet'.format(
                 v.twitter_handle,
                 u.display_name,
                 u.user_email,
+                v.nominee_biv_id,
                 nominees_by_id[v.nominee_biv_id],
             )
             vdt = v.creation_date_time.replace(microsecond=0)
@@ -807,6 +827,26 @@ def _remove_role(contest, user, role_class):
             pam.BivAccess.target_biv_id == role.biv_id
         ).one()
     )
+
+
+def _scores(contest, sorted_by):
+    c = biv.load_obj(contest)
+    assert type(c) == pem.E15Contest
+    scores = sorted(
+        c.tally_all_scores(),
+        key=lambda x: x[sorted_by],
+        reverse=True,
+    )
+    return c, scores
+
+
+def _setup_xxx_ists(c, scores, num, attr_name):
+    print('setting {} for:'.format(attr_name))
+    for n in scores[0:num]:
+        nm = biv.load_obj(n['biv_id'])
+        print(nm.biv_id, nm.display_name)
+        setattr(nm, attr_name, True)
+        _add_model(nm)
 
 
 def _update_founder_avatar(founder, image):
