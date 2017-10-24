@@ -26,7 +26,7 @@ _SEND_INVITE_SMS_BODY = 'Vote at {contest} here: {uri}'
 
 _SEND_INVITE_MAIL_BODY = '''Dear Esprit Entrepreneur Attendee:
 
-Thank you for attending the Boulder Chamber’s 33rd annual Esprit Entrepreneur
+Thank you for attending the Boulder Chamber's 33rd annual Esprit Entrepreneur
 tonight.  After the competition, please help choose the 2017 Esprit Venture
 Challenge winner. Your personal voting link is:
 
