@@ -20,24 +20,26 @@ from ..auth import model as pam
 from ..controller import db
 from .. import ppdatetime
 
-_SEND_INVITE_MAIL_SUBJECT = '{contest}'
+_SEND_INVITE_MAIL_SUBJECT = '2017 Esprit Venture Challenge Voting Link'
 
 _SEND_INVITE_SMS_BODY = 'Vote at {contest} here: {uri}'
 
-_SEND_INVITE_MAIL_BODY = '''{contest} Voter:
+_SEND_INVITE_MAIL_BODY = '''Dear Esprit Entrepreneur Attendee:
 
-Please help choose the next {contest} winner. Your personal voting link is:
+Thank you for attending the Boulder Chamber’s 33rd annual Esprit Entrepreneur
+tonight.  After the competition, please help choose the 2017 Esprit Venture
+Challenge winner. Your personal voting link is:
 
 {uri}
 
-This link may only be used one time.
+This link may only be used one time and will go live at 7:00pm.
 
-Thank you for encouraging entrepreneurship in Boulder.
+Thank you for celebrating entrepreneurship in Boulder and helping select the winner
+of the $10,000 prize. Any questions can be directed to Corine Waldau
+at corine.waldau@boulderchamber.com.
 
 Cheers,
-Your Public Prize Support Team
-support@publicprize
-303.417.0919
+Boulder Chamber Staff
 '''
 
 
