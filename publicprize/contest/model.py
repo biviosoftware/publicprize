@@ -69,7 +69,8 @@ class ContestBase(common.ModelWithDates):
 
     def is_registrar(self):
         """Returns True if the current user is a registrar for this Contest"""
-        return self._user_is(Registrar)
+        #TODO(pjm): happens every year
+        return self._user_is(Registrar, is_override_expired=True)
 
     def minutes_remaining(self):
         """Minutes remaining for this Contest."""
@@ -87,10 +88,10 @@ class ContestBase(common.ModelWithDates):
                 23, 59, 59))
         return end_of_day - datetime.datetime.now(tz)
 
-    def _user_is(self, clazz):
+    def _user_is(self, clazz, is_override_expired=False):
         if not flask.session.get('user.is_logged_in'):
             return False
-        if self.is_expired():
+        if self.is_expired() and not is_override_expired:
             return False
         access_alias = sqlalchemy.orm.aliased(pam.BivAccess)
         if clazz.query.select_from(pam.BivAccess, access_alias).filter(
